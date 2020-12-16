@@ -1,0 +1,16 @@
+JointData active_joint_position
+JointData active_joint_velocity
+JointData virtual_joint_position
+JointData virtual_joint_velocity
+
+ForceWrench alf_wrench
+ForceWrench blf_wrench
+ForceWrench arf_wrench
+ForceWrench brf_wrench
+
+bool alfoot_contact
+bool blfoot_contact
+bool arfoot_contact
+bool brfoot_contact
+
+Quaternion ground_rot

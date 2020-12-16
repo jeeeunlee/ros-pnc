@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 project (myCdd)
 
+set(CMAKE_BUILD_TYPE "Release")
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/src)
 
 include_directories(

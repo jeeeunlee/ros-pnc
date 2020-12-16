@@ -46,6 +46,7 @@ MagnetoInterface::MagnetoInterface() : EnvInterface() {
     check_foot_planner_updated = 0;
 
     _ParameterSetting(); //text_ = new Test();
+    _SaveScriptMotions();
 
     my_utils::color_print(myColor::BoldCyan, border);
 }
@@ -102,6 +103,7 @@ void MagnetoInterface::_ParameterSetting() {
             my_utils::readParameter<std::string>(cfg, "test_name");
         if (test_name == "static_walking_test") {
             run_mode_ = RUN_MODE::STATICWALK;
+            my_utils::readParameter(cfg, "motion_script", motion_script_);  
         } else if (test_name == "balance_test") {
             run_mode_ = RUN_MODE::BALANCE;
         } else {
@@ -115,6 +117,46 @@ void MagnetoInterface::_ParameterSetting() {
                   << __FILE__ << "]" << std::endl
                   << std::endl;
         exit(0);
+    }
+}
+
+
+void MagnetoInterface::_SaveScriptMotions() {
+
+    std::ostringstream motion_file_name;    
+    motion_file_name << THIS_COM << motion_script_;
+
+    int num_motion;  
+
+    try { 
+        YAML::Node motion_cfg = YAML::LoadFile(motion_file_name.str());
+        my_utils::readParameter(motion_cfg, "num_motion", num_motion);
+        for(int i(0); i<num_motion; ++i){
+            int link_idx;
+            MOTION_DATA md_temp;
+
+            Eigen::VectorXd pos_temp;
+            Eigen::VectorXd ori_temp;
+            bool is_bodyframe;
+
+            std::ostringstream stringStream;
+            stringStream << "motion" << i;
+            std::string conf = stringStream.str();    
+
+            my_utils::readParameter(motion_cfg[conf], "foot", link_idx);
+            my_utils::readParameter(motion_cfg[conf], "duration", md_temp.motion_period);
+            my_utils::readParameter(motion_cfg[conf], "swing_height", md_temp.swing_height);
+            my_utils::readParameter(motion_cfg[conf], "pos",pos_temp);
+            my_utils::readParameter(motion_cfg[conf], "ori", ori_temp);
+            my_utils::readParameter(motion_cfg[conf], "b_relative", is_bodyframe);
+            md_temp.pose = POSE_DATA(pos_temp, ori_temp, is_bodyframe);
+            AddScriptWalkMotion(link_idx,md_temp);
+        }
+
+    } catch (std::runtime_error& e) {
+        std::cout << "Error reading parameter [" << e.what() << "] at file: ["
+                  << __FILE__ << "]" << std::endl
+                  << std::endl;
     }
 }
 

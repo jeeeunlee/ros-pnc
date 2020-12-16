@@ -66,6 +66,7 @@ class MagnetoCommand {
         b_magnetism_map[MagnetoBodyNode::BR_foot_link] = false;
     }
     virtual ~MagnetoCommand() {}
+    
 
     Eigen::VectorXd q;
     Eigen::VectorXd qdot;
@@ -90,6 +91,7 @@ class MagnetoInterface : public EnvInterface {
     bool _CheckCommand(MagnetoCommand* cmd);
     void _SetStopCommand(MagnetoSensorData*, MagnetoCommand* cmd);
     void _SaveDataCmd(MagnetoSensorData*, MagnetoCommand* cmd);
+    void _SaveScriptMotions();
 
     std::string test_name_;
 
@@ -107,6 +109,7 @@ class MagnetoInterface : public EnvInterface {
     int check_com_planner_updated;
     int check_foot_planner_updated;
     int run_mode_;
+    std::string motion_script_;
 
    public:
     MagnetoInterface();
@@ -121,6 +124,7 @@ class MagnetoInterface : public EnvInterface {
                     const double& _motion_period,
                     const double& _swing_height,
                     bool _is_bodyframe );
+    
     void AddScriptWalkMotion(int _link_idx, 
                             const MOTION_DATA& _motion_data);
     

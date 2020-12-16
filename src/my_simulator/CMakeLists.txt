@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(my_simulator)
 
 set(CMAKE_BUILD_TYPE "Release")
+set(ROS_BUILD_TYPE Release)
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
@@ -12,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  my_ros_msgs
 )
 set(CMAKE_MODULE_PATH 
       ${CMAKE_MODULE_PATH} 
@@ -22,7 +24,7 @@ find_package(DART 6.9 REQUIRED COMPONENTS utils-urdf gui-osg CONFIG)
 
 catkin_package(
   LIBRARIES run_magneto magneto_ros
-  CATKIN_DEPENDS my_utils my_pnc
+  CATKIN_DEPENDS my_utils my_pnc my_ros_msgs
 )
 
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
@@ -56,6 +58,7 @@ add_executable(magneto_ros ${ros_dart_sources}
                         ${ros_dart_headers})
 target_link_libraries(magneto_ros ${DART_LIBRARIES}
                               ${catkin_LIBRARIES}
+                              my_ros_msgs
                               my_pnc
                               my_utils)
 

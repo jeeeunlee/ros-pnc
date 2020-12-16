@@ -1,0 +1,4 @@
+JointData joint_position
+JointData joint_velocity
+JointData joint_torque
+MagnetismOnOff[] magnet_onoffs

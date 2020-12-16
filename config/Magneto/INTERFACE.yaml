@@ -1,3 +1,11 @@
 #test_name: balance_test
 test_name: static_walking_test
 #test_name: three_foot_balance_test
+
+#motion_script: Config/CSIRO/MOTIONS/balanceset0.yaml
+#motion_script: Config/CSIRO/MOTIONS/balanceset1.yaml
+#motion_script: Config/CSIRO/MOTIONS/balanceset2.yaml
+#motion_script: Config/CSIRO/MOTIONS/balanceset3.yaml
+#motion_script: Config/CSIRO/MOTIONS/walkset1.yaml
+#motion_script: Config/CSIRO/MOTIONS/walkset2.yaml
+motion_script: config/Magneto/MOTIONS/walkset3.yaml
