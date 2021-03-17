@@ -25,8 +25,8 @@ initial_pose: [ 0.0, 0.0, 0.135, 0.0, 1.0, 0.0 ] # x,y,z, rx,ry,rz
 motion_script: config/Magneto/MOTIONS/walkset3.yaml
 
 control_configuration:
-  kp: 20 #35 #20 #300
-  kd: 3 #3 #3 #15
+  kp: 100 #20 #300
+  kd: 10  #3 #15
   torque_limit: 5 #4.5
 
 magnetic_force: 147. #[N] 

@@ -71,15 +71,19 @@ void WBQPD::_updateOptParam() {
 
 
 void WBQPD::_updateCostParam() {
-    // 0.5 x'*G*x + g0'*x = 0.5*(Ax+a0-dq_des)*Wq*(Ax+a0-ddq_des)
+    // 0.5 x'*G*x + g0'*x = 0.5 * ( (ddq-ddq_des)*Wq*(ddq-ddq_des) + Fc*Wf*Fc )
+    //                  = 0.5*(Ax+a0-dq_des)*Wq*(Ax+a0-ddq_des) + 0.5*(Bx+b0)*Wf*(Bx+b0)
+    //                  = 0.5*x'A'*Wq*Ax + x'A'*Wq*(a0-ddq_des) + 0.5*x'B'*Wf*B*x + x'B'*Wf*b0
 
-    Eigen::MatrixXd Sa_v = Sa_.transpose() * Sa_ + 0.05*Sv_.transpose() * Sv_;
-    Sa_v.block(0,0,6,6) = Eigen::MatrixXd::Identity(6,6);
+    Gmat_ = 10.*Eigen::MatrixXd::Identity(dim_opt_,dim_opt_)
+            + param_->A.transpose() * param_->Wq.asDiagonal() *  param_->A
+            + param_->B.transpose() * param_->Wf.asDiagonal() * param_->B;
+    gvec_ = param_->A.transpose() * param_->Wq.asDiagonal() * (param_->a0  - param_->ddq_des) //
+            +  param_->B.transpose() * param_->Wf.asDiagonal() * param_->b0;
 
-    Gmat_ = param_->A.transpose() * param_->Wq.asDiagonal() * Sa_v * param_->A
-            + param_->B.transpose() * param_->Wf.asDiagonal() * Sa_v * param_->B;
-    gvec_ = param_->A.transpose() * param_->Wq.asDiagonal() * Sa_v * (param_->a0 - param_->ddq_des)
-            +  param_->B.transpose() * param_->Wf.asDiagonal() * Sa_v * param_->b0;
+
+    // Gmat_ = param_->A.transpose() * param_->Wq.asDiagonal() *  param_->A;
+    // gvec_ = param_->A.transpose() * param_->Wq.asDiagonal() * (param_->a0 - param_->ddq_des);
 
     // my_utils::pretty_print(Gmat_,std::cout, "Gmat");
     // my_utils::pretty_print(gvec_,std::cout, "gvec_");

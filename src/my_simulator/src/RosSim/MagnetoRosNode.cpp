@@ -300,7 +300,7 @@ void MagnetoRosNode::PlotResult_() {
 
 
 void MagnetoRosNode::PlotFootStepResult_() {
-    // world_->removeAllSimpleFrames();
+    world_->removeAllSimpleFrames();
     
     Eigen::VectorXd foot_pos;
     ((MagnetoInterface*)interface_)-> GetNextFootStep(foot_pos);

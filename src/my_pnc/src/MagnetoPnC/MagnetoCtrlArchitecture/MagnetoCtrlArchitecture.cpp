@@ -47,13 +47,10 @@ MagnetoControlArchitecture::MagnetoControlArchitecture(RobotSystem* _robot)
   // Initialize states: add all states to the state machine map
   state_machines_[MAGNETO_STATES::BALANCE] =
       new FullSupport(MAGNETO_STATES::BALANCE, this, robot_);
-  state_machines_[MAGNETO_STATES::SWING_START_TRANS] =
-      new Transition(MAGNETO_STATES::SWING_START_TRANS, this, robot_, 0);
-  state_machines_[MAGNETO_STATES::SWING] =
-      new Swing(MAGNETO_STATES::SWING, this, robot_);
-  state_machines_[MAGNETO_STATES::SWING_END_TRANS] =
-      new Transition(MAGNETO_STATES::SWING_END_TRANS, this, robot_, 1);
-  // Set Starting State
+  state_machines_[MAGNETO_STATES::ONE_STEP_WALKING] =
+      new OneStepWalking(MAGNETO_STATES::ONE_STEP_WALKING, this, robot_);
+
+  // Set Initial State
   state_ = MAGNETO_STATES::BALANCE;
   prev_state_ = state_;
   motion_command_ = MotionCommand();
@@ -80,13 +77,9 @@ MagnetoControlArchitecture::~MagnetoControlArchitecture() {
   delete QPweight_reactforce_manager_;
 
   // Delete the state machines
-  // delete state_machines_[MAGNETO_STATES::INITIALIZE];
-  // delete state_machines_[MAGNETO_STATES::STAND];
+  delete state_machines_[MAGNETO_STATES::ONE_STEP_WALKING];
   delete state_machines_[MAGNETO_STATES::BALANCE];
-  delete state_machines_[MAGNETO_STATES::SWING_START_TRANS];
-  delete state_machines_[MAGNETO_STATES::SWING];
-  delete state_machines_[MAGNETO_STATES::SWING_END_TRANS];
-  
+
   delete goal_planner_;
   delete trajectory_planner_;
 }
@@ -94,29 +87,23 @@ MagnetoControlArchitecture::~MagnetoControlArchitecture() {
 void MagnetoControlArchitecture::ControlArchitectureInitialization() {}
 
 void MagnetoControlArchitecture::getCommand(void* _command) {
-  // Initialize State
+
+  // Initialize State / set initial values, do planning, etc
   if (b_state_first_visit_) {
     state_machines_[state_]->firstVisit();
     b_state_first_visit_ = false;
   }
 
-  // static bool b_integrator_init = true;
-  // if ((prev_state_ == MAGNETO_STATES::STAND || state_ == MAGNETO_STATES::BALANCE)
-  // &&
-  // b_integrator_init) {
-  // std::cout << "[Joint Integrator] Start" << std::endl;
-  // main_controller_->initializeJointIntegrator();
-  // b_integrator_init = false;
-  //}
-
   // Update State Machine
-  state_machines_[state_]->oneStep();
-  // Get Wholebody control commands
-  if (state_ == MAGNETO_STATES::INITIALIZE) {
-    getIVDCommand(_command);
-  } else {
+  if( state_ == MAGNETO_STATES::BALANCE ){
+    state_machines_[state_]->oneStep();
     main_controller_->getCommand(_command);
+  } 
+  else if( state_ == MAGNETO_STATES::ONE_STEP_WALKING){
+    state_machines_[state_]->oneStep();
+    ((OneStepWalking*)state_machines_[state_])->getCommand(_command);
   }
+
   // Smoothing trq for initial state
   smoothing_torque(_command);
   // Save Data
@@ -267,12 +254,8 @@ void MagnetoControlArchitecture::_InitializeParameters() {
   main_controller_->ctrlInitialization(cfg_["controller_params"]);
 
   // States Initialization:
-  state_machines_[MAGNETO_STATES::SWING]
+  state_machines_[MAGNETO_STATES::ONE_STEP_WALKING]
                   ->initialization(cfg_["state_swing_params"]);
-  state_machines_[MAGNETO_STATES::SWING_START_TRANS]
-                  ->initialization(cfg_["transition_params"]);
-  state_machines_[MAGNETO_STATES::SWING_END_TRANS]
-                  ->initialization(cfg_["transition_params"]);
 
   // Planner initialization
   reachability_planner_->initialization(cfg_);

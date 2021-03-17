@@ -10,12 +10,15 @@ class ContactSpec;
 class MagnetoControlArchitecture;
 
 struct ReachabilityState{
+
+   ReachabilityState(){};
+
    Eigen::VectorXd q;
    Eigen::VectorXd dq;
    Eigen::VectorXd ddq;
+   Eigen::VectorXd trq;
    bool is_swing;
 };
-
 class MagnetoReachabilityContact {
    public:
       MagnetoReachabilityContact(RobotSystem* robot_planner);
@@ -88,16 +91,20 @@ class MagnetoReachabilityNode {
    public:
       MagnetoReachabilityNode(MagnetoReachabilityContact* contact,
                               const Eigen::VectorXd& q,
-                              const Eigen::VectorXd& dotq);
+                              const Eigen::VectorXd& dotq,
+                              const bool& is_swing);
       ~MagnetoReachabilityNode();
 
       bool computeTorque(const Eigen::VectorXd& ddq_des,
                         Eigen::VectorXd& ddq_plan,
                         Eigen::VectorXd& tau_a);
 
-   private:
+   public:
       Eigen::VectorXd q_;
       Eigen::VectorXd dotq_;
+      bool is_swing_;
+
+   private:     
       MagnetoReachabilityContact* contact_state_;
       std::vector<std::pair<std::shared_ptr<MagnetoReachabilityNode>, double >> next_node_set_;
 };
@@ -108,6 +115,8 @@ class MagnetoReachabilityEdge {
                               MagnetoReachabilityNode* dst_node,
                               const Eigen::VectorXd& trq_atv);
       ~MagnetoReachabilityEdge();
+
+      void getReachabilityState(ReachabilityState &rcstate);
 
    private:
       MagnetoReachabilityNode* src_node_; // source
@@ -126,7 +135,9 @@ class MagnetoReachabilityPlanner {
       void setMovingFoot(int moving_foot);
       void compute(const Eigen::VectorXd& q_goal);
       void addGraph(const std::vector<ReachabilityState> &state_list);
-
+      void getOptimalTraj(std::deque<ReachabilityState> &traj);
+      void initializeVariables();
+  
    private:      
       void _setInitGoal(const Eigen::VectorXd& q_goal,
                         const Eigen::VectorXd& qdot_goal);  
@@ -142,12 +153,15 @@ class MagnetoReachabilityPlanner {
       ContactSpec* arfoot_contact_;
       ContactSpec* brfoot_contact_;
       std::vector<ContactSpec*> full_contact_list_;
-      
+
+      // contact state -> qp solver under contact condition     
       MagnetoReachabilityContact* full_contact_state_;
       MagnetoReachabilityContact* swing_contact_state_;
 
       // nodes and edges
-      // MagnetoReachabilityNode 
+      std::vector<MagnetoReachabilityNode*> node_list_;
+      std::vector<MagnetoReachabilityEdge*> edge_list_;
+      std::vector<MagnetoReachabilityEdge*> edge_path_; // optimal path edge
 
    private:
       // constant
@@ -171,6 +185,5 @@ class MagnetoReachabilityPlanner {
       // contact
       double mu_;
       int moving_foot_idx_;
-
-      
+     
 };

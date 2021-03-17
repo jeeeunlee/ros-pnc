@@ -38,10 +38,7 @@ void WalkingInterruptLogic::processInterrupts() {
           // ctrl_arch_->floating_base_lifting_up_manager_->
           // set stateMachine sequences
           for(auto &it : motion_command_script_list_) {          
-            ctrl_arch_->add_next_state(MAGNETO_STATES::BALANCE, it );
-            ctrl_arch_->add_next_state(MAGNETO_STATES::SWING_START_TRANS, it );
-            ctrl_arch_->add_next_state(MAGNETO_STATES::SWING, it );
-            ctrl_arch_->add_next_state(MAGNETO_STATES::SWING_END_TRANS, it );            
+            ctrl_arch_->add_next_state(MAGNETO_STATES::ONE_STEP_WALKING, it );      
           }
           ctrl_arch_->add_next_state(MAGNETO_STATES::BALANCE, MotionCommand() );
         }

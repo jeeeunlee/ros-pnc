@@ -92,9 +92,7 @@ void MagnetoResidualController::_PreProcessing_Command() {
 void MagnetoResidualController::getCommand(void* _cmd) {
 
   // state_machine_time_ = sp_->curr_time - ctrl_start_time_;
-
-  // _set_magnetic_force(_cmd);    
-
+  // _set_magnetic_force(_cmd);
   // grab & update task_list and contact_list & QP weights
   _PreProcessing_Command();
 
@@ -114,22 +112,12 @@ void MagnetoResidualController::getCommand(void* _cmd) {
     jacc_des_cmd[i] +=
           Kp_[0]*(jpos_des_[i] - sp_->q[i])
           + Kd_[0]*(jvel_des_[i] - sp_->qdot[i]);
-  }
-
-  // my_utils::pretty_print(jpos_des_, std::cout, "jpos_des_");
-  // my_utils::pretty_print(jvel_des_, std::cout, "jvel_des_");
-  // my_utils::pretty_print(jacc_des_, std::cout, "jacc_des_");
-  // my_utils::pretty_print(jacc_des_cmd, std::cout, "jacc_des_cmd");
-  // exit(0);
-  //0112 my_utils::saveVector(jpos_des_,"jpos_des_");
-  //0112 my_utils::saveVector(jvel_des_,"jvel_des_");
-  
+  } 
                                 
   // wbmc
   wbrmc_->updateSetting(A_, Ainv_, coriolis_, grav_);
   wbrmc_->makeTorqueGivenRef(jacc_des_cmd, contact_list_, jtrq_des_, wbrmc_param_);
 
-  // my_utils::pretty_print(jtrq_des_, std::cout, "jtrq_des_");
 
   // // Integrate Joint Velocities and Positions
   // des_jacc_ = qddot_cmd_;
@@ -141,7 +129,6 @@ void MagnetoResidualController::getCommand(void* _cmd) {
   //   des_jpos_ = sp_->q.segment(Magneto::n_vdof, Magneto::n_adof);
   //   des_jvel_ = sp_->qdot.segment(Magneto::n_vdof, Magneto::n_adof);
   // }
-
   
   ((MagnetoCommand*)_cmd)->jtrq = jtrq_des_;
   ((MagnetoCommand*)_cmd)->q = sp_->getActiveJointValue(jpos_des_);
@@ -151,10 +138,6 @@ void MagnetoResidualController::getCommand(void* _cmd) {
 
   // _PostProcessing_Command(); // unset task and contact
 
-  // my_utils::pretty_print(((MagnetoCommand*)_cmd)->jtrq, std::cout, "jtrq");
-  // my_utils::pretty_print(jpos_des_, std::cout, "jpos_des_");
-  // my_utils::pretty_print(((MagnetoCommand*)_cmd)->q, std::cout, "q");
-  // my_utils::pretty_print(((MagnetoCommand*)_cmd)->qdot, std::cout, "qdot");
 }
 
 

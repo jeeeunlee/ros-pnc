@@ -78,7 +78,9 @@ void FootPosTrajectoryManager::setFootPosTrajectory(const double& _start_time,
     // TODOJE : ? getBodyNodeIsometry(MagnetoBodyNode::base_link)
     Eigen::MatrixXd R_wb = robot_->getBodyNodeIsometry(MagnetoBodyNode::base_link).linear(); 
     // Eigen::MatrixXd R_wb = robot_->getBodyNodeIsometry(link_idx_).linear();
-    foot_pos_des_ = foot_pos_ini_ + R_wb*pos_dev_b;     
+    pos_dev_b = R_wb*pos_dev_b;
+    pos_dev_b(1) = 0.0;
+    foot_pos_des_ = foot_pos_ini_ + pos_dev_b;     
   }
   else // absolute coordinate
     foot_pos_des_ = foot_pos_ini_ + pos_dev_b;

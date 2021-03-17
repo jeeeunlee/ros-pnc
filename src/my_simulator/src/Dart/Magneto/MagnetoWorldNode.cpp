@@ -172,14 +172,14 @@ void MagnetoWorldNode::customPreStep() {
 
     EnforceTorqueLimit();
     ApplyMagneticForce();
-    robot_->setForces(trq_cmd_);   
+    robot_->setForces(trq_cmd_);
      
 
     // SAVE DATA
-    //0112 my_utils::saveVector(sensor_data_->alf_wrench, "alf_wrench");
-    //0112 my_utils::saveVector(sensor_data_->blf_wrench, "blf_wrench");
-    //0112 my_utils::saveVector(sensor_data_->arf_wrench, "arf_wrench");
-    //0112 my_utils::saveVector(sensor_data_->brf_wrench, "brf_wrench");
+    // 0112 my_utils::saveVector(sensor_data_->alf_wrench, "alf_wrench");
+    // 0112 my_utils::saveVector(sensor_data_->blf_wrench, "blf_wrench");
+    // 0112 my_utils::saveVector(sensor_data_->arf_wrench, "arf_wrench");
+    // 0112 my_utils::saveVector(sensor_data_->brf_wrench, "brf_wrench");
 
     Eigen::VectorXd trq_act_cmd = Eigen::VectorXd::Zero(Magneto::n_adof);
     for(int i=0; i< Magneto::n_adof; ++i)

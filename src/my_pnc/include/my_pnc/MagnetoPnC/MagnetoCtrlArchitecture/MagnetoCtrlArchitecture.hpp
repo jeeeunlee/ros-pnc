@@ -31,6 +31,8 @@ constexpr int BALANCE = 1; // DEFAULT
 constexpr int SWING_START_TRANS = 2;
 constexpr int SWING = 3;
 constexpr int SWING_END_TRANS = 4;
+
+constexpr int ONE_STEP_WALKING = 5;
 };  // namespace MAGNETO_STATES
 
 class MagnetoControlArchitecture : public ControlArchitecture {

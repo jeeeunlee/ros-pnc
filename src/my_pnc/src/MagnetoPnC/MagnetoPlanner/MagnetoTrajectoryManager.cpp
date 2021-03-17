@@ -105,8 +105,6 @@ void MagnetoTrajectoryManager::update(const double& curr_time,
                                       Eigen::VectorXd& ddotq,
                                       bool& is_swing) {
 
-    std::cout<<" here : curr_time=" << curr_time <<  std::endl;
-    // std::cout<<" t0 = " << t0_ <<" t1 = " << t1_ << ", t2 = " << t2_ << ", t3 = " << t3_ << std::endl;
     // update task
     task_list_.clear();
     if(curr_time < t0_){ // before start
