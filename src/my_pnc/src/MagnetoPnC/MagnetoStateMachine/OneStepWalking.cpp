@@ -42,19 +42,19 @@ void OneStepWalking::firstVisit() {
   // ctrl_arch_->reachability_planner_->addGraph
 
   std::vector<ReachabilityState> state_list;
-  if(ctrl_arch_->trajectory_planner_->ParameterizeTrajectory(mc_curr_, 0.5, 0.01, 0.78, 0.01)){    
+  if(ctrl_arch_->trajectory_planner_->ParameterizeTrajectory(mc_curr_, 0.5, motion_periods_(0), motion_periods_(1), motion_periods_(2))){    
     double t;
     Eigen::VectorXd q, dotq, ddotq;
     bool is_swing;
     ReachabilityState rchstate;
-    for(int i=0; i<801; ++i){
+    for(int i=0; i<1001; ++i){
       t = (double)i * 0.001;
       ctrl_arch_->trajectory_planner_->update(t, q, dotq, ddotq, is_swing);
       // my_utils::pretty_print(q, std::cout, "q");
       // my_utils::pretty_print(dotq, std::cout, "dotq");
-      my_utils::saveVector(q,"KinPlanner_q");
-      my_utils::saveVector(dotq,"KinPlanner_dotq");
-      my_utils::saveVector(ddotq,"KinPlanner_ddotq");
+      // my_utils::saveVector(q,"KinPlanner_q");
+      // my_utils::saveVector(dotq,"KinPlanner_dotq");
+      // my_utils::saveVector(ddotq,"KinPlanner_ddotq");
       rchstate.q = q;
       rchstate.dq = dotq;
       rchstate.ddq = ddotq;
@@ -103,11 +103,28 @@ StateIdentifier OneStepWalking::getNextState() {
   return MAGNETO_STATES::BALANCE;
 }
 
-void OneStepWalking::initialization(const YAML::Node& node) {}
+void OneStepWalking::initialization(const YAML::Node& node) {
+    try {
+    my_utils::readParameter(node, "motion_periods", motion_periods_);
+
+  } catch (std::runtime_error& e) {
+    std::cout << "Error reading parameter [" << e.what() << "] at file: ["
+              << __FILE__ << "]" << std::endl
+              << std::endl;
+    exit(0);
+  }  
+}
 
 void OneStepWalking::getCommand(void* _cmd){
-  ((MagnetoCommand*)_cmd)->jtrq = curr_ref_.trq;
+
+  // my_utils::pretty_print(curr_ref_.trq, std::cout, "trq_cmd");
+  // my_utils::pretty_print(curr_ref_.q, std::cout, "q_cmd");
+  // my_utils::pretty_print(curr_ref_.dq, std::cout, "dq_cmd");
+
+  ((MagnetoCommand*)_cmd)->jtrq = sp_->getActiveJointValue(curr_ref_.trq);
   ((MagnetoCommand*)_cmd)->q = sp_->getActiveJointValue(curr_ref_.q);
   ((MagnetoCommand*)_cmd)->qdot = sp_->getActiveJointValue(curr_ref_.dq); 
+
+
   ((MagnetoCommand*)_cmd)->b_magnetism_map = taf_container_->b_magnetism_map_;
 }

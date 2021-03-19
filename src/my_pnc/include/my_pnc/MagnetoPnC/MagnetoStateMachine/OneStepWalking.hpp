@@ -33,7 +33,7 @@ class OneStepWalking : public StateMachine {
   std::deque<ReachabilityState> walking_traj_ref_;
   ReachabilityState curr_ref_; 
 
-
+  Eigen::VectorXd motion_periods_;
   double ctrl_start_time_;
   double ctrl_end_time_;
   double ctrl_duration_;

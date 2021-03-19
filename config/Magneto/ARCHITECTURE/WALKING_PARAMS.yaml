@@ -1,5 +1,5 @@
 contact_params:
-    friction: 0.5
+    friction: 0.7
 
 magnetism_params:
     magnetic_force: 147 #[N]
@@ -8,7 +8,8 @@ magnetism_params:
 state_walking_params:
     swing_time_percent_early_contact_check: 0.5 # Percent of end_time to check if there are early contacts 
     early_contact_force_threshold: 10 # Exit swing when 10 Newtons have been detected on the foot contact sensor
-    transition_duration: 0.1
+    motion_periods: [0.2, 0.6, 0.2]
+
 
 # state_swing_params:
 #     swing_time_percent_early_contact_check: 0.5 # Percent of end_time to check if there are early contacts 

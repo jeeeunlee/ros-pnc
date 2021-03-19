@@ -255,7 +255,7 @@ void MagnetoControlArchitecture::_InitializeParameters() {
 
   // States Initialization:
   state_machines_[MAGNETO_STATES::ONE_STEP_WALKING]
-                  ->initialization(cfg_["state_swing_params"]);
+                  ->initialization(cfg_["state_walking_params"]);
 
   // Planner initialization
   reachability_planner_->initialization(cfg_);

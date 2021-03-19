@@ -224,9 +224,10 @@ void MagnetoGoalPlanner::_UpdateConfiguration(
 }
 
 void MagnetoGoalPlanner::_InitCostFunction() {
-  // J(q) = (q2+q3+pi/2)^2 + a*(q3+pi/2)^2
+  // J(q) = (q2+q3+pi/2)^2 + a*(q3+pi/2)^2 + b*(base_ori_del, coxa_del)^2 + r*(gimbal)^2
+  // J(q) = (q2+q3+pi/2)^2 + a*(q3+pi/2)^2 + b*(base_ori_del, coxa)^2 + r*(gimbal)^2 
   double alpha = 1.;
-  // FEMUR:2, TIBIA:3
+  // COXA:1, FEMUR:2, TIBIA:3
   num_joint_dof_ = robot_->getNumDofs();
   A_ = Eigen::MatrixXd::Zero(num_joint_dof_,num_joint_dof_);
   b_ = Eigen::VectorXd::Zero(num_joint_dof_);
@@ -246,7 +247,7 @@ void MagnetoGoalPlanner::_InitCostFunction() {
     // active
     if(_checkJoint(ii,MagnetoJointType::COXA)) {
       A_(ii,ii) = beta;
-      b_(ii) =  -2.0*beta*q_(ii);
+      b_(ii) = 0.0; // -2.0*beta*q_(ii);
     }
     else if(_checkJoint(ii, MagnetoJointType::FEMUR)) {
       b_(ii) = M_PI;

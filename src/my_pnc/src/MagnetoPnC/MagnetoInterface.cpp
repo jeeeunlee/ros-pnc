@@ -20,11 +20,11 @@ MagnetoInterface::MagnetoInterface() : EnvInterface() {
 
     robot_ = new RobotSystem(
         6+3*4, THIS_COM "robot_description/Robot/Magneto/MagnetoSim_Dart.urdf");
+    robot_->setActuatedJoint(Magneto::idx_adof);
 
     // robot_->setRobotMass();
     // robot_->printRobotInfo();
-
-    robot_->setActuatedJoint(Magneto::idx_adof);
+    
 
     state_estimator_ = new MagnetoStateEstimator(robot_);
     sp_ = MagnetoStateProvider::getStateProvider(robot_);

@@ -36,7 +36,7 @@ MagnetoTrajectoryManager::MagnetoTrajectoryManager(MagnetoControlArchitecture* _
     };
 
     joint_task_ = 
-      new BasicTask(robot_manager_, BasicTaskType::FULLJOINT, Magneto::n_adof);
+      new BasicTask(robot_manager_, BasicTaskType::FULLJOINT, Magneto::n_dof);
 
     // Set Foot Motion Tasks
     alfoot_pos_task_ =
@@ -73,6 +73,7 @@ bool MagnetoTrajectoryManager::ParameterizeTrajectory(MotionCommand& motion_cmd,
     dotq_init_ = ctrl_arch_->robot_->getQdot(); 
     ctrl_arch_->goal_planner_->computeGoal(motion_cmd);
     ctrl_arch_->goal_planner_->getGoalConfiguration(q_goal_);
+
     dotq_goal_ = Eigen::VectorXd::Zero(n_dim_);
     robot_manager_->updateSystem(q_init_, dotq_init_, false);    
 

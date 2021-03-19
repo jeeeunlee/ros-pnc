@@ -75,7 +75,7 @@ void WBQPD::_updateCostParam() {
     //                  = 0.5*(Ax+a0-dq_des)*Wq*(Ax+a0-ddq_des) + 0.5*(Bx+b0)*Wf*(Bx+b0)
     //                  = 0.5*x'A'*Wq*Ax + x'A'*Wq*(a0-ddq_des) + 0.5*x'B'*Wf*B*x + x'B'*Wf*b0
 
-    Gmat_ = 10.*Eigen::MatrixXd::Identity(dim_opt_,dim_opt_)
+    Gmat_ = Eigen::MatrixXd::Identity(dim_opt_,dim_opt_)
             + param_->A.transpose() * param_->Wq.asDiagonal() *  param_->A
             + param_->B.transpose() * param_->Wf.asDiagonal() * param_->B;
     gvec_ = param_->A.transpose() * param_->Wq.asDiagonal() * (param_->a0  - param_->ddq_des) //
@@ -99,12 +99,13 @@ void WBQPD::_updateInequalityParam() {
     // Cieq*x + dieq >= 0
     Cieq_ = Eigen::MatrixXd::Zero(dim_ieq_cstr_, dim_opt_);
     dieq_ = Eigen::VectorXd::Zero(dim_ieq_cstr_);
-    int row_idx(0);
-    Cieq_.block(row_idx, 0, dim_fric_ieq_cstr_, dim_opt_) = U_*param_->B;
+    
+    Cieq_.block(0, 0, dim_fric_ieq_cstr_, dim_opt_) = U_*param_->B;
     dieq_.head(dim_fric_ieq_cstr_) = U_*param_->b0 - u0_;
 
-    row_idx+=dim_fric_ieq_cstr_;
-    if(b_torque_limit_) {        
+    
+    if(b_torque_limit_) {   
+        int row_idx(dim_fric_ieq_cstr_);
         Cieq_.block(row_idx, 0, dim_trqact_ieq_cstr_, dim_opt_) = Sa_;
         dieq_.segment(row_idx, dim_trqact_ieq_cstr_) = -tau_l_;
         row_idx+=dim_trqact_ieq_cstr_;

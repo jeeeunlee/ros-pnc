@@ -1,4 +1,4 @@
-#include <my_robot_system//RobotSystem.hpp>
+#include <my_robot_system/RobotSystem.hpp>
 #include <chrono>
 
 RobotSystem::RobotSystem(const RobotSystem& robotsys) 
@@ -37,7 +37,7 @@ void RobotSystem::setActuatedJoint(const int *_idx_adof)  {
 
 Eigen::VectorXd RobotSystem::getActiveJointValue(const Eigen::VectorXd& q_full)  {
     Eigen::VectorXd q_a(num_actuated_dof_);
-    for(int i = 1; i < num_actuated_dof_; ++i)        
+    for(int i= 0; i < num_actuated_dof_; ++i)        
         q_a[i] = q_full[idx_adof_[i]]; 
     return  q_a;
 }
