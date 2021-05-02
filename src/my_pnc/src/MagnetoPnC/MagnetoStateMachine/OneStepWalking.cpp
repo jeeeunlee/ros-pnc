@@ -47,7 +47,8 @@ void OneStepWalking::firstVisit() {
     Eigen::VectorXd q, dotq, ddotq;
     bool is_swing;
     ReachabilityState rchstate;
-    for(int i=0; i<1001; ++i){
+    int t_end = (int) ((motion_periods_(0)+ motion_periods_(1)+ motion_periods_(2)) / 0.001) + 1;
+    for(int i=0; i<t_end; ++i){
       t = (double)i * 0.001;
       ctrl_arch_->trajectory_planner_->update(t, q, dotq, ddotq, is_swing);
       // my_utils::pretty_print(q, std::cout, "q");
@@ -94,6 +95,10 @@ bool OneStepWalking::endOfState() {
   // Also check if footstep list is non-zero
   if ( walking_traj_ref_.size() == 0) { // add contact in advance case
     std::cout << "[One Step Walking] End" << std:: endl;
+    my_utils::pretty_print(curr_ref_.q, std::cout, "curr_q_des");
+    Eigen::VectorXd q_curr = robot_->getQ();
+    my_utils::pretty_print(q_curr, std::cout, "curr_q_act");
+    //exit(0);
     return true;
   }
   return false;

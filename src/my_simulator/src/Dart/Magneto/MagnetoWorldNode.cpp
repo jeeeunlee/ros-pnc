@@ -176,34 +176,88 @@ void MagnetoWorldNode::customPreStep() {
      
 
     // SAVE DATA
-    my_utils::saveVector(sensor_data_->alf_wrench, "alf_wrench");
-    my_utils::saveVector(sensor_data_->blf_wrench, "blf_wrench");
-    my_utils::saveVector(sensor_data_->arf_wrench, "arf_wrench");
-    my_utils::saveVector(sensor_data_->brf_wrench, "brf_wrench");
+    my_utils::saveVector(sensor_data_->alf_wrench, "alf_wrench_act");
+    my_utils::saveVector(sensor_data_->blf_wrench, "blf_wrench_act");
+    my_utils::saveVector(sensor_data_->arf_wrench, "arf_wrench_act");
+    my_utils::saveVector(sensor_data_->brf_wrench, "brf_wrench_act");
     // al ar bl br
     Eigen::VectorXd Fr_simulation = Eigen::VectorXd::Zero(24);
     Fr_simulation.segment(0,6) = sensor_data_->alf_wrench;
     Fr_simulation.segment(6,6) = sensor_data_->arf_wrench;
     Fr_simulation.segment(12,6) = sensor_data_->blf_wrench;
     Fr_simulation.segment(18,6) = sensor_data_->brf_wrench;
-    my_utils::saveVector(Fr_simulation, "Fr_simulation");    
+    my_utils::saveVector(Fr_simulation, "Fr_act");    
 
     Eigen::VectorXd trq_act_cmd = Eigen::VectorXd::Zero(Magneto::n_adof);
     for(int i=0; i< Magneto::n_adof; ++i)
         trq_act_cmd[i] = trq_cmd_[Magneto::idx_adof[i]];
     
-    Eigen::VectorXd joint_pos_diff_fb = command_->q - sensor_data_->q;
-    Eigen::VectorXd joint_vel_diff_fb = command_->qdot - sensor_data_->qdot;
-    
-    my_utils::saveVector(trq_act_cmd, "trq_fb");
-    my_utils::saveVector(command_->jtrq, "trq_ff");
-    // my_utils::saveVector(joint_pos_diff_fb, "joint_pos_diff_fb");
-    // my_utils::saveVector(joint_vel_diff_fb, "joint_vel_diff_fb");
+    // only active joint
+    // my_utils::saveVector(trq_act_cmd, "trq_fb");
+    // my_utils::saveVector(command_->jtrq, "trq_ff");  
+    // my_utils::saveVector(command_->q, "q");
+    // my_utils::saveVector(sensor_data_->q, "q_sen");
+    // my_utils::saveVector(sensor_data_->q, "q_sen");
+    // my_utils::saveVector(sensor_data_->qdot, "qdot_sen");
 
-    //0112 my_utils::saveVector(command_->q, "q_cmd");
-    //0112 my_utils::saveVector(sensor_data_->q, "q_sen");
-    my_utils::saveVector(sensor_data_->q, "q_sen");
-    my_utils::saveVector(sensor_data_->qdot, "qdot_sen");
+    // whole joint
+
+    my_utils::saveVector(trq_cmd_, "trq");
+    my_utils::saveVector(q, "q_sen");
+    my_utils::saveVector(qdot, "qdot_sen");
+
+
+
+    // Foot positions
+
+    Eigen::VectorXd pos_al = robot_->getBodyNode("AL_foot_link") // COP frame node?
+                            ->getWorldTransform().translation();
+    Eigen::VectorXd pos_bl = robot_->getBodyNode("BL_foot_link") // COP frame node?
+                            ->getWorldTransform().translation();
+    Eigen::VectorXd pos_ar = robot_->getBodyNode("AR_foot_link") // COP frame node?
+                            ->getWorldTransform().translation();
+    Eigen::VectorXd pos_br = robot_->getBodyNode("BR_foot_link") // COP frame node?
+                            ->getWorldTransform().translation();
+
+    Eigen::VectorXd pose_base = robot_->getBodyNode("base_link") // COP frame node?
+                            ->getWorldTransform().translation();
+
+    // my_utils::saveVector(pos_al, "pos_al");
+    // my_utils::saveVector(pos_bl, "pos_bl");
+    // my_utils::saveVector(pos_ar, "pos_ar");
+    // my_utils::saveVector(pos_br, "pos_br");
+    my_utils::saveVector(pose_base, "pose_base"); 
+
+
+    Eigen::Quaternion<double> rot_al 
+                            = Eigen::Quaternion<double>( 
+                                robot_->getBodyNode("AL_foot_link")
+                                        ->getWorldTransform().linear() );
+    Eigen::Quaternion<double> rot_bl 
+                            = Eigen::Quaternion<double>( 
+                                robot_->getBodyNode("BL_foot_link")
+                                        ->getWorldTransform().linear() );
+    Eigen::Quaternion<double> rot_ar 
+                            = Eigen::Quaternion<double>( 
+                                robot_->getBodyNode("AR_foot_link")
+                                        ->getWorldTransform().linear() );
+    Eigen::Quaternion<double> rot_br 
+                            = Eigen::Quaternion<double>( 
+                                robot_->getBodyNode("BR_foot_link")
+                                        ->getWorldTransform().linear() );
+
+    Eigen::Quaternion<double> rot_base
+                            = Eigen::Quaternion<double>( 
+                                robot_->getBodyNode("base_link")
+                                        ->getWorldTransform().linear() );
+
+
+    // my_utils::saveVector(rot_al, "rot_al");
+    // my_utils::saveVector(rot_bl, "rot_bl");
+    // my_utils::saveVector(rot_ar, "rot_ar");
+    // my_utils::saveVector(rot_br, "rot_br"); 
+    my_utils::saveVector(rot_base, "rot_base"); 
+    
 
 
     count_++;
@@ -247,7 +301,7 @@ void MagnetoWorldNode::ApplyMagneticForce()  {
         robot_->getBodyNode(it.first)->addExtForce(force, location, is_force_local);
         // robot_->getBodyNode(it.first)->addExtForce(force_w, location, is_force_global);
 
-        // my_utils::saveVector(force, "force_" + robot_->getBodyNode(it.first)->getName() );
+        my_utils::saveVector(force, "magnetic_" + robot_->getBodyNode(it.first)->getName() );
         // std::cout<< robot_->getBodyNode(it.first)->getName().c_str()
         //          << " : " << force_w.transpose() << "(" << force(2) << ")" << std::endl;        
     }

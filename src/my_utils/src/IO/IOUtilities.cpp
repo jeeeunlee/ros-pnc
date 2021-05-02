@@ -20,6 +20,16 @@ void saveVector(const Eigen::VectorXd& vec_, std::string name_, bool b_param) {
     savefile.flush();
 }
 
+void saveVector(const Eigen::Quaterniond& vec_, std::string name_, bool b_param) {
+    std::string file_name;
+    cleaningFile(name_, file_name, b_param);
+
+    std::ofstream savefile(file_name.c_str(), std::ios::app);
+    savefile << vec_.w() << "\t" << vec_.x() << "\t" << vec_.y() << "\t" << vec_.z() << "\t" << "\n";
+
+    savefile.flush();
+}
+
 void saveMatrix(const Eigen::MatrixXd& mtx_, std::string name_, bool b_param) {
     for(int j=0; j<mtx_.rows(); ++j)  {
         saveVector(mtx_.row(j), name_ , b_param);
