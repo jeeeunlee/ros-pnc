@@ -31,6 +31,8 @@ class MagnetoReachabilityContact {
                   const Eigen::VectorXd& ddotq);
       bool solveContactDyn(Eigen::VectorXd& tau, 
                            Eigen::VectorXd& ddq_plan);
+      bool computeDdotq(Eigen::VectorXd& tau,
+                        Eigen::VectorXd& ddq);
       void computeNextState(const Eigen::VectorXd& tau_a,
                            Eigen::VectorXd& q_next,
                            Eigen::VectorXd& dotq_next);
@@ -98,6 +100,8 @@ class MagnetoReachabilityNode {
       bool computeTorque(const Eigen::VectorXd& ddq_des,
                         Eigen::VectorXd& ddq_plan,
                         Eigen::VectorXd& tau_a);
+      bool computeDdotq(Eigen::VectorXd& tau,
+                        Eigen::VectorXd& ddq);
 
    public:
       Eigen::VectorXd q_;

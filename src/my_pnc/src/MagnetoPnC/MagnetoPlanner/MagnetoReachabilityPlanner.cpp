@@ -34,6 +34,11 @@ bool MagnetoReachabilityNode::computeTorque(const Eigen::VectorXd& ddq_des,
   return contact_state_->solveContactDyn(tau, ddq_plan);
 }
 
+bool MagnetoReachabilityNode::computeDdotq(Eigen::VectorXd& tau,
+                                          Eigen::VectorXd& ddq){
+  return contact_state_->computeDdotq(tau,ddq);
+}
+
 // void MagnetoReachabilityNode::computeNextState() {
 //   contact_state_->computeNextState(tau, q_next, dotq_next);
 // }
@@ -206,36 +211,6 @@ void MagnetoReachabilityContact::update(const Eigen::VectorXd& q,
   wbqpd_param_->a0 = MInv_*(- Nc_T_*cori_grav_ - Jc_.transpose()*AMat_*Jcdotqdot_);
   wbqpd_param_->B = - Jc_bar_T_;
   wbqpd_param_->b0 = - AMat_*Jcdotqdot_ + Jc_bar_T_*cori_grav_;
-
-  // my_utils::pretty_print(wbqpd_param_->A, std::cout, "A");
-  // my_utils::pretty_print(wbqpd_param_->a0, std::cout, "a0");
-  // Eigen::VectorXd a01 = MInv_*(- Nc_T_*cori_grav_);
-  // Eigen::VectorXd a02 = MInv_*(- Jc_.transpose()*AMat_*Jcdotqdot_);
-  // my_utils::pretty_print(a01, std::cout, "a01");
-  // my_utils::pretty_print(a02, std::cout, "a02");
-
-  // 2020.2.10 Assume ddq a0 on gimabal to be zero
-  // for(int i(6); i<Magneto::n_vdof; ++i)
-  // for(int i(0); i<Magneto::n_vdof; ++i)
-    // wbqpd_param_->a0(Magneto::idx_vdof[i]) = 0.;  
-
-  // static int print_time=0;
-  // if( print_time++ < 1000 ){
-  //   if( print_time%100 == 0 ){
-  //     my_utils::pretty_print(MInv_, std::cout, "MInv_");
-  //     my_utils::pretty_print(Nc_T_, std::cout, "Nc_T_");
-  //     my_utils::pretty_print(cori_grav_, std::cout, "cori_grav_");
-  //     my_utils::pretty_print(Jc_, std::cout, "Jc_");
-  //     my_utils::pretty_print(AMat_, std::cout, "AMat_");
-  //     my_utils::pretty_print(Jcdotqdot_, std::cout, "Jcdotqdot_");
-      
-  //   }
-  //   std::cout<<"-----------------" << std::endl;
-  // }else{
-  //   exit(0);
-  // }
-
-  // my_utils::saveVector(wbqpd_param_->a0, "a0");
   
   wbqpd_param_->ddq_des = ddotq;
   wbqpd_param_->Wf = Eigen::VectorXd::Constant(dim_contact_, 1.0);
@@ -261,26 +236,14 @@ bool MagnetoReachabilityContact::solveContactDyn(Eigen::VectorXd& tau,
   double f = wbqpd_->computeTorque(wbqpd_result_);
   tau = wbqpd_result_->tau;
   ddq_plan = wbqpd_result_->ddq;
-
-  // AL-8/14, AR-17/23, BL-26/32 , BR-35/41, al ar bl br
-  // Eigen::VectorXd Fr_plan =  wbqpd_result_->Fr;  
-  // int feet_idx[4] = {14,23,32,41};
-  // if(Fr_plan.size() < Magneto::n_adof)  {
-  //   Eigen::VectorXd Fr_plan_bk = Fr_plan;
-  //   Fr_plan = Eigen::VectorXd::Zero(Magneto::n_adof);
-  //   int j(0);
-  //   for(int i(0);i<4;++i){
-  //     if(feet_idx[i] == ((BodyFramePointContactSpec*)contact_list_[j])->getLinkIdx() ){
-  //       Fr_plan.segment(i*3,3) = Fr_plan_bk.segment(j*3,3);
-  //       j++;
-  //     }
-  //   }
-  // }
-  // my_utils::saveVector(Fr_plan, "Fr_plan");
-  // std::cout << " cost = " << f << std::endl;
   bool b_reachable = wbqpd_result_->b_reachable;
-  // if(f > MAX_COST) b_reachable = false;
+
   return b_reachable;
+}
+
+bool MagnetoReachabilityContact::computeDdotq(Eigen::VectorXd& tau,
+                                              Eigen::VectorXd& ddq) {
+  return wbqpd_->computeDdotq(tau, ddq);
 }
 
 void MagnetoReachabilityContact::computeNextState(const Eigen::VectorXd& tau,
@@ -460,8 +423,8 @@ void MagnetoReachabilityPlanner::compute(const Eigen::VectorXd& q_goal) {
                 new MagnetoReachabilityNode(full_contact_state_, 
                                         q_init_, dotq_init_,false);
   //  
-  Eigen::VectorXd tau_a, ddq;
-  node_fc_init->computeTorque(q_zero_, ddq, tau_a);
+  Eigen::VectorXd tau, ddq;
+  node_fc_init->computeTorque(q_zero_, ddq, tau);
   // 
   // swing contact node
   MagnetoReachabilityNode* node_sc_init = 
@@ -473,14 +436,25 @@ void MagnetoReachabilityPlanner::compute(const Eigen::VectorXd& q_goal) {
 void MagnetoReachabilityPlanner::addGraph(const std::vector<ReachabilityState> &state_list){
   // state = (q, dq, ddq, is_swing)
 
+  // DATA CHECK FOR TORQUE
+  Eigen::VectorXd q_accum, dq_accum, tau_fb;
+  // DATA CHECK FOR TORQUE
+
   initializeVariables();
   // method 1 : generate all nodes in trajectory -> check edge
-  Eigen::VectorXd tau_a, tau_a_prev;
-  tau_a_prev = q_zero_;
+  Eigen::VectorXd tau, tau_prev;
+  tau_prev = q_zero_;
   ReachabilityState prev_state;
   for( auto &state : state_list ){
-    MagnetoReachabilityNode* node;
-    
+    // DATA CHECK FOR TORQUE
+    if(node_list_.empty()){
+      q_accum = state.q;
+      dq_accum = state.dq;
+      tau_fb = q_zero_;
+    }
+    // DATA CHECK FOR TORQUE
+
+    MagnetoReachabilityNode* node;    
     if(state.is_swing){
       // std::cout << "is swing" << state.is_swing << std::endl;
       node = new MagnetoReachabilityNode(swing_contact_state_, state.q, state.dq, state.is_swing);
@@ -496,23 +470,59 @@ void MagnetoReachabilityPlanner::addGraph(const std::vector<ReachabilityState> &
     if(!node_list_.empty()) {
       MagnetoReachabilityNode* prev_node = node_list_.back();
       ddq_des = (state.dq-prev_state.dq)/0.001; //prev_state.ddq; // 
-      b_feasible = prev_node->computeTorque(ddq_des, ddq, tau_a);
+      b_feasible = prev_node->computeTorque(ddq_des, ddq, tau);
+      
+      // DATA CHECK FOR TORQUE
+      tau_fb = q_zero_; 
+      for(int i=0; i< Magneto::n_adof; ++i) {
+        tau_fb[Magneto::idx_adof[i]] 
+            = tau[Magneto::idx_adof[i]] + 
+              2.0 * (prev_state.dq[Magneto::idx_adof[i]] - dq_accum[Magneto::idx_adof[i]]) +
+              30.0 * (prev_state.q[Magneto::idx_adof[i]] - q_accum[Magneto::idx_adof[i]]);
+      }
+
+
+      // my_utils::pretty_print(tau, std::cout, "tau");
+      // my_utils::pretty_print(tau_fb, std::cout, "tau_fb");
+
+      my_utils::pretty_print(dq_accum, std::cout, "dq_accum");
+      my_utils::pretty_print(prev_state.dq, std::cout, "prev_state.dq");
+
+      my_utils::pretty_print(q_accum, std::cout, "q_accum");
+      my_utils::pretty_print(prev_state.q, std::cout, "prev_state.q");
+
+      my_utils::saveVector(ddq_des, "RPlanner_ddq_des");
+      my_utils::saveVector(ddq, "RPlanner_ddq");
+      prev_node->computeDdotq(tau_fb, ddq);
+      my_utils::saveVector(ddq, "RPlanner_ddq_fb");
+
+      my_utils::saveVector(state.q, "RPlanner_q");
+      my_utils::saveVector(q_accum, "RPlanner_q_accum");
+      my_utils::saveVector(state.dq, "RPlanner_dq");
+      my_utils::saveVector(dq_accum, "RPlanner_dq_accum");
+
+      q_accum += dq_accum * 0.001;
+      dq_accum += ddq * 0.001;
+      
+
+      // DATA CHECK FOR TORQUE
+
       // my_utils::saveVector(ddq_des, "RPlanner_ddq_des");
       // my_utils::saveVector(ddq, "RPlanner_ddq_act");
-      // my_utils::saveVector(tau_a, "RPlanner_torque");
+      // my_utils::saveVector(tau, "RPlanner_torque");
       
       if(b_feasible) {
-        // my_utils::pretty_print(tau_a, std::cout, "tau_a");
-        MagnetoReachabilityEdge* edge = new MagnetoReachabilityEdge(prev_node, node, tau_a);
+        // my_utils::pretty_print(tau, std::cout, "tau");
+        MagnetoReachabilityEdge* edge = new MagnetoReachabilityEdge(prev_node, node, tau);
         //edge_list_.push_back(edge);
         edge_path_.push_back(edge);
       }
       else{
         std::cout << "feasible dyn? : " << b_feasible <<" / " << std::endl;
-        MagnetoReachabilityEdge* edge = new MagnetoReachabilityEdge(prev_node, node, tau_a_prev);
+        MagnetoReachabilityEdge* edge = new MagnetoReachabilityEdge(prev_node, node, tau_prev);
         edge_path_.push_back(edge);
       }
-      tau_a_prev = tau_a;
+      tau_prev = tau;
     }    
     node_list_.push_back(node);
     prev_state = state;

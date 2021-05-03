@@ -147,21 +147,23 @@ bool WBQPD::computeDdotq(Eigen::VectorXd& tau,
                         Eigen::VectorXd& ddotq) {
     // check the tau is feasible and compute ddotq
 
-    // set passive torque to be zero
-    Eigen::VectorXd tau_a = Sa_ * tau;
-    tau = Sa_.transpose() * tau_a;
-
-    
-    Eigen::VectorXd Uf_Fc = U_*( param_->B * tau + param_->b0);
-
     // check joint limit
+    Eigen::VectorXd tau_a = Sa_ * tau;    
     bool b_joint_limit = true;
     for(int i(0); i<dim_trqact_ieq_cstr_; ++i) {
-        if(tau_a[i] < tau_l_[i])
+        if(tau_a[i] < tau_l_[i]){
             b_joint_limit = false;
-        if(tau_a[i] > tau_u_[i])
+            // tau_a[i] = tau_l_[i];
+        }            
+        if(tau_a[i] > tau_u_[i]){
             b_joint_limit = false;
+            // tau_a[i] = tau_u_[i];
+        }            
     }
+
+    // set passive torque to be zero
+    tau = Sa_.transpose() * tau_a;    
+    Eigen::VectorXd Uf_Fc = U_*( param_->B * tau + param_->b0);
     
     // check friction constraint
     bool b_friction_constraint = true;
