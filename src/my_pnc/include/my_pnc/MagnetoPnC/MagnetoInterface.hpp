@@ -113,6 +113,13 @@ class MagnetoInterface : public EnvInterface {
     virtual ~MagnetoInterface();
 
     virtual void getCommand(void* _sensor_data, void* _command_data);
+
+    void checkContactDynamics(const Eigen::VectorXd& torque,
+                            Eigen::VectorXd& qddot,
+                            Eigen::VectorXd& Fc);
+
+
+
     int getRunMode() {return run_mode_;}
 
     void StaticWalk(const int& _moving_foot,

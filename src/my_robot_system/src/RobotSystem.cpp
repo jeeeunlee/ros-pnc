@@ -15,6 +15,10 @@ RobotSystem::RobotSystem(int numVirtual_, std::string file) {
     num_virtual_dof_ = numVirtual_;
     num_actuated_dof_ = num_dof_ - num_virtual_dof_;
     num_body_nodes_ = skel_ptr_->getNumBodyNodes();
+
+    // once the actuated dof idx is set, this can be determined.
+    Sa_ = Eigen::MatrixXd::Zero(num_actuated_dof_, num_dof_);
+
     I_cent_ = Eigen::MatrixXd::Zero(6, 6);
     J_cent_ = Eigen::MatrixXd::Zero(6, num_dof_);
     A_cent_ = Eigen::MatrixXd::Zero(6, num_dof_);
@@ -28,11 +32,18 @@ void RobotSystem::setActuatedJoint()  {
     idx_adof_.clear();
     for(int i=0;i<num_actuated_dof_;++i)    
         idx_adof_.push_back(num_virtual_dof_ + i); 
+    setSelectionMatrix();
 }
 void RobotSystem::setActuatedJoint(const int *_idx_adof)  {
     idx_adof_.clear();
     for(int i=0;i<num_actuated_dof_;++i)    
         idx_adof_.push_back(_idx_adof[i]);  
+    setSelectionMatrix();
+}
+
+void RobotSystem::setSelectionMatrix() {
+    for(int i(0); i<num_actuated_dof_; ++i)
+        Sa_(i, idx_adof_[i]) = 1.;
 }
 
 Eigen::VectorXd RobotSystem::getActiveJointValue(const Eigen::VectorXd& q_full)  {
@@ -329,7 +340,7 @@ void RobotSystem::updateSystem(const Eigen::VectorXd& q_,
     skel_ptr_->setPositions(q_);
     skel_ptr_->setVelocities(qdot_);
     if (isUpdatingCentroid) _updateCentroidFrame(q_, qdot_);
-    skel_ptr_->computeForwardKinematics();
+    // skel_ptr_->computeForwardKinematics();
 }
 
 void RobotSystem::_updateCentroidFrame(const Eigen::VectorXd& q_,

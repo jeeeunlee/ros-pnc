@@ -57,11 +57,65 @@ MagnetoInterface::~MagnetoInterface() {
     delete interrupt_;
 }
 
+void MagnetoInterface::checkContactDynamics(const Eigen::VectorXd& torque,
+                                            Eigen::VectorXd& qddot,
+                                            Eigen::VectorXd& Fc) {
+
+    // GET CURRENT STATE
+    Eigen::MatrixXd Sa = robot_->getSelectionMatrix();
+    Eigen::MatrixXd tau_a = Sa*torque;
+
+    Eigen::VectorXd q = robot_->getQ();
+    Eigen::VectorXd dq = robot_->getQdot();
+    Eigen::VectorXd ddq = robot_->getQddot();
+
+    // GET JACOBIAN STACK MATRIX
+    Eigen::MatrixXd Jc_b;
+    Eigen::VectorXd Jdotqdot;
+    int Jc_row_size = 0;
+    int Jc_col_size = robot_->getNumDofs();
+    bool b_contact = false;
+    int link_idx = -1;
+    int contact_dim = 3;
+
+
+    for(auto& contact_map : sp_->b_contact_plan_map){
+        if(contact_map.second) { // contact is true 
+            b_contact = true;
+            link_idx = contact_map.first;
+            Eigen::MatrixXd Jtmp = robot_->getBodyNodeCoMBodyJacobian(link_idx);        
+            Eigen::MatrixXd Jc = Jtmp.block(6-contact_dim, 0, contact_dim, robot_->getNumDofs());
+            Jc_row_size = Jc_b.rows();
+            Jc_b.conservativeResize(Jc_row_size + Jc.rows(), Jc_col_size);
+            Jc_b.block(Jc_row_size,0, Jc.rows(), Jc_col_size) = Jc;
+
+            Eigen::VectorXd JcDotQdot_tmp =robot_->getBodyNodeCoMBodyJacobianDot(link_idx) * dq;
+            Jdotqdot.conservativeResize(Jc_row_size + Jc.rows());
+            Jdotqdot.segment(Jc_row_size, Jc.rows()) = JcDotQdot_tmp.tail(contact_dim);            
+        }
+    }   
+
+    Eigen::MatrixXd M = robot_->getMassMatrix();
+    Eigen::MatrixXd MInv = robot_->getInvMassMatrix();
+    Eigen::VectorXd cori_grav = robot_->getCoriolisGravity();
+    Eigen::MatrixXd AInv, AMat, Jc_bar_T, Nc_T;
+
+    if(b_contact) {
+        Eigen::MatrixXd Inxn = Eigen::MatrixXd::Identity(robot_->getNumDofs(),robot_->getNumDofs());
+        
+        AInv = Jc_b * MInv * Jc_b.transpose(); // nc x nc
+        my_utils::pseudoInverse(AInv, 0.0001, AMat); // inv(Ainv) = AMat
+        Jc_bar_T = AMat * Jc_b * MInv;
+        Nc_T =  Inxn - Jc_b.transpose()*Jc_bar_T;
+        
+        Fc = Jc_bar_T * ( (Inxn - Nc_T) * (cori_grav - Sa.transpose()*tau_a) - M*Jc_b.transpose()*AMat*Jdotqdot );
+        qddot = MInv * (Jc_b.transpose()*Fc + Sa.transpose()*tau_a - cori_grav);
+    }
+}
+
 void MagnetoInterface::getCommand(void* _data, void* _command) {
     MagnetoCommand* cmd = ((MagnetoCommand*)_command);
     MagnetoSensorData* data = ((MagnetoSensorData*)_data);
-    
-
     if(!_Initialization(data, cmd)) {
         state_estimator_->Update(data); // robot skelPtr in robotSystem updated 
         interrupt_->processInterrupts();
@@ -69,10 +123,8 @@ void MagnetoInterface::getCommand(void* _data, void* _command) {
         
         if(!_CheckCommand(cmd)) { _SetStopCommand(data,cmd); }    
     }   
-
     // save data
-    _SaveDataCmd(data,cmd);
-
+    _SaveDataCmd(data, cmd);
     running_time_ = ((double)count_)*MagnetoAux::servo_rate;
     sp_->curr_time = running_time_;
     sp_->phase_copy = control_architecture_->getState();

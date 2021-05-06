@@ -89,6 +89,8 @@ bool MagnetoTrajectoryManager::ParameterizeTrajectory(MotionCommand& motion_cmd,
     motion_cmd.clear_and_add_motion(moving_foot_idx_,foot_motion_data_);
     foot_pos_task_ = foot_task_map_[moving_foot_idx_];
 
+    std::cout<<" Traj Manager for kin, moving foot idx =  " << moving_foot_idx_ << ", footTask idx = " << ((BasicTask*)(foot_pos_task_))->getLinkIdx() << std::endl;
+
 
     ctrl_arch_->foot_trajectory_manager_
                 ->setFootPosTrajectory(t1_ , &motion_cmd, x_ratio_height);

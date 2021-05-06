@@ -17,6 +17,9 @@ class RobotSystem {
     int num_actuated_dof_;
     int num_body_nodes_;
     std::vector<int> idx_adof_;
+
+    Eigen::MatrixXd Sa_; // na x n
+    
     Eigen::MatrixXd I_cent_;
     Eigen::MatrixXd J_cent_;
     Eigen::MatrixXd A_cent_;
@@ -36,6 +39,8 @@ class RobotSystem {
     RobotSystem(int numVirtual_, std::string file);
     virtual ~RobotSystem(void);
 
+    void setSelectionMatrix();
+    Eigen::MatrixXd getSelectionMatrix() {return Sa_; }; // na x n
     void setActuatedJoint(); // DEFAULT : assume the last num_actuated_dof_ is adof
     void setActuatedJoint(const int *_idx_adof);
     void getActuatedJointIdx(std::vector<int> & _idx_adof ) { _idx_adof=idx_adof_; };

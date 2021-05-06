@@ -31,6 +31,11 @@ MagnetoStateProvider::MagnetoStateProvider(RobotSystem* _robot) {
     b_alfoot_contact = 0;
     b_blfoot_contact = 0;
 
+    b_contact_plan_map[MagnetoBodyNode::AL_foot_link] = false;
+    b_contact_plan_map[MagnetoBodyNode::BL_foot_link] = false;
+    b_contact_plan_map[MagnetoBodyNode::AR_foot_link] = false;
+    b_contact_plan_map[MagnetoBodyNode::BR_foot_link] = false;
+
     foot_pos_target = Eigen::VectorXd::Zero(3);
 
     foot_target_list.clear();
@@ -107,6 +112,22 @@ MagnetoStateProvider::MagnetoStateProvider(RobotSystem* _robot) {
 
     des_jacc_cmd = Eigen::VectorXd::Zero(Magneto::n_adof);
 
+}
+
+void MagnetoStateProvider::setContactPlan(const int& moving_cop){
+    //b_contact_plan_map
+    b_contact_plan_map[MagnetoBodyNode::AL_foot_link]
+                        = (moving_cop != MagnetoBodyNode::AL_tibia_link && 
+                        moving_cop != MagnetoBodyNode::AL_foot_link);
+    b_contact_plan_map[MagnetoBodyNode::BL_foot_link] 
+                        = (moving_cop != MagnetoBodyNode::BL_tibia_link && 
+                        moving_cop != MagnetoBodyNode::BL_foot_link); 
+    b_contact_plan_map[MagnetoBodyNode::AR_foot_link] 
+                        = (moving_cop != MagnetoBodyNode::AR_tibia_link && 
+                        moving_cop != MagnetoBodyNode::AR_foot_link);
+    b_contact_plan_map[MagnetoBodyNode::BR_foot_link] 
+                        = (moving_cop != MagnetoBodyNode::BR_tibia_link && 
+                        moving_cop != MagnetoBodyNode::BR_foot_link);
 }
 
 

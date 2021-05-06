@@ -37,7 +37,7 @@ void OneStepWalking::firstVisit() {
   // ctrl_arch_->goal_planner_->computeGoal(mc_curr_);  
   // ctrl_arch_->goal_planner_->getGoalConfiguration(q_goal);
 
-  // ctrl_arch_->reachability_planner_->setMovingFoot(mc_curr_.get_moving_foot());
+  // ctrl_arch_->reachability_planner_->setMovingFoot(moving_foot_idx_);
   // ctrl_arch_->reachability_planner_->compute(q_goal); 
   // ctrl_arch_->reachability_planner_->addGraph
 
@@ -63,7 +63,7 @@ void OneStepWalking::firstVisit() {
 
       state_list.push_back(rchstate);
     }
-    ctrl_arch_->reachability_planner_->setMovingFoot(mc_curr_.get_moving_foot());
+    ctrl_arch_->reachability_planner_->setMovingFoot(moving_foot_idx_);
     ctrl_arch_->reachability_planner_->addGraph(state_list);
 
     ctrl_arch_->reachability_planner_->getOptimalTraj(walking_traj_ref_);
@@ -76,11 +76,13 @@ void OneStepWalking::oneStep() {
   walking_traj_ref_.pop_front();
 
   if(curr_ref_.is_swing ){
+    sp_->setContactPlan(moving_foot_idx_);
     ctrl_arch_->taf_container_->set_magnetism(moving_foot_idx_);    
     ctrl_arch_->taf_container_->set_residual_magnetic_force(moving_foot_idx_);
     ctrl_arch_->taf_container_->set_contact_magnetic_force(moving_foot_idx_);
     ctrl_arch_->taf_container_->w_res_ = 1.0;
   }  else{
+    sp_->setContactPlan(-1);
     ctrl_arch_->taf_container_->set_magnetism(-1);  
     ctrl_arch_->taf_container_->set_residual_magnetic_force(-1);
     ctrl_arch_->taf_container_->set_contact_magnetic_force(-1);

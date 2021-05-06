@@ -27,6 +27,8 @@ class MagnetoStateProvider {
     Eigen::VectorXd getFullJointValue(const Eigen::VectorXd& q_a);
     Eigen::VectorXd getFullJointValue(const Eigen::VectorXd& q_a, const Eigen::VectorXd& q_v);
 
+    void setContactPlan(const int& movingFootIdx);
+
     Clock clock;
 
     double curr_time;
@@ -45,10 +47,19 @@ class MagnetoStateProvider {
 
     Eigen::VectorXd jpos_ini;
 
+    // real : determined by sensor / simulation
     int b_arfoot_contact;
     int b_brfoot_contact;
     int b_alfoot_contact;
     int b_blfoot_contact;
+
+    // planning : determined by planner
+    // bool b_arfoot_contact_plan;
+    // bool b_brfoot_contact_plan;
+    // bool b_alfoot_contact_plan;
+    // bool b_blfoot_contact_plan;
+    std::map<int, bool> b_contact_plan_map;
+
 
     int num_step_copy;
     int phase_copy;

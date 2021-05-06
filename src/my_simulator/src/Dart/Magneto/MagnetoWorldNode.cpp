@@ -138,42 +138,22 @@ void MagnetoWorldNode::customPreStep() {
     // for(int i=6; i< Magneto::n_vdof; ++i) {
     //     trq_cmd_[Magneto::idx_vdof[i]] = ks * ( 0.0 - sensor_data_->virtual_q[i]);
     // }
-
+    Eigen::VectorXd trq_ff = Eigen::VectorXd::Zero(Magneto::n_dof);
     for(int i=0; i< Magneto::n_adof; ++i) {
         trq_cmd_[Magneto::idx_adof[i]] 
                         = command_->jtrq[i] + 
                           kd_ * (command_->qdot[i] - sensor_data_->qdot[i]) +
                           kp_ * (command_->q[i] - sensor_data_->q[i]);
+        trq_ff[Magneto::idx_adof[i]] = command_->jtrq[i];
     }
 
-    // for(int i=0; i< Magneto::n_adof; ++i) {
-    //     trq_cmd_[Magneto::idx_adof[i]] 
-    //                     = kd_ * (command_->qdot[i] - sensor_data_->qdot[i]) +
-    //                       kp_ * (command_->q[i] - sensor_data_->q[i]);
-    // }
-    
-    // for(int i=0; i< Magneto::n_adof; ++i) {
-    //     trq_cmd_[Magneto::idx_adof[i]] 
-    //                     = command_->jtrq[i] + 
-    //                       kd_ * ( - sensor_data_->qdot[i]) +
-    //                       kp_ * (command_->q[i] - sensor_data_->q[i]);
-    // }
-
-    // for(int i=0; i< Magneto::n_adof; ++i) {
-    //     trq_cmd_[Magneto::idx_adof[i]] 
-    //                     = command_->jtrq[i];
-    // }
-
-    // for(int i=0; i< Magneto::n_adof; ++i) {
-    //     trq_cmd_[Magneto::idx_adof[i]] 
-    //                     = kd_ * ( 0.0 - sensor_data_->qdot[i]) +
-    //                       kp_ * ( qInit[Magneto::idx_adof[i]] - sensor_data_->q[i]);
-    // }
+    Eigen::VectorXd qddot_fb, Fc_fb, qddot_ff, Fc_ff;
+    ((MagnetoInterface*)interface_)->checkContactDynamics(trq_ff, qddot_ff, Fc_ff);
+    ((MagnetoInterface*)interface_)->checkContactDynamics(trq_cmd_, qddot_fb, Fc_fb);
 
     EnforceTorqueLimit();
     ApplyMagneticForce();
-    robot_->setForces(trq_cmd_);
-     
+    robot_->setForces(trq_cmd_);     
 
     // SAVE DATA
     my_utils::saveVector(sensor_data_->alf_wrench, "alf_wrench_act");
@@ -193,23 +173,24 @@ void MagnetoWorldNode::customPreStep() {
         trq_act_cmd[i] = trq_cmd_[Magneto::idx_adof[i]];
     
     // only active joint
-    // my_utils::saveVector(trq_act_cmd, "trq_fb");
-    // my_utils::saveVector(command_->jtrq, "trq_ff");  
-    // my_utils::saveVector(command_->q, "q");
-    // my_utils::saveVector(sensor_data_->q, "q_sen");
-    // my_utils::saveVector(sensor_data_->q, "q_sen");
-    // my_utils::saveVector(sensor_data_->qdot, "qdot_sen");
+    my_utils::saveVector(trq_act_cmd, "trq_fb");
+    my_utils::saveVector(command_->jtrq, "trq_ff");  
+    my_utils::saveVector(command_->q, "q");
+    my_utils::saveVector(command_->qdot, "qdot");
+    my_utils::saveVector(sensor_data_->q, "q_sen");
+    my_utils::saveVector(sensor_data_->qdot, "qdot_sen");
+
+    my_utils::saveVector(qddot_ff, "qddot_ff");
+    my_utils::saveVector(qddot_fb, "qddot_fb");
+    my_utils::saveVector(Fc_ff, "Fc_ff");
+    my_utils::saveVector(Fc_fb, "Fc_fb");
 
     // whole joint
-
-    my_utils::saveVector(trq_cmd_, "trq");
-    my_utils::saveVector(q, "q_sen");
-    my_utils::saveVector(qdot, "qdot_sen");
-
-
+    // my_utils::saveVector(trq_cmd_, "trq");
+    // my_utils::saveVector(q, "q_sen_all");
+    // my_utils::saveVector(qdot, "qdot_sen_all");
 
     // Foot positions
-
     Eigen::VectorXd pos_al = robot_->getBodyNode("AL_foot_link") // COP frame node?
                             ->getWorldTransform().translation();
     Eigen::VectorXd pos_bl = robot_->getBodyNode("BL_foot_link") // COP frame node?

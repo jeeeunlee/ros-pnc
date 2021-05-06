@@ -142,7 +142,9 @@ void MagnetoReachabilityContact::FinishContactSet() {
   F_magnetic = Eigen::VectorXd::Zero(dim_contact_);
   int contact_idx(0), fz_idx;  
   int Uf_row_dim(0), Uf_col_dim(0);
+  std::cout<<" ----------------- FinishContactSet : ";
   for(auto &it : contact_list_) {
+    std::cout<< ((BodyFramePointContactSpec*)(it))->getLinkIdx() << ", " ;
     // magnetic force
     fz_idx = contact_idx + ((BodyFramePointContactSpec*)(it))->getFzIndex();    
     F_magnetic[fz_idx] = magnetic_force_;
@@ -152,7 +154,8 @@ void MagnetoReachabilityContact::FinishContactSet() {
     Uf_row_dim+= Uf_i.rows();
     Uf_col_dim+= Uf_i.cols();
   }
-  std::cout << "magnetic_force_ = " << magnetic_force_ << std::endl;
+  std::cout << " ----------------- "<< std::endl;
+  // std::cout << "magnetic_force_ = " << magnetic_force_ << std::endl;
 
   // 2. contact friction cone
   Uf = Eigen::MatrixXd::Zero(Uf_row_dim, Uf_col_dim);
@@ -410,6 +413,7 @@ void MagnetoReachabilityPlanner::setMovingFoot(int moving_foot) {
     if( ((BodyFramePointContactSpec*)contact)->getLinkIdx() != moving_foot_idx_ )
       swing_contact_state_->addContacts(contact);
   }
+  std::cout << " setMovingFoor " <<  std::endl;
   swing_contact_state_->FinishContactSet();
 }
 
@@ -485,11 +489,11 @@ void MagnetoReachabilityPlanner::addGraph(const std::vector<ReachabilityState> &
       // my_utils::pretty_print(tau, std::cout, "tau");
       // my_utils::pretty_print(tau_fb, std::cout, "tau_fb");
 
-      my_utils::pretty_print(dq_accum, std::cout, "dq_accum");
-      my_utils::pretty_print(prev_state.dq, std::cout, "prev_state.dq");
+      // my_utils::pretty_print(dq_accum, std::cout, "dq_accum");
+      // my_utils::pretty_print(prev_state.dq, std::cout, "prev_state.dq");
 
-      my_utils::pretty_print(q_accum, std::cout, "q_accum");
-      my_utils::pretty_print(prev_state.q, std::cout, "prev_state.q");
+      // my_utils::pretty_print(q_accum, std::cout, "q_accum");
+      // my_utils::pretty_print(prev_state.q, std::cout, "prev_state.q");
 
       my_utils::saveVector(ddq_des, "RPlanner_ddq_des");
       my_utils::saveVector(ddq, "RPlanner_ddq");
