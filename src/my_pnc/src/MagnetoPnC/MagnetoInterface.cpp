@@ -76,7 +76,7 @@ void MagnetoInterface::checkContactDynamics(const Eigen::VectorXd& torque,
     int Jc_col_size = robot_->getNumDofs();
     bool b_contact = false;
     int link_idx = -1;
-    int contact_dim = 3;
+    int contact_dim = 6;
 
 
     for(auto& contact_map : sp_->b_contact_plan_map){

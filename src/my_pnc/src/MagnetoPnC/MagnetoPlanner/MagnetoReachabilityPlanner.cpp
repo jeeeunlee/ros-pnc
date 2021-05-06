@@ -347,14 +347,24 @@ MagnetoReachabilityPlanner::MagnetoReachabilityPlanner(RobotSystem* robot, Magne
 
   // set contact
   mu_ = 0.7; // will be updated later
-  alfoot_contact_ = new BodyFramePointContactSpec(robot_planner_,
-                              MagnetoBodyNode::AL_foot_link, mu_);
-  blfoot_contact_ = new BodyFramePointContactSpec(robot_planner_,
-                              MagnetoBodyNode::BL_foot_link, mu_);                          
-  arfoot_contact_ = new BodyFramePointContactSpec(robot_planner_,
-                              MagnetoBodyNode::AR_foot_link, mu_);
-  brfoot_contact_ = new BodyFramePointContactSpec(robot_planner_,
-                              MagnetoBodyNode::BR_foot_link, mu_);
+  // alfoot_contact_ = new BodyFramePointContactSpec(robot_planner_,
+  //                             MagnetoBodyNode::AL_foot_link, mu_);
+  // blfoot_contact_ = new BodyFramePointContactSpec(robot_planner_,
+  //                             MagnetoBodyNode::BL_foot_link, mu_);                          
+  // arfoot_contact_ = new BodyFramePointContactSpec(robot_planner_,
+  //                             MagnetoBodyNode::AR_foot_link, mu_);
+  // brfoot_contact_ = new BodyFramePointContactSpec(robot_planner_,
+  //                             MagnetoBodyNode::BR_foot_link, mu_);
+
+  double footx(0.02), footy(0.02);
+  alfoot_contact_ = new  BodyFrameSurfaceContactSpec(robot_planner_,
+                      MagnetoBodyNode::AL_foot_link, footx, footy, mu_);
+  blfoot_contact_ = new BodyFrameSurfaceContactSpec(robot_planner_,
+                      MagnetoBodyNode::BL_foot_link, footx, footy, mu_);                          
+  arfoot_contact_ = new BodyFrameSurfaceContactSpec(robot_planner_,
+                      MagnetoBodyNode::AR_foot_link, footx, footy, mu_);
+  brfoot_contact_ = new BodyFrameSurfaceContactSpec(robot_planner_,
+                      MagnetoBodyNode::BR_foot_link, footx, footy, mu_);
 
   full_contact_list_.clear();
   full_contact_list_.push_back(alfoot_contact_);  

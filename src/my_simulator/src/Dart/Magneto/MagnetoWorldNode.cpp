@@ -134,10 +134,10 @@ void MagnetoWorldNode::customPreStep() {
     trq_cmd_.setZero();
     // spring in gimbal
     
-    // double ks = 1.0;// N/rad
-    // for(int i=6; i< Magneto::n_vdof; ++i) {
-    //     trq_cmd_[Magneto::idx_vdof[i]] = ks * ( 0.0 - sensor_data_->virtual_q[i]);
-    // }
+    double ks = 1.0;// N/rad
+    for(int i=6; i< Magneto::n_vdof; ++i) {
+        trq_cmd_[Magneto::idx_vdof[i]] = ks * ( 0.0 - sensor_data_->virtual_q[i]);
+    }
     Eigen::VectorXd trq_ff = Eigen::VectorXd::Zero(Magneto::n_dof);
     for(int i=0; i< Magneto::n_adof; ++i) {
         trq_cmd_[Magneto::idx_adof[i]] 
