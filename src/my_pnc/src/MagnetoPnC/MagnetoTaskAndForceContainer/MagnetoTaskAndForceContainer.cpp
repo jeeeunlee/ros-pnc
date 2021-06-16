@@ -4,6 +4,7 @@ MagnetoTaskAndForceContainer::MagnetoTaskAndForceContainer(RobotSystem* _robot)
     : TaskAndForceContainer(_robot) {
   _InitializeTasks();
   _InitializeContacts();
+  _InitializePointContacts(); //  added for pull test
   _InitializeMagnetisms();
 }
 
@@ -95,6 +96,27 @@ void MagnetoTaskAndForceContainer::_InitializeContacts() {
   full_contact_list_.push_back(arfoot_contact_);
   full_contact_list_.push_back(brfoot_contact_); 
   full_dim_contact_ = dim_contact_;
+}
+
+void MagnetoTaskAndForceContainer::_InitializePointContacts() {
+
+  friction_coeff_ = 0.7; // updated later in setContactFriction 
+
+  ContactSpec* alfoot_point_contact = new BodyFramePointContactSpec(
+      robot_, MagnetoBodyNode::AL_foot_link, friction_coeff_); 
+  ContactSpec* blfoot_point_contact = new BodyFramePointContactSpec(
+      robot_, MagnetoBodyNode::BL_foot_link, friction_coeff_);     
+  ContactSpec* arfoot_point_contact = new BodyFramePointContactSpec(
+      robot_, MagnetoBodyNode::AR_foot_link, friction_coeff_); 
+  ContactSpec* brfoot_point_contact = new BodyFramePointContactSpec(
+      robot_, MagnetoBodyNode::BR_foot_link, friction_coeff_);
+
+
+  full_point_contact_list_.clear();
+  full_point_contact_list_.push_back(alfoot_point_contact);
+  full_point_contact_list_.push_back(blfoot_point_contact);
+  full_point_contact_list_.push_back(arfoot_point_contact);
+  full_point_contact_list_.push_back(brfoot_point_contact); 
 }
 
 

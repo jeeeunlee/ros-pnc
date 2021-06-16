@@ -36,6 +36,8 @@ MagnetoControlArchitecture::MagnetoControlArchitecture(RobotSystem* _robot)
   QPweight_reactforce_manager_ = new QPWeightTrajectoryManager(robot_);
   weight_residualforce_manager_ = new SingleWeightTrajectoryManager(robot_);
 
+  contact_planner_ = new MagnetoContactTestPlanner(robot_);
+  contact_planner_->setFullContact(taf_container_->full_point_contact_list_);
   goal_planner_ = new MagnetoGoalPlanner(robot_);
   reachability_planner_ = new MagnetoReachabilityPlanner(robot_, this);
   trajectory_planner_ = new MagnetoTrajectoryManager(this);
@@ -53,6 +55,8 @@ MagnetoControlArchitecture::MagnetoControlArchitecture(RobotSystem* _robot)
       new Swing(MAGNETO_STATES::SWING, this, robot_);
   state_machines_[MAGNETO_STATES::SWING_END_TRANS] =
       new Transition(MAGNETO_STATES::SWING_END_TRANS, this, robot_, 1);
+  state_machines_[MAGNETO_STATES::PULL_TEST] = 
+      new PullTest(MAGNETO_STATES::PULL_TEST, this, robot_);
   // Set Starting State
   state_ = MAGNETO_STATES::BALANCE;
   prev_state_ = state_;
@@ -86,6 +90,7 @@ MagnetoControlArchitecture::~MagnetoControlArchitecture() {
   delete state_machines_[MAGNETO_STATES::SWING_START_TRANS];
   delete state_machines_[MAGNETO_STATES::SWING];
   delete state_machines_[MAGNETO_STATES::SWING_END_TRANS];
+  delete state_machines_[MAGNETO_STATES::PULL_TEST];
   
   delete goal_planner_;
   delete trajectory_planner_;

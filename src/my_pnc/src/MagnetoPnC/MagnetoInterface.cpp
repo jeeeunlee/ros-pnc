@@ -30,7 +30,7 @@ MagnetoInterface::MagnetoInterface() : EnvInterface() {
     sp_ = MagnetoStateProvider::getStateProvider(robot_);
 
     control_architecture_ = new MagnetoControlArchitecture(robot_);
-    interrupt_ = new WalkingInterruptLogic(
+    interrupt_ = new PullTestInterruptLogic(
           static_cast<MagnetoControlArchitecture*>(control_architecture_));    
 
     sp_->stance_foot = MagnetoBodyNode::base_link; // todo base_link
@@ -213,8 +213,8 @@ void MagnetoInterface::StaticWalk(const int& _moving_foot,
     // ((StaticWalkingTest*)test_)->addNextStep(motion_param); 
     MOTION_DATA motion_data = MOTION_DATA(_pos, _ori, _is_bodyframe, 
                                         _motion_period, _swing_height);
-    ((WalkingInterruptLogic*)interrupt_)->motion_command_instant_
-                                    ->clear_and_add_motion(_moving_foot, motion_data);
+    // ((WalkingInterruptLogic*)interrupt_)->motion_command_instant_
+    //                                 ->clear_and_add_motion(_moving_foot, motion_data);
 }
 
 void MagnetoInterface::AddScriptWalkMotion(int _link_idx, 
@@ -223,8 +223,8 @@ void MagnetoInterface::AddScriptWalkMotion(int _link_idx,
     // motion_param->set_walking_pattern(_moving_foot, _pos, _ori, _motion_period, _is_bodyframe);
     // ((StaticWalkingTest*)test_)->addNextStep(motion_param); 
     MotionCommand motion_command = MotionCommand(_link_idx,_motion_data);
-    ((WalkingInterruptLogic*)interrupt_)
-        ->motion_command_script_list_.push_back(motion_command);
+    // ((WalkingInterruptLogic*)interrupt_)
+    //     ->motion_command_script_list_.push_back(motion_command);
 }
 
 

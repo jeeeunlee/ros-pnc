@@ -3,7 +3,7 @@
 #include "my_pnc/EnvInterface.hpp"
 #include "my_pnc/MagnetoPnC/MagnetoDefinition.hpp"
 #include "my_pnc/MagnetoPnC/MagnetoMotionAPI.hpp"
-#include "my_pnc/MagnetoPnC/MagnetoLogicInterrupt/WalkingInterruptLogic.hpp"
+#include "my_pnc/MagnetoPnC/MagnetoLogicInterrupt/PullTestInterruptLogic.hpp"
 
 class MagnetoStateProvider;
 class MagnetoStateEstimator;

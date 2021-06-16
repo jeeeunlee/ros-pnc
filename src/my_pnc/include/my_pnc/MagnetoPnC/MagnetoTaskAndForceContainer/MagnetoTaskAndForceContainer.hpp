@@ -17,6 +17,8 @@ class MagnetoTaskAndForceContainer : public TaskAndForceContainer {
   void setContactFriction();
   void setContactFriction(double _mu);
 
+  
+
   // -------------------------------------------------------
   //    set functions
   // -------------------------------------------------------
@@ -44,6 +46,7 @@ class MagnetoTaskAndForceContainer : public TaskAndForceContainer {
  protected:
   void _InitializeTasks();
   void _InitializeContacts();
+  void _InitializePointContacts();
   void _InitializeMagnetisms();
   void _DeleteTasks();
   void _DeleteContacts();
@@ -78,6 +81,8 @@ class MagnetoTaskAndForceContainer : public TaskAndForceContainer {
   int full_dim_contact_;
 
   double max_fz_;
+
+  std::vector<ContactSpec*> full_point_contact_list_;
 
   // -------------------------------------------------------
   // Magnetic

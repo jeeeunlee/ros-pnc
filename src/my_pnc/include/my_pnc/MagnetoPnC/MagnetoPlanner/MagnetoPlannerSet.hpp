@@ -2,3 +2,5 @@
 #include <my_pnc/MagnetoPnC/MagnetoPlanner/MagnetoReachabilityPlanner.hpp>
 
 #include <my_pnc/MagnetoPnC/MagnetoPlanner/MagnetoTrajectoryManager.hpp>
+#include <my_pnc/MagnetoPnC/MagnetoPlanner/MagnetoContactTestPlanner.hpp>
+

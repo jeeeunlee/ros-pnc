@@ -150,10 +150,10 @@ void MagnetoReachabilityContact::FinishContactSet() {
     Uf_row_dim+= Uf_i.rows();
     Uf_col_dim+= Uf_i.cols();
   }
-  my_utils::pretty_print(Uf, std::cout, "Uf");
-  my_utils::pretty_print(Fr_ieq, std::cout, "Fr_ieq");
+  // my_utils::pretty_print(Uf, std::cout, "Uf");
+  // my_utils::pretty_print(Fr_ieq, std::cout, "Fr_ieq");
   Fr_ieq -= Uf*F_magnetic; // todo : sign check
-  my_utils::pretty_print(Fr_ieq, std::cout, "Fr_ieq_mag");
+  // my_utils::pretty_print(Fr_ieq, std::cout, "Fr_ieq_mag");
 
   wbqpd_->setFrictionCone(Uf, Fr_ieq);
 }
