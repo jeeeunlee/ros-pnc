@@ -1,6 +1,7 @@
 #include <my_pnc/MagnetoPnC/MagnetoCtrlArchitecture/MagnetoCtrlArchitecture.hpp>
 #include <my_pnc/MagnetoPnC/MagnetoInterface.hpp>
 #include <my_pnc/MagnetoPnC/MagnetoStateMachine/OneStepWalking.hpp>
+#include <random>
 
 OneStepWalking::OneStepWalking(const StateIdentifier state_identifier_in,
     MagnetoControlArchitecture* _ctrl_arch, RobotSystem* _robot)
@@ -41,13 +42,24 @@ void OneStepWalking::firstVisit() {
   // ctrl_arch_->reachability_planner_->compute(q_goal); 
   // ctrl_arch_->reachability_planner_->addGraph
 
+  // random
+  // std::random_device rd;
+  // std::mt19937 gen(rd());
+  // std::uniform_real_distribution<> t_c(-0.05, 0.1); // 
+  // std::uniform_real_distribution<> t_s(-0.05, 0.3); // 
+
+  Eigen::VectorXd motion_periods_rand = motion_periods_;
+  // motion_periods_rand[0] += t_c(gen);
+  // motion_periods_rand[1] += t_s(gen);
+  // motion_periods_rand[2] += t_c(gen);
+
   std::vector<ReachabilityState> state_list;
-  if(ctrl_arch_->trajectory_planner_->ParameterizeTrajectory(mc_curr_, 0.5, motion_periods_(0), motion_periods_(1), motion_periods_(2))){    
+  if(ctrl_arch_->trajectory_planner_->ParameterizeTrajectory(mc_curr_, 0.5, motion_periods_rand(0), motion_periods_rand(1), motion_periods_rand(2))){    
     double t;
     Eigen::VectorXd q, dotq, ddotq;
     bool is_swing;
     ReachabilityState rchstate;
-    int t_end = (int) ((motion_periods_(0)+ motion_periods_(1)+ motion_periods_(2)) / 0.001) + 1;
+    int t_end = (int) ((motion_periods_rand(0)+ motion_periods_rand(1)+ motion_periods_rand(2)) / 0.001) + 1;
     for(int i=0; i<t_end; ++i){
       t = (double)i * 0.001;
       ctrl_arch_->trajectory_planner_->update(t, q, dotq, ddotq, is_swing);

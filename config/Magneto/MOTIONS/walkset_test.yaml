@@ -12,7 +12,7 @@ num_motion: 8
 
 motion0:
   foot: 32 # 26 #BL
-  pos: [0.1,0.1,0]
+  pos: [0.2,0.05,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05
@@ -20,7 +20,7 @@ motion0:
 
 motion1:
   foot: 23 #17 #AR
-  pos: [-0.1,-0.1,0]
+  pos: [-0.1, 0.05,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05
@@ -28,7 +28,7 @@ motion1:
 
 motion2:
   foot: 41 #35 #BR
-  pos: [-0.1,0.1,0]
+  pos: [-0.05,0.15,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05
@@ -36,7 +36,7 @@ motion2:
 
 motion3:
   foot: 14 #8 #AL
-  pos: [0.1,-0.1,0]
+  pos: [0.1,0.1,0]
   ori: [1,0,0,0]
   duration: 0.4  
   swing_height: 0.05
@@ -44,7 +44,7 @@ motion3:
 
 motion4:
   foot: 41 #35 #BR
-  pos: [-0.1,0.1,0]
+  pos: [-0.15,0,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05
@@ -52,7 +52,7 @@ motion4:
 
 motion5:
   foot: 32 # 26 #BL
-  pos: [0.1,0.1,0]
+  pos: [-0.15,0,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05
@@ -60,7 +60,7 @@ motion5:
 
 motion6:
   foot: 14 #8 #AL
-  pos: [0.1,-0.1,0]
+  pos: [-0.15,0,0]
   ori: [1,0,0,0]
   duration: 0.4  
   swing_height: 0.05
@@ -68,7 +68,7 @@ motion6:
 
 motion7:
   foot: 23 #17 #AR
-  pos: [-0.1,-0.1,0]
+  pos: [-0.15,0,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05
@@ -76,7 +76,7 @@ motion7:
 
 motion8:
   foot: 14 #8 #AL
-  pos: [0.1,-0.1,0]
+  pos: [-0.15,0,0]
   ori: [1,0,0,0]
   duration: 0.4  
   swing_height: 0.05
@@ -84,7 +84,7 @@ motion8:
 
 motion9:
   foot: 41 #35 #BR
-  pos: [-0.1,0.1,0]
+  pos: [-0.15,0,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05
@@ -92,7 +92,7 @@ motion9:
 
 motion10:
   foot: 32 # 26 #BL
-  pos: [0.1,0.1,0]
+  pos: [-0.15,0,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05
@@ -100,7 +100,7 @@ motion10:
 
 motion11:
   foot: 23 #17 #AR
-  pos: [-0.1,-0.1,0]
+  pos: [-0.15,0,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05

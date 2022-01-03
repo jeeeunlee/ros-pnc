@@ -5,6 +5,7 @@
 #include <dart/gui/osg/osg.hpp>
 #include <dart/utils/urdf/urdf.hpp>
 #include <dart/utils/utils.hpp>
+#include <random>
 
 void displayJointFrames(const dart::simulation::WorldPtr& world,
                         const dart::dynamics::SkeletonPtr& robot) {
@@ -181,10 +182,23 @@ void _printRobotModel(dart::dynamics::SkeletonPtr robot) {
     exit(0);
 }
 
-void _setInitialConfiguration(dart::dynamics::SkeletonPtr robot, const Eigen::VectorXd& q_v = Eigen::VectorXd::Zero(6)) {
+Eigen::Vector3d _getOrientation(const double& qz, const double& qy, const double& qx, const double& rot_z){
+    Eigen::Matrix3d m;
+
+    m = Eigen::AngleAxisd(qz, Eigen::Vector3d::UnitZ())
+        * Eigen::AngleAxisd(qy, Eigen::Vector3d::UnitY())
+        * Eigen::AngleAxisd(qx, Eigen::Vector3d::UnitX())
+        * Eigen::AngleAxisd(rot_z, Eigen::Vector3d::UnitZ());
+
+    return m.eulerAngles(2, 1, 0); 
+}
+
+void _setInitialConfiguration(dart::dynamics::SkeletonPtr robot, const Eigen::VectorXd& q_v = Eigen::VectorXd::Zero(6), const double& q_rz=0.0) {
+
+    Eigen::VectorXd q = robot->getPositions();
+    Eigen::VectorXd base_link_init = q_v;
 
     int _base_joint = robot->getDof("_base_joint")->getIndexInSkeleton();
-
     int AL_coxa_joint = robot->getDof("AL_coxa_joint")->getIndexInSkeleton();
     int AL_femur_joint = robot->getDof("AL_femur_joint")->getIndexInSkeleton();
     int AL_tibia_joint = robot->getDof("AL_tibia_joint")->getIndexInSkeleton();
@@ -212,46 +226,62 @@ void _setInitialConfiguration(dart::dynamics::SkeletonPtr robot, const Eigen::Ve
     int BR_foot_joint_1 = robot->getDof("BR_foot_joint_1")->getIndexInSkeleton();
     int BR_foot_joint_2 = robot->getDof("BR_foot_joint_2")->getIndexInSkeleton();
     int BR_foot_joint_3 = robot->getDof("BR_foot_joint_3")->getIndexInSkeleton();
+
     
+    
+    // std::random_device rd;
+    // std::mt19937 gen(rd());
 
-    Eigen::VectorXd q = robot->getPositions();
-    // q[4] = 0.0;//1.0; // 0.300;
-    // q[2] = 0.1;//0.155; // 0.1; initial z position
+    // std::uniform_real_distribution<> initRotzRand(-0.5*M_PI, 0.5*M_PI);
+    // std::uniform_real_distribution<> initCoxaRand(-0.05*M_PI, 0.05*M_PI);
+    // std::uniform_real_distribution<> initFemurRand(-0.15*M_PI, 0.15*M_PI);
 
-    // q[4] = 1.0;
-    // q[2] = 0.155;// initial z position
+    // set base link initial position
+    // base_link_init[6] : [x,y,z,rz,ry,rx]
+    // random rz initial position
+    // double rz = initRotzRand(gen);
 
-    // q[4] = 1.0;
-    // q[2] = 0.2;// initial z position
+    double deg2rad = 0.017453293;
+    Eigen::Vector3d eulerzyx = _getOrientation(base_link_init[3], 
+                                base_link_init[4], 
+                                base_link_init[5], 
+                                q_rz*deg2rad );
+   
+    base_link_init.tail(3) = eulerzyx;
 
-    q.segment(0,6) = q_v.head(6);
-    q[2] = q[2]-0.085;
+    // set initial configuration
+    double coxa_joint_init = 0.0; //2./10.*M_PI_2; // 0.0 
+    double femur_joint_init =  1./10.*M_PI_2; //initFemurRand(gen); // -1./10.*M_PI_2;
+    double tibia_joint_init = - M_PI_2 - femur_joint_init;
 
-    double femur_joint_init = 1./10.*M_PI_2; // -1./10.*M_PI_2;
-    double tibia_joint_init = -11./10.*M_PI_2; // -9./10.*M_PI_2;
+    base_link_init[2] = base_link_init[2] - 0.25*femur_joint_init; // 0.085 // : 1./10.*M_PI_2;
+    std::cout<< "femur_joint_init = "  << femur_joint_init/M_PI_2 << std::endl;
+    my_utils::pretty_print(base_link_init, std::cout, "base_link_init");    
 
-    q[AL_coxa_joint] = 0.0;
+    q.segment(0,6) = base_link_init.head(6);   
+
+    q[AL_coxa_joint] = coxa_joint_init; //initCoxaRand(gen);
     q[AL_femur_joint] = femur_joint_init;
     q[AL_tibia_joint] = tibia_joint_init;
     q[AL_foot_joint_1] = 0.0;
     q[AL_foot_joint_2] = 0.0;
     q[AL_foot_joint_3] = 0.0;
 
-    q[AR_coxa_joint] = 0.0;
+    q[AR_coxa_joint] = coxa_joint_init;  //initCoxaRand(gen);
     q[AR_femur_joint] = femur_joint_init;
     q[AR_tibia_joint] = tibia_joint_init;
     q[AR_foot_joint_1] = 0.0;
     q[AR_foot_joint_2] = 0.0;
     q[AR_foot_joint_3] = 0.0;
 
-    q[BL_coxa_joint] = 0.0;
+    q[BL_coxa_joint] = coxa_joint_init;  //initCoxaRand(gen);
     q[BL_femur_joint] = femur_joint_init;
     q[BL_tibia_joint] = tibia_joint_init;
     q[BL_foot_joint_1] = 0.0;
     q[BL_foot_joint_2] = 0.0;
     q[BL_foot_joint_3] = 0.0;
 
-    q[BR_coxa_joint] = 0.0;
+    q[BR_coxa_joint] = coxa_joint_init;  //initCoxaRand(gen);
     q[BR_femur_joint] = femur_joint_init;
     q[BR_tibia_joint] = tibia_joint_init;
     q[BR_foot_joint_1] = 0.0;
@@ -259,21 +289,6 @@ void _setInitialConfiguration(dart::dynamics::SkeletonPtr robot, const Eigen::Ve
     q[BR_foot_joint_3] = 0.0;
 
     robot->setPositions(q);
-
-    // TODO JE: set passive joint???
-    // dart::dynamics::Joint* jointsss = robot->getJoint("AL_foot_joint_1");
-    // switch(jointsss->getActuatorType()){
-    //  case dart::dynamics::Joint::ActuatorType::FORCE : 
-    //     printf("force \n");
-    //     break;
-    //  case dart::dynamics::Joint::ActuatorType::PASSIVE : 
-    //     printf("passive \n");
-    //     break;
-    //  default: 
-    //     printf("nothing \n");
-    //     break;
-    // }
-
 }
 
 int main(int argc, char** argv) {
@@ -285,10 +300,15 @@ int main(int argc, char** argv) {
     Eigen::VectorXd q_floating_base_init = Eigen::VectorXd::Zero(6);
     double q_temp;
     double coef_fric;
+
+    Eigen::VectorXd view_eye = Eigen::VectorXd::Zero(3);
+    Eigen::VectorXd view_center = Eigen::VectorXd::Zero(3);
+    Eigen::VectorXd view_up = Eigen::VectorXd::Zero(3);
+    double q_rz;
     //std::ostringstream ground_file;
     try {
         YAML::Node simulation_cfg =
-            YAML::LoadFile(THIS_COM "config/Magneto/SIMULATIONWALK.yaml");
+            YAML::LoadFile(THIS_COM "config/Magneto/SIMULATION_DATAGATHERING.yaml");
         my_utils::readParameter(simulation_cfg, "servo_rate", servo_rate);
         my_utils::readParameter(simulation_cfg, "is_record", isRecord);
         my_utils::readParameter(simulation_cfg, "show_joint_frame", b_show_joint_frame);
@@ -296,7 +316,13 @@ int main(int argc, char** argv) {
         my_utils::readParameter(simulation_cfg, "ground", ground_file);
 
         my_utils::readParameter(simulation_cfg, "initial_pose", q_floating_base_init); 
-        my_utils::readParameter(simulation_cfg, "friction", coef_fric);                
+        my_utils::readParameter(simulation_cfg, "initial_rz", q_rz); 
+        
+        my_utils::readParameter(simulation_cfg, "friction", coef_fric);
+
+        my_utils::readParameter(simulation_cfg, "view_eye", view_eye);
+        my_utils::readParameter(simulation_cfg, "view_center", view_center);
+        my_utils::readParameter(simulation_cfg, "view_up", view_up);              
 
     } catch (std::runtime_error& e) {
         std::cout << "Error reading parameter [" << e.what() << "] at file: ["
@@ -351,7 +377,7 @@ int main(int argc, char** argv) {
     // Initial configuration
     // =========================================================================
     
-    _setInitialConfiguration(robot, q_floating_base_init);
+    _setInitialConfiguration(robot, q_floating_base_init, q_rz);
     // TODO
     // =========================================================================
     // Enabel Joit Limits
@@ -398,9 +424,18 @@ int main(int argc, char** argv) {
 
     // viewer.setUpViewInWindow(0, 0, 2880, 1800);
     viewer.setUpViewInWindow(1440, 0, 500, 500);
+    // viewer.getCameraManipulator()->setHomePosition(
+    //     ::osg::Vec3(5.14, 2.28, 3.0), ::osg::Vec3(0.0, 0.2, 0.5),
+    //     ::osg::Vec3(0.0, 0.0, 1.0)); // eye, center, up
+    std::cout<< "view" << std::endl;
+    std::cout<< view_eye << std::endl;
+    std::cout<< view_center << std::endl;
+    std::cout<< view_up << std::endl;
+
     viewer.getCameraManipulator()->setHomePosition(
-        ::osg::Vec3(5.14, 2.28, 3.0) * 1.5, ::osg::Vec3(0.0, 0.2, 0.5),
-        ::osg::Vec3(0.0, 0.0, 1.0));
+            ::osg::Vec3(view_eye[0], view_eye[1], view_eye[2]),
+            ::osg::Vec3(view_center[0], view_center[1], view_center[2]),
+            ::osg::Vec3(view_up[0], view_up[1], view_up[2]) );
     viewer.setCameraManipulator(viewer.getCameraManipulator());
     viewer.run();
 }

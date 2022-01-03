@@ -20,6 +20,7 @@ class MagnetoWorldNode : public dart::gui::osg::WorldNode {
 
     void SetParams_();
     void ReadMotions_();
+    void ReadMotionRandom_();
     void PlotResult_();
     void PlotFootStepResult_();
     void CheckInterrupt_();

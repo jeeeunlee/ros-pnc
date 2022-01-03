@@ -505,15 +505,15 @@ void MagnetoReachabilityPlanner::addGraph(const std::vector<ReachabilityState> &
       // my_utils::pretty_print(q_accum, std::cout, "q_accum");
       // my_utils::pretty_print(prev_state.q, std::cout, "prev_state.q");
 
-      my_utils::saveVector(ddq_des, "RPlanner_ddq_des");
-      my_utils::saveVector(ddq, "RPlanner_ddq");
+      // my_utils::saveVector(ddq_des, "RPlanner_ddq_des");
+      // my_utils::saveVector(ddq, "RPlanner_ddq");
       prev_node->computeDdotq(tau_fb, ddq);
-      my_utils::saveVector(ddq, "RPlanner_ddq_fb");
+      // my_utils::saveVector(ddq, "RPlanner_ddq_fb");
 
-      my_utils::saveVector(state.q, "RPlanner_q");
-      my_utils::saveVector(q_accum, "RPlanner_q_accum");
-      my_utils::saveVector(state.dq, "RPlanner_dq");
-      my_utils::saveVector(dq_accum, "RPlanner_dq_accum");
+      // my_utils::saveVector(state.q, "RPlanner_q");
+      // my_utils::saveVector(q_accum, "RPlanner_q_accum");
+      // my_utils::saveVector(state.dq, "RPlanner_dq");
+      // my_utils::saveVector(dq_accum, "RPlanner_dq_accum");
 
       q_accum += dq_accum * 0.001;
       dq_accum += ddq * 0.001;

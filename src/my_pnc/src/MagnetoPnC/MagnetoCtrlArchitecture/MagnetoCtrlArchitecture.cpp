@@ -156,6 +156,7 @@ void MagnetoControlArchitecture::get_next_state_pair(StateIdentifier &_next_stat
      _next_state = MAGNETO_STATES::BALANCE;
      _next_motion_command = MotionCommand();
      std::cout<<"states_sequence_ is empty!!" << std::endl;
+     exit(0);
   }    
   else {
     StatePair next_state_pair = states_sequence_.front();

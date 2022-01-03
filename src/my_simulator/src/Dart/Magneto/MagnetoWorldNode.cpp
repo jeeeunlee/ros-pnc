@@ -3,7 +3,7 @@
 #include <my_simulator/Dart/Magneto/MagnetoWorldNode.hpp>
 #include <my_utils/IO/IOUtilities.hpp>
 #include <my_utils/Math/MathUtilities.hpp>
-
+#include <random>
 
 MagnetoWorldNode::MagnetoWorldNode(const dart::simulation::WorldPtr& _world)
     : dart::gui::osg::WorldNode(_world), count_(0), t_(0.0), servo_rate_(0) {
@@ -134,7 +134,7 @@ void MagnetoWorldNode::customPreStep() {
     trq_cmd_.setZero();
     // spring in gimbal
     
-    double ks = 1.0;// N/rad
+    double ks = 0.01;// N/rad
     for(int i=6; i< Magneto::n_vdof; ++i) {
         trq_cmd_[Magneto::idx_vdof[i]] = ks * ( 0.0 - sensor_data_->virtual_q[i]);
     }
@@ -156,39 +156,49 @@ void MagnetoWorldNode::customPreStep() {
     robot_->setForces(trq_cmd_);     
 
     // SAVE DATA
-    my_utils::saveVector(sensor_data_->alf_wrench, "alf_wrench_act");
-    my_utils::saveVector(sensor_data_->blf_wrench, "blf_wrench_act");
-    my_utils::saveVector(sensor_data_->arf_wrench, "arf_wrench_act");
-    my_utils::saveVector(sensor_data_->brf_wrench, "brf_wrench_act");
+    // my_utils::saveVector(sensor_data_->alf_wrench, "alf_wrench_act");
+    // my_utils::saveVector(sensor_data_->blf_wrench, "blf_wrench_act");
+    // my_utils::saveVector(sensor_data_->arf_wrench, "arf_wrench_act");
+    // my_utils::saveVector(sensor_data_->brf_wrench, "brf_wrench_act");
     // al ar bl br
     Eigen::VectorXd Fr_simulation = Eigen::VectorXd::Zero(24);
     Fr_simulation.segment(0,6) = sensor_data_->alf_wrench;
     Fr_simulation.segment(6,6) = sensor_data_->arf_wrench;
     Fr_simulation.segment(12,6) = sensor_data_->blf_wrench;
     Fr_simulation.segment(18,6) = sensor_data_->brf_wrench;
-    my_utils::saveVector(Fr_simulation, "Fr_act");    
+    // my_utils::saveVector(Fr_simulation, "Fr_act");    
 
     Eigen::VectorXd trq_act_cmd = Eigen::VectorXd::Zero(Magneto::n_adof);
     for(int i=0; i< Magneto::n_adof; ++i)
         trq_act_cmd[i] = trq_cmd_[Magneto::idx_adof[i]];
     
     // only active joint
-    my_utils::saveVector(trq_act_cmd, "trq_fb");
-    my_utils::saveVector(command_->jtrq, "trq_ff");  
-    my_utils::saveVector(command_->q, "q");
-    my_utils::saveVector(command_->qdot, "qdot");
-    my_utils::saveVector(sensor_data_->q, "q_sen");
-    my_utils::saveVector(sensor_data_->qdot, "qdot_sen");
+    // my_utils::saveVector(trq_act_cmd, "trq_fb");
+    // my_utils::saveVector(command_->jtrq, "trq_ff");  
+    // my_utils::saveVector(command_->q, "q_des");
+    // my_utils::saveVector(command_->qdot, "qdot_des");
+    // my_utils::saveVector(sensor_data_->q, "q_sen_act");
+    // my_utils::saveVector(sensor_data_->qdot, "qdot_sen_act");
 
-    my_utils::saveVector(qddot_ff, "qddot_ff");
-    my_utils::saveVector(qddot_fb, "qddot_fb");
-    my_utils::saveVector(Fc_ff, "Fc_ff");
-    my_utils::saveVector(Fc_fb, "Fc_fb");
+    // my_utils::saveVector(qddot_ff, "qddot_ff");
+    // my_utils::saveVector(qddot_fb, "qddot_fb");
+    // my_utils::saveVector(Fc_ff, "Fc_ff");
+    // my_utils::saveVector(Fc_fb, "Fc_fb");
 
     // whole joint
-    // my_utils::saveVector(trq_cmd_, "trq");
-    // my_utils::saveVector(q, "q_sen_all");
-    // my_utils::saveVector(qdot, "qdot_sen_all");
+    my_utils::saveVector(trq_cmd_, "trq");
+    my_utils::saveVector(q, "q_sen");
+    my_utils::saveVector(qdot, "qdot_sen");
+
+    Eigen::VectorXd q_des = Eigen::VectorXd::Zero(Magneto::n_dof);
+    Eigen::VectorXd qdot_des = Eigen::VectorXd::Zero(Magneto::n_dof);
+    for(int i=0; i< Magneto::n_adof; ++i) {
+        q_des[Magneto::idx_adof[i]] = command_->q[i];
+        qdot_des[Magneto::idx_adof[i]] = command_->qdot[i];
+    }
+    my_utils::saveVector(q_des, "q_des");
+    my_utils::saveVector(qdot_des, "qdot_des");
+
 
     // Foot positions
     Eigen::VectorXd pos_al = robot_->getBodyNode("AL_foot_link") // COP frame node?
@@ -203,41 +213,41 @@ void MagnetoWorldNode::customPreStep() {
     Eigen::VectorXd pose_base = robot_->getBodyNode("base_link") // COP frame node?
                             ->getWorldTransform().translation();
 
-    // my_utils::saveVector(pos_al, "pos_al");
-    // my_utils::saveVector(pos_bl, "pos_bl");
-    // my_utils::saveVector(pos_ar, "pos_ar");
-    // my_utils::saveVector(pos_br, "pos_br");
+    my_utils::saveVector(pos_al, "pos_al");
+    my_utils::saveVector(pos_bl, "pos_bl");
+    my_utils::saveVector(pos_ar, "pos_ar");
+    my_utils::saveVector(pos_br, "pos_br");
     my_utils::saveVector(pose_base, "pose_base"); 
 
 
-    Eigen::Quaternion<double> rot_al 
-                            = Eigen::Quaternion<double>( 
-                                robot_->getBodyNode("AL_foot_link")
-                                        ->getWorldTransform().linear() );
-    Eigen::Quaternion<double> rot_bl 
-                            = Eigen::Quaternion<double>( 
-                                robot_->getBodyNode("BL_foot_link")
-                                        ->getWorldTransform().linear() );
-    Eigen::Quaternion<double> rot_ar 
-                            = Eigen::Quaternion<double>( 
-                                robot_->getBodyNode("AR_foot_link")
-                                        ->getWorldTransform().linear() );
-    Eigen::Quaternion<double> rot_br 
-                            = Eigen::Quaternion<double>( 
-                                robot_->getBodyNode("BR_foot_link")
-                                        ->getWorldTransform().linear() );
+    // Eigen::Quaternion<double> rot_al 
+    //                         = Eigen::Quaternion<double>( 
+    //                             robot_->getBodyNode("AL_foot_link")
+    //                                     ->getWorldTransform().linear() );
+    // Eigen::Quaternion<double> rot_bl 
+    //                         = Eigen::Quaternion<double>( 
+    //                             robot_->getBodyNode("BL_foot_link")
+    //                                     ->getWorldTransform().linear() );
+    // Eigen::Quaternion<double> rot_ar 
+    //                         = Eigen::Quaternion<double>( 
+    //                             robot_->getBodyNode("AR_foot_link")
+    //                                     ->getWorldTransform().linear() );
+    // Eigen::Quaternion<double> rot_br 
+    //                         = Eigen::Quaternion<double>( 
+    //                             robot_->getBodyNode("BR_foot_link")
+    //                                     ->getWorldTransform().linear() );
 
-    Eigen::Quaternion<double> rot_base
-                            = Eigen::Quaternion<double>( 
-                                robot_->getBodyNode("base_link")
-                                        ->getWorldTransform().linear() );
+    // Eigen::Quaternion<double> rot_base
+    //                         = Eigen::Quaternion<double>( 
+    //                             robot_->getBodyNode("base_link")
+    //                                     ->getWorldTransform().linear() );
 
 
     // my_utils::saveVector(rot_al, "rot_al");
     // my_utils::saveVector(rot_bl, "rot_bl");
     // my_utils::saveVector(rot_ar, "rot_ar");
     // my_utils::saveVector(rot_br, "rot_br"); 
-    my_utils::saveVector(rot_base, "rot_base"); 
+    // my_utils::saveVector(rot_base, "rot_base"); 
     
 
 
@@ -282,6 +292,7 @@ void MagnetoWorldNode::ApplyMagneticForce()  {
         robot_->getBodyNode(it.first)->addExtForce(force, location, is_force_local);
         // robot_->getBodyNode(it.first)->addExtForce(force_w, location, is_force_global);
 
+        my_utils::saveValue((double)(it.second), "magnetic_onoff_" + robot_->getBodyNode(it.first)->getName() );
         my_utils::saveVector(force, "magnetic_" + robot_->getBodyNode(it.first)->getName() );
         // std::cout<< robot_->getBodyNode(it.first)->getName().c_str()
         //          << " : " << force_w.transpose() << "(" << force(2) << ")" << std::endl;        
@@ -384,24 +395,24 @@ void MagnetoWorldNode::SetParams_() {
     try {
         YAML::Node simulation_cfg;
         if(run_mode_==RUN_MODE::STATICWALK)
-            simulation_cfg = YAML::LoadFile(THIS_COM "config/Magneto/SIMULATIONWALK.yaml");
+            simulation_cfg = YAML::LoadFile(THIS_COM "config/Magneto/SIMULATION_DATAGATHERING.yaml");
         else
         {
             std::cout<<"unavailable run mode"<<std::endl;
             exit(0);
-        }
-            
+        }            
 
         my_utils::readParameter(simulation_cfg, "servo_rate", servo_rate_);
         my_utils::readParameter(simulation_cfg["control_configuration"], "kp", kp_);
         my_utils::readParameter(simulation_cfg["control_configuration"], "kd", kd_);
         my_utils::readParameter(simulation_cfg["control_configuration"], "torque_limit", torque_limit_);
         my_utils::readParameter(simulation_cfg, "plot_result", b_plot_result_);
-        my_utils::readParameter(simulation_cfg, "motion_script", motion_file_name_);  
+        my_utils::readParameter(simulation_cfg, "motion_script", motion_file_name_); 
 
         // setting magnetic force
-        my_utils::readParameter(simulation_cfg, "magnetic_force", magnetic_force_);  
-        my_utils::readParameter(simulation_cfg, "residual_magnetism", residual_magnetism_);  
+        my_utils::readParameter(simulation_cfg, "magnetic_force", magnetic_force_ );  
+        my_utils::readParameter(simulation_cfg, "residual_magnetism", residual_magnetism_);
+
     } catch (std::runtime_error& e) {
         std::cout << "Error reading parameter [" << e.what() << "] at file: ["
                   << __FILE__ << "]" << std::endl
@@ -410,11 +421,62 @@ void MagnetoWorldNode::SetParams_() {
 }
 
 void MagnetoWorldNode::ReadMotions_() {
+    std::ostringstream motion_file_name;    
+    motion_file_name << THIS_COM << motion_file_name_;
+    std::cout<< motion_file_name.str();
+    int num_motion;
+    try { 
+        YAML::Node motion_cfg = YAML::LoadFile(motion_file_name.str());
+        my_utils::readParameter(motion_cfg, "num_motion", num_motion);
+        for(int i(0); i<num_motion; ++i){
+            int link_idx;
+            MOTION_DATA md_temp;
+
+            Eigen::VectorXd pos_temp;
+            Eigen::VectorXd ori_temp;
+            bool is_bodyframe;
+
+            std::ostringstream stringStream;
+            stringStream << "motion" << i;
+            std::string conf = stringStream.str();    
+
+            my_utils::readParameter(motion_cfg[conf], "foot", link_idx);
+            my_utils::readParameter(motion_cfg[conf], "duration", md_temp.motion_period);
+            my_utils::readParameter(motion_cfg[conf], "swing_height", md_temp.swing_height);
+            my_utils::readParameter(motion_cfg[conf], "pos",pos_temp);
+            my_utils::readParameter(motion_cfg[conf], "ori", ori_temp);
+            my_utils::readParameter(motion_cfg[conf], "b_relative", is_bodyframe);
+            
+            // 2021.05.25.random            
+            my_utils::pretty_print(pos_temp,std::cout,"pos_temp");
+            std::cout<<" md_temp.swing_height = " << md_temp.swing_height << std::endl;
+            md_temp.pose = POSE_DATA(pos_temp, ori_temp, is_bodyframe);
+
+            // interface_->(WalkingInterruptLogic*)interrupt_
+            //             ->motion_command_script_list_
+            //             .push_back(MotionCommand(link_idx,md_temp));
+            ((MagnetoInterface*)interface_)->AddScriptWalkMotion(link_idx,md_temp);
+        }
+
+    } catch (std::runtime_error& e) {
+        std::cout << "Error reading parameter [" << e.what() << "] at file: ["
+                  << __FILE__ << "]" << std::endl
+                  << std::endl;
+    }
+}
+
+void MagnetoWorldNode::ReadMotionRandom_() {
 
     std::ostringstream motion_file_name;    
     motion_file_name << THIS_COM << motion_file_name_;
+    std::cout<< motion_file_name.str();
 
     int num_motion;  
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> p2cm(-0.02, 0.02); 
+    std::uniform_real_distribution<> p1cm(-0.01, 0.01); 
 
     try { 
         YAML::Node motion_cfg = YAML::LoadFile(motion_file_name.str());
@@ -437,7 +499,20 @@ void MagnetoWorldNode::ReadMotions_() {
             my_utils::readParameter(motion_cfg[conf], "pos",pos_temp);
             my_utils::readParameter(motion_cfg[conf], "ori", ori_temp);
             my_utils::readParameter(motion_cfg[conf], "b_relative", is_bodyframe);
+            
+            // 2021.05.25.random 
+            double rand_temp(0.0);
+            for(int vi(0);vi<pos_temp.size()-1;vi++){
+                rand_temp=0.0;
+                while(rand_temp < 0.005 && rand_temp > -0.005)
+                    rand_temp = p2cm(gen);
+                pos_temp[vi] += rand_temp;
+            }
+            md_temp.swing_height += p1cm(gen);
+            my_utils::pretty_print(pos_temp,std::cout,"pos_temp");
+            std::cout<<" md_temp.swing_height = " << md_temp.swing_height << std::endl;
             md_temp.pose = POSE_DATA(pos_temp, ori_temp, is_bodyframe);
+
             // interface_->(WalkingInterruptLogic*)interrupt_
             //             ->motion_command_script_list_
             //             .push_back(MotionCommand(link_idx,md_temp));
@@ -489,6 +564,11 @@ void MagnetoWorldNode::UpdateContactSwitchData_() {
         = contact_distance_[MagnetoBodyNode::AR_foot_link] < contact_threshold_;
     sensor_data_->brfoot_contact
         = contact_distance_[MagnetoBodyNode::BR_foot_link] < contact_threshold_;
+
+    my_utils::saveValue((double)(sensor_data_->alfoot_contact), "contact_onoff_AL_foot_link" );
+    my_utils::saveValue((double)(sensor_data_->blfoot_contact), "contact_onoff_BL_foot_link" );
+    my_utils::saveValue((double)(sensor_data_->arfoot_contact), "contact_onoff_AR_foot_link" );
+    my_utils::saveValue((double)(sensor_data_->brfoot_contact), "contact_onoff_BR_foot_link" );
 
     // static bool first_contact = false;
     // if(!first_contact) {

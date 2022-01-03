@@ -40,7 +40,7 @@ void WalkingInterruptLogic::processInterrupts() {
           for(auto &it : motion_command_script_list_) {          
             ctrl_arch_->add_next_state(MAGNETO_STATES::ONE_STEP_WALKING, it );      
           }
-          ctrl_arch_->add_next_state(MAGNETO_STATES::BALANCE, MotionCommand() );
+          // ctrl_arch_->add_next_state(MAGNETO_STATES::BALANCE, MotionCommand() );
         }
       break;
       case 'w':

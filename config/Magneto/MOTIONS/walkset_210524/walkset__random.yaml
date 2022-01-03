@@ -1,4 +1,4 @@
-num_motion: 8
+num_motion: 56
 # foot : AL-8/14, AR-17/23, BL-26/32 , BR-35/41
 #
 #              BR       BL 
@@ -10,100 +10,68 @@ num_motion: 8
 #    x          AR      AL
 #
 
+
+################ to center ################
 motion0:
-  foot: 32 # 26 #BL
-  pos: [0.1,0.1,0]
+  foot: 32 # 26 #BL (1)
+  pos: [0.05, -0.05,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05
   b_relative: true
 
 motion1:
-  foot: 23 #17 #AR
-  pos: [-0.1,-0.1,0]
+  foot: 41 #35 #BR (2)
+  pos: [0.05,0.05,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05
   b_relative: true
 
 motion2:
-  foot: 41 #35 #BR
-  pos: [-0.1,0.1,0]
+  foot: 23 #17 #AR
+  pos: [0,0.1,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05
   b_relative: true
 
 motion3:
-  foot: 14 #8 #AL
-  pos: [0.1,-0.1,0]
+  foot: 41 #35 #BR
+  pos: [0,0.1,0]
   ori: [1,0,0,0]
-  duration: 0.4  
+  duration: 0.4
   swing_height: 0.05
   b_relative: true
 
 motion4:
-  foot: 41 #35 #BR
-  pos: [-0.1,0.1,0]
+  foot: 32 # 26 #BL (1)
+  pos: [0.1,0.1,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05
   b_relative: true
 
 motion5:
-  foot: 32 # 26 #BL
-  pos: [0.1,0.1,0]
+  foot: 23 #17 #AR (3)
+  pos: [-0.1,-0.1,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05
   b_relative: true
 
 motion6:
-  foot: 14 #8 #AL
-  pos: [0.1,-0.1,0]
-  ori: [1,0,0,0]
-  duration: 0.4  
-  swing_height: 0.05
-  b_relative: true
-
-motion7:
-  foot: 23 #17 #AR
+  foot: 32 # 26 #BL (1)
   pos: [-0.1,-0.1,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05
   b_relative: true
 
-motion8:
-  foot: 14 #8 #AL
-  pos: [0.1,-0.1,0]
-  ori: [1,0,0,0]
-  duration: 0.4  
-  swing_height: 0.05
-  b_relative: true
-
-motion9:
-  foot: 41 #35 #BR
-  pos: [-0.1,0.1,0]
-  ori: [1,0,0,0]
-  duration: 0.4
-  swing_height: 0.05
-  b_relative: true
-
-motion10:
-  foot: 32 # 26 #BL
+motion7:
+  foot: 23 #17 #AR (3)
   pos: [0.1,0.1,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.05
   b_relative: true
-
-motion11:
-  foot: 23 #17 #AR
-  pos: [-0.1,-0.1,0]
-  ori: [1,0,0,0]
-  duration: 0.4
-  swing_height: 0.05
-  b_relative: true
-
-
