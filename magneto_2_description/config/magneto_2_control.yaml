@@ -1,0 +1,71 @@
+syropod:
+  # Publish all joint states -----------------------------------
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50  
+
+  # Position Controllers ---------------------------------------
+  AR_coxa_joint:
+    type: effort_controllers/JointPositionController
+    joint: AR_coxa_joint
+    pid: {p: 40, i: 5, d: 0.25}
+  AR_femur_joint:
+    type: effort_controllers/JointPositionController
+    joint: AR_femur_joint
+    pid: {p: 40, i: 5, d: 0.25}
+  AR_tibia_joint:
+    type: effort_controllers/JointPositionController
+    joint: AR_tibia_joint
+    pid: {p: 40, i: 5, d: 0.25}
+  AR_tarsus_joint:
+    type: effort_controllers/JointPositionController
+    joint: AR_tarsus_joint
+    pid: {p: 40, i: 5, d: 0.25}  
+  BR_coxa_joint:
+    type: effort_controllers/JointPositionController
+    joint: BR_coxa_joint
+    pid: {p: 40, i: 5, d: 0.25}
+  BR_femur_joint:
+    type: effort_controllers/JointPositionController
+    joint: BR_femur_joint
+    pid: {p: 40, i: 5, d: 0.25}
+  BR_tibia_joint:
+    type: effort_controllers/JointPositionController
+    joint: BR_tibia_joint
+    pid: {p: 40, i: 5, d: 0.25}
+  BR_tarsus_joint:
+    type: effort_controllers/JointPositionController
+    joint: BR_tarsus_joint
+    pid: {p: 40, i: 5, d: 0.25}   
+  BL_coxa_joint:
+    type: effort_controllers/JointPositionController
+    joint: BL_coxa_joint
+    pid: {p: 40, i: 5, d: 0.25}
+  BL_femur_joint:
+    type: effort_controllers/JointPositionController
+    joint: BL_femur_joint
+    pid: {p: 40, i: 5, d: 0.25}
+  BL_tibia_joint:
+    type: effort_controllers/JointPositionController
+    joint: BL_tibia_joint
+    pid: {p: 40, i: 5, d: 0.25}
+  BL_tarsus_joint:
+    type: effort_controllers/JointPositionController
+    joint: BL_tarsus_joint
+    pid: {p: 40, i: 5, d: 0.25} 
+  AL_coxa_joint:
+    type: effort_controllers/JointPositionController
+    joint: AL_coxa_joint
+    pid: {p: 40, i: 5, d: 0.25}
+  AL_femur_joint:
+    type: effort_controllers/JointPositionController
+    joint: AL_femur_joint
+    pid: {p: 40, i: 5, d: 0.25}
+  AL_tibia_joint:
+    type: effort_controllers/JointPositionController
+    joint: AL_tibia_joint
+    pid: {p: 40, i: 5, d: 0.25}  
+  AL_tarsus_joint:
+    type: effort_controllers/JointPositionController
+    joint: AL_tarsus_joint
+    pid: {p: 40, i: 5, d: 0.25} 

@@ -42,11 +42,13 @@ octave-workspace
 # folders
 build
 devel
+logs
 etc
 RLData
 robot_description/Robot/Magneto
 experiment_data*
 ExperimentVideo
+.catkin_tools
 
 # etc
 tags

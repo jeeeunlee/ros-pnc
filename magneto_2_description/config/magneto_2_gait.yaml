@@ -1,0 +1,33 @@
+########################################################################################################################
+# Gait Parameters
+########################################################################################################################
+
+syropod:
+  gait_parameters:
+
+########################################################################################################################
+
+    quad_wave_gait:
+
+      stance_phase: 14
+      swing_phase: 2
+      phase_offset: 4
+      pull_phase: 2 #this does nothing
+
+      # Original (results in step pattern = FR, FL, HL, HR):
+      offset_multiplier: {AR: 1, BR: 2, BL: 3, AL: 0}
+      
+      # changing the offset multipliers here also requires to change the order of pose_phase_start and pose_phase_end, 
+      # and the pose_negation_phase_starts and pose_negation_phase_ends in magneto_2_auto_pose.yaml!
+      
+      # Gait 2 - moves AR, BL, AL, BR:
+      # offset_multiplier: {AR: 1, BR: 2, BL: 0, AL: 3}
+
+      # not sure how the offsets work but it seems that:
+      # offset 1 = first leg to move, 
+      # offset 0 = second leg to move
+      # offset 3 = third leg to move
+      # offset 2 = fourth leg to move
+
+########################################################################################################################
+########################################################################################################################

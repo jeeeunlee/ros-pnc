@@ -1,0 +1,99 @@
+# # --------------------------------------------------------------------------- # #
+# GLOBAL OPERATION PARAMETERS
+loop_rate: 200                 # desired rate for joint state updates. actual rate may be less depending on number
+                                  # of dynamixels connected and port baud rate.
+control_mode: position            # control mode, either 'position', 'velocity', or 'effort'
+disable_torque_on_shutdown: false # with this enabled the motors will switch off when the controller closes
+ignore_input_velocity: true       # ignore input velocity commands in position mode (no profile velocity)
+diagnostics_rate: 1               # rate to publish diagnostic information
+dataport_rate: 1                  # rate to read from dynamixel external dataports
+
+# The below values are used as global defaults and are applied for each servo unless overridden in the entry for
+# the servo below
+global_max_vel: 5.0           # maximum joint speed (rad/s) (in position or velocity control)
+global_torque_limit: 1.0          # maximum motor torque for all modes, given as a fraction of rated max (0-1)
+
+# # --------------------------------------------------------------------------- # #
+# PORT AND SERVO CONFIGURATIONS
+ports:
+
+  # PORT LIST
+  - name: Port_1               # name for this port in config
+    device: /dev/serial/by-id/usb-FTDI_USB-RS485_Cable_FTY4851G-if00-port0
+    baudrate: 3000000          # baudrate in use
+    use_legacy_protocol: false  # wether to use new 2.0 protocol (false) or legacy 1.0 protocol (true)
+    group_read_enabled: true   # specify whether to use group comms for reading
+    group_write_enabled: true  # specify whether to use group comms for writing
+    servos:
+
+        - id: 11
+          joint_name: AR_coxa_joint
+          zero_pos: 2048
+          min_pos: 0
+          max_pos: 4095
+
+        - id: 12
+          joint_name: AR_femur_joint
+          zero_pos: 2332 #+25 deg to account for angle of dynamixel mount
+          min_pos: 4095
+          max_pos: 0
+
+        - id: 13
+          joint_name: AR_tibia_joint
+          zero_pos: 2389 #+30 deg to account for angle of dynamixel mount
+          min_pos: 0
+          max_pos: 4095
+
+        - id: 31
+          joint_name: BL_coxa_joint
+          zero_pos: 2048
+          min_pos: 0
+          max_pos: 4095
+
+        - id: 32
+          joint_name: BL_femur_joint
+          zero_pos: 2332 #+25 deg to account for angle of dynamixel mount
+          min_pos: 4095
+          max_pos: 0
+
+        - id: 33
+          joint_name: BL_tibia_joint
+          zero_pos: 2389 #+30 deg to account for angle of dynamixel mount
+          min_pos: 0
+          max_pos: 4095
+
+        - id: 21
+          joint_name: BR_coxa_joint
+          zero_pos: 2048
+          min_pos: 0
+          max_pos: 4095
+
+        - id: 22
+          joint_name: BR_femur_joint
+          zero_pos: 2332 #+25 deg to account for angle of dynamixel mount
+          min_pos: 4095
+          max_pos: 0
+
+        - id: 23
+          joint_name: BR_tibia_joint
+          zero_pos: 2389 #+30 deg to account for angle of dynamixel mount
+          min_pos: 0
+          max_pos: 4095
+
+        - id: 41
+          joint_name: AL_coxa_joint
+          zero_pos: 2048
+          min_pos: 0
+          max_pos: 4095
+
+        - id: 42
+          joint_name: AL_femur_joint
+          zero_pos: 2332 #+25 deg to account for angle of dynamixel mount
+          min_pos: 4095
+          max_pos: 0
+
+        - id: 43
+          joint_name: AL_tibia_joint
+          zero_pos: 2389 #+30 deg to account for angle of dynamixel mount
+          min_pos: 0
+          max_pos: 4095

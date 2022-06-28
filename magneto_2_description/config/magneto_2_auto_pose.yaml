@@ -1,0 +1,41 @@
+########################################################################################################################
+# Auto Pose Compensation Parameters
+########################################################################################################################
+
+syropod:
+  auto_pose_parameters:
+  
+########################################################################################################################
+
+    quad_wave_gait_pose:
+
+      pose_frequency: -1.0 # sync with step cycle
+      pose_phase_length: 16
+      
+      # Original - adjust order of these when adjusting order of offset multiplier in gait.yaml:
+      pose_phase_starts: [1, 5, 9, 13, 4, 8, 12, 0] #Per phase (step order: AR,AL,BL,BR)
+      pose_phase_ends:   [5, 9, 13, 1, 6, 10, 14, 2]
+
+      # Gait 2 (step order: AR, BL, AL, BR)
+      # pose_phase_starts: [1, 5, 13, 9, 4, 8, 0, 12] #Per phase (step order: AR,AL,BL,BR)
+      # pose_phase_ends:   [5, 9, 1, 13, 6, 10, 2, 14]
+
+      # Original:
+      pose_negation_phase_starts: {AR: 2,    BR: 14,   BL: 10,   AL: 6}  # step order: AR,AL,BL,BR
+      pose_negation_phase_ends:   {AR: 6,    BR: 2,    BL: 14,   AL: 10}
+      # Gait 2:
+      # pose_negation_phase_starts: {AR: 2,    BR: 14,   BL: 6,   AL: 10} # step order: AR,BL,AL,BR
+      # pose_negation_phase_ends:   {AR: 6,    BR: 2,    BL: 10,   AL: 14}
+      negation_transition_ratio:  {AR: 0.25, BR: 0.25, BL: 0.25, AL: 0.25}
+
+                         #[    ??,     ??,     ??,     ??,     AR,     AL,     BL,     BR]
+      x_amplitudes:       [ 0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000]
+      y_amplitudes:       [ 0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000]
+      z_amplitudes:       [ 0.000,  0.000,  0.000,  0.000, -0.040, -0.040, -0.040, -0.040]
+      roll_amplitudes:    [ 0.000,  0.000,  0.000,  0.000,  0.035, -0.035, -0.035,  0.035]
+      pitch_amplitudes:   [ 0.000,  0.000,  0.000,  0.000,  0.035,  0.035, -0.035, -0.035]
+      yaw_amplitudes:     [ 0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000,  0.000]
+      gravity_amplitudes: [-0.035, -0.035, -0.035, -0.035,  0.000,  0.000,  0.000,  0.000]
+      
+########################################################################################################################
+########################################################################################################################

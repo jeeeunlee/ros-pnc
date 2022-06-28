@@ -1,0 +1,81 @@
+########################################################################################################################
+# Syropod Link Description Parameters
+######################################################################################################################## 
+# Units:
+# mass: kg
+# distance: m
+
+# At minimum each link must have a 'default' configuration specified here:
+# DH params are not yet used make sure you update the magneto_2.yaml accordingly when switching legs
+
+magneto_2: # name of robot from which this link is usually associated
+
+    coxa:
+        default:
+            inertial:
+                mass: 0.05629
+                origin: {x: 0.00, y: 0.02017, z: 0.00, r: 0.00, p: 0.00, y: 0.00}
+                inertia: {ixx: 63834.17E-09, ixy: 0.00, ixz: 0.00, iyy: 28435.19E-09, iyz: 0.00, izz: 43053.31E-09}
+            visual: 
+                mesh: coxa_link.STL
+                origin: {x: 0.00, y: 0.00, z: 0.00, r: 0.000, p: 0.000, y: 0.00}
+            collision: 
+                mesh: coxa_link_collision.STL
+                origin: {x: 0.00, y: 0.002, z: 0.00, r: -1.5708, p: 1.5708, y: 0.00}
+            # DH:  {d:  0.090, theta: -0.135, r:  0.000, alpha:  1.571} 
+
+    femur:
+
+        default:
+            inertial:
+                mass: 0.25695
+                origin: {x: 0.03310, y: 0.01707, z: 0.00057, r: 0.00, p: 0.00, y: 0.00}
+                inertia: {ixx: 234481.95E-09, ixy: 89612.82E-09, ixz: 22993.28E-09, iyy: 1057680.13E-09, iyz: -822.12E-09, izz: 1137178.68E-09}
+            visual: 
+                mesh: femur_link.STL
+                origin: {x: 0.00, y: 0.00, z: 0.00, r: 0.00, p: 0.00, y: 0.00}
+            collision: 
+                mesh: femur_link_collision.STL
+                origin: {x: 0.00, y: -0.015, z: 0.00, r: -1.5708, p: 0.00, y: 0.00}
+            # DH: {d:  0.000, theta:  0.000, r:  0.150, alpha:  0.000}
+
+    tibia:
+        
+        default:
+            inertial:
+                mass: 0.45311
+                origin: {x: 0.03630, y: -0.00, z: -0.00011, r: 0.00, p: 0.00, y: 0.00}
+                inertia: {ixx: 86920.14E-09, ixy: -1446.53E-09, ixz: -3735.92E-09, iyy: 677919.71E-09, iyz: 117.36E-09, izz: 649139.72E-09}
+            visual: 
+                mesh: tibia_link.STL
+                origin: {x: 0.00, y: 0.00, z: 0.00, r: 0.00, p: 0.00, y: 0.00}
+            collision: 
+                mesh: tibia_link_collision.STL
+                origin: {x: 0.1263, y: 0.00, z: 0.00, r: 0.00, p: -1.5708, y: 0.00}
+            # DH: {d:  0.000, theta:  0.000, r:  0.163, alpha:  0.000}
+
+        ft_sensor:
+            inertial:
+                mass: 0.57311
+                origin: {x: 0.04813, y: -0.00, z: 0.00063, r: 0.00, p: 0.00, y: 0.00}
+                inertia: {ixx: 126913.96E-09, ixy: -2135.98E-09, ixz: 15807.16E-09, iyy: 1351324.24E-09, iyz: 48.59E-09, izz: 1315981.96E-09}
+            visual: 
+                mesh: tibia_link.STL
+                origin: {x: 0.00, y: 0.00, z: 0.00, r: 0.00, p: 0.00, y: 0.00}
+            collision: 
+                mesh: tibia_link_collision.STL
+                origin: {x: 0.1263, y: 0.00, z: 0.00, r: 0.00, p: -1.5708, y: 0.00}
+            # DH: {d:  0.000, theta:  0.000, r:  0.163, alpha:  0.000}
+
+        old:
+            inertial:
+                mass: 0.20721
+                origin: {x: 0.02851, y: -0.00001, z: 0.00014, r: 0.00, p: 0.00, y: 0.00}
+                inertia: {ixx: 62871.39E-09, ixy: -357.79E-09, ixz: -3541.38E-09, iyy: 397773.72E-09, iyz: 114.38E-09, izz: 374723.21E-09}
+            visual: 
+                mesh: tibia_link.STL
+                origin: {x: 0.126, y: 0.00, z: 0.00, r: 0.00, p: -1.5708, y: 0.00}
+            collision: 
+                mesh: tibia_link_collision.STL
+                origin: {x: 0.1263, y: 0.00, z: 0.00, r: 0.00, p: -1.5708, y: 0.00}
+            # DH: {d:  0.000, theta:  0.000, r:  0.150, alpha:  0.000}

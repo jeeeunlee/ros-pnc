@@ -1,0 +1,288 @@
+########################################################################################################################
+# Syropod 'Magneto' Parameters
+########################################################################################################################
+
+syropod:
+    parameters:
+
+      robot_configuration: magneto_2 # used by autonomy_controller to find correct mesh files
+  ########################################################################################################################
+      # Control parameters
+      transition_time:    2.5
+      time_delta:         0.02
+      manual_posing:      true
+      auto_posing:        true
+      rough_terrain_mode: false
+      admittance_control: false
+      inclination_posing: false #requires imu
+      imu_posing:         false #requires imu
+  
+  ########################################################################################################################
+      # Hardware interface parameters
+      individual_control_interface: false #Use for Gazebo or 'Dynamixel Controller' (OLD)
+      combined_control_interface:   true #Use for 'Dynamixel Interface' (NEW)
+  
+  ########################################################################################################################
+      # Model parameters
+      syropod_type: magneto
+      syropod_version: 2
+      leg_id:       [AL, AR, BL, BR] # leg_id_name (clockwise from front right leg)
+      joint_id:     [coxa, femur, tibia] # joint_id_name
+      link_id:      [base, coxa, femur, tibia] # link_id_name (always start with base)
+      leg_DOF:      {AR: 3, BR: 3, BL: 3, AL: 3} # leg_id_name: degrees_of_freedom (num joints)
+  
+      # Joint parameters:
+      AR_coxa_joint_parameters:  {min: -2.355, max:  2.355, packed: -1.820, unpacked:  0.000, max_vel: 5.000}
+      AR_femur_joint_parameters: {min: -1.450, max:  1.600, packed:  1.900, unpacked:  0.785, max_vel: 5.000}
+      AR_tibia_joint_parameters: {min: -2.355, max:  0.001, packed: -2.860, unpacked: -0.785, max_vel: 5.000}
+
+      BR_coxa_joint_parameters:  {min: -2.355, max:  2.355, packed: -1.571, unpacked:  0.000, max_vel: 5.000}
+      BR_femur_joint_parameters: {min: -1.450, max:  1.600, packed:  1.900, unpacked:  0.785, max_vel: 5.000}
+      BR_tibia_joint_parameters: {min: -2.355, max:  0.001, packed: -2.860, unpacked: -0.785, max_vel: 5.000}
+
+      BL_coxa_joint_parameters:  {min: -2.355, max:  2.355, packed: -1.571, unpacked:  0.000, max_vel: 5.000}
+      BL_femur_joint_parameters: {min: -1.450, max:  1.600, packed: -1.900, unpacked: -0.785, max_vel: 5.000}
+      BL_tibia_joint_parameters: {min: -2.355, max:  0.001, packed:  2.860, unpacked:  0.785, max_vel: 5.000}
+      
+      AL_coxa_joint_parameters:  {min: -2.355, max:  2.355, packed: -1.330, unpacked:  0.000, max_vel: 5.000}
+      AL_femur_joint_parameters: {min: -1.450, max:  1.600, packed: -1.900, unpacked: -0.785, max_vel: 5.000}
+      AL_tibia_joint_parameters: {min: -2.355, max:  0.001, packed:  2.860, unpacked:  0.785, max_vel: 5.000}
+  
+      # Link DH parameters: en.wikipedia.org/wiki/Denavit–Hartenberg_parameters (set dynamic joint thetas to zero)
+      AR_base_link_parameters:  {d:  0.000, theta: -0.644, r:  0.151, alpha:  0.000}
+      AR_coxa_link_parameters:  {d:  0.087, theta: -0.141, r:  0.000, alpha:  1.571}
+      AR_femur_link_parameters: {d:  0.000, theta:  0.000, r:  0.150, alpha:  0.000}
+      AR_tibia_link_parameters: {d:  0.000, theta:  0.000, r:  0.158, alpha:  0.000}
+
+      BR_base_link_parameters:  {d:  0.000, theta: -2.498, r:  0.151, alpha:  0.000}
+      BR_coxa_link_parameters:  {d:  0.087, theta:  0.141, r:  0.000, alpha:  1.571}
+      BR_femur_link_parameters: {d:  0.000, theta:  0.000, r:  0.150, alpha:  0.000}
+      BR_tibia_link_parameters: {d:  0.000, theta:  0.000, r:  0.158, alpha:  0.000}
+
+      BL_base_link_parameters:  {d:  0.000, theta:  2.498, r:  0.151, alpha:  0.000}
+      BL_coxa_link_parameters:  {d:  0.087, theta: -0.141, r:  0.000, alpha:  1.571}
+      BL_femur_link_parameters: {d:  0.000, theta:  0.000, r:  0.150, alpha:  0.000}
+      BL_tibia_link_parameters: {d:  0.000, theta:  0.000, r:  0.158, alpha:  0.000}
+
+      AL_base_link_parameters:  {d:  0.000, theta:  0.644, r:  0.151, alpha:  0.000}
+      AL_coxa_link_parameters:  {d:  0.087, theta:  0.141, r:  0.000, alpha:  1.571}
+      AL_femur_link_parameters: {d:  0.000, theta:  0.000, r:  0.150, alpha:  0.000}
+      AL_tibia_link_parameters: {d:  0.000, theta:  0.000, r:  0.158, alpha:  0.000}
+  
+      clamp_joint_positions:  true
+      clamp_joint_velocities: true
+      ignore_IK_warnings:     false
+  
+  ########################################################################################################################
+      # Walker parameters
+      gait_type:            quad_wave_gait
+      body_clearance:       0.05
+      lift_height:          0.01 #The amount the body poses in and out when transitioning between leg manual manipulation
+      step_frequency:       {default:  0.750, min:  0.001, max:  2.000, step:  0.100} #Reconfigurable
+      swing_height:         {default:  0.050, min:  0.010, max:  0.150, step:  0.010} #Reconfigurable
+      swing_width:          {default:  0.000, min:  0.000, max:  0.000, step:  0.000} #Reconfigurable
+      step_depth:           {default:  0.000, min:  0.010, max:  0.300, step:  0.010} #Reconfigurable
+      stance_span_modifier: {default:  0.000, min: -1.000, max:  1.000, step:  0.100} #Reconfigurable
+  
+      #Original:
+      AR_stance_position: {x:  0.190,  y: -0.225}
+      BR_stance_position: {x: -0.190,  y: -0.225}
+      BL_stance_position: {x: -0.190,  y:  0.225}
+      AL_stance_position: {x:  0.190,  y:  0.225}
+      
+      # Foot ratio trial 1.5
+      # AR_stance_position: {x:  0.250,  y: -0.166}
+      # BR_stance_position: {x: -0.250,  y: -0.166}
+      # BL_stance_position: {x: -0.250,  y:  0.166}
+      # AL_stance_position: {x:  0.250,  y:  0.166}
+  
+      velocity_input_mode:       throttle
+      body_velocity_scaler:      1.0
+      force_cruise_velocity:     true
+      linear_cruise_velocity:    {x: 0.800, y: 0.000}
+      angular_cruise_velocity:   0.000
+      cruise_control_time_limit: 0.000
+  
+      overlapping_walkspaces: false
+      force_normal_touchdown: true
+      gravity_aligned_tips:   false
+      touchdown_threshold:    0.9
+      liftoff_threshold:      0.1
+  
+  ########################################################################################################################
+      # Poser parameters
+      auto_pose_type:           quad_wave_gait_pose
+      start_up_sequence:        false
+      time_to_start:            2.0
+      rotation_pid_gains:       {p: 0.25, i: 5.0, d: -0.02}
+      max_translation:          {x: 0.075, y: 0.075, z: 0.10}
+      max_rotation:             {roll: 0.25, pitch: 0.25, yaw: 0.4}
+      max_translation_velocity: 0.1
+      max_rotation_velocity:    0.5
+      leg_manipulation_mode:    tip_control
+          
+      transition_inductive_contact: true  #Try to find inductive contact if manual->walking doesn't reach a inductive surface
+      find_distance:                0.05  #Distance leg lowers when attempting to find inductive contact
+    
+  
+  ########################################################################################################################
+      # Admittance controller parameters
+      dynamic_stiffness:      false
+      use_joint_effort:       true
+      integrator_step_time:   0.03
+      virtual_mass:           {default:  12.00, min: 1.000, max: 100.0, step: 5.000} #Reconfigurable
+      virtual_stiffness:      {default:  6.000, min: 1.000, max: 50.00, step: 5.000} #Reconfigurable
+      virtual_damping_ratio:  {default:  0.800, min: 0.100, max: 10.00, step: 0.050} #Reconfigurable
+      force_gain:             {default:  3.000, min: 0.001, max: 100.0, step: 1.000} #Reconfigurable
+      load_stiffness_scaler:  5.0
+      swing_stiffness_scaler: 0.01
+  
+  ########################################################################################################################
+     # Rigid Body Dynamics Library parameters
+      calculate_robot_forces: false
+      draw_robot_forces: false
+
+  ########################################################################################################################
+      # SHC Debug parameters
+      console_verbosity:            debug
+      debug_move_to_joint_position: false
+      debug_step_to_position:       false
+      debug_swing_trajectory:       false
+      debug_stance_trajectory:      false
+      debug_execute_sequence:       false
+      debug_workspace_calculations: false
+      debug_ik:                     false
+      debug_rviz:                   true
+      debug_rbdl:                   false
+  
+  ########################################################################################################################
+      # Magneto autonomous controller parameters
+
+      # Order of the legs (Use leg_id and don't repeat leg_id)
+      leg_cycle_order: [AR, BL, AL, BR]
+      # Boolen used to switch between using invidual targets or single a goal target position
+      individual_targets: true
+      # Single position used to generate target collection for each leg
+      goal_position: [ 1, 0, 0 ]
+      # Alternately goal positions for individual legs 
+      # AR_target: [ 0.225, -0.205, -0.050]
+      # BR_target: [-0.05, -0.205, -0.050]
+      # BL_target: [-0.05,  0.205, -0.050]
+      # AL_target: [0.225,  0.205, -0.050]
+      
+      # Values for Safe Hardware
+      AR_target: [ 0.205, -0.225, -0.020]
+      BR_target: [-0.100, -0.225, -0.020]
+      BL_target: [-0.100,  0.225, -0.020]
+      AL_target: [ 0.205,  0.225, -0.020]
+
+      #Velocity when moving joints using forward kinematics (scan)
+      forward_kinematic_velocity: 1
+    
+      #Toggle the use of the SHC kinematic workspace if false will create a workspace using the workspace_radius parameter.
+      use_kinematic_workspace: false
+      workspace_radius: 0.125
+      
+      #Toggle experimental features false turning off ALL child features; body posing up, range check services, make reachable service.
+      experimental_features: false
+      secondary_leg: false #uncomment custom gait designed for multi legs
+      body_posing_up: false
+      range_check_services: false
+      make_reachable_services: false
+      rotate_body_during_pull_test: false
+  
+      #Transition time for pull test won't be used if it's less then the calculated transition time (since it's too fast)
+      pull_test_transition_time: 3.00
+      #Amount pulled when running pull test
+      # pull_test_pull: 0.15
+      pull_test_pull: 0.05 # Value for Safe Hardware
+      #Amount body rises during pull test (increases pull strengh)
+      pull_test_body_rise: 0.00
+      #Amount raised over target/step postion before dropping down.
+      leg_hover: 0.05
+      #Amount body rises during scan behaviours
+      body_raise: 0.05
+      #Thereshold used to determine a additonal exclusion distance around a colliding leg (if another leg is in the current legs workspace exclude foothold that're __ close to the collding leg)
+      additional_exclusion_thereshold: 0.125
+      
+      #Starting gait behaviour - can be adjusted during runtime with logitech 'mode'
+      # FULL_AUTONOMOUS_GAIT = 0, consists of perception generated target gait positions, contact assurance and foothold adhesion tests
+      # BRAVE_AUTONOMOUS_GAIT = 1, consists of perception generated target gait positions and contact assurance   
+      # BLIND_GAIT = 2, follows pre-determined target gait positions relative to the robots body checking foothold adhesion tests and contact assurance
+      # DUMB_GAIT = 3, follows pre-determined target gait positions relative to the robots body
+      # CUSTOM_GAIT = 4, follows gait created in magneto_#_planner_mode_custom_gait.yaml 
+      # LEG_MANUAL_MANIPULATION = 5 //follows pre-determined target gait activating manual manipulation for the current leg
+      initial_gait_behaviour: 2
+
+      #Step amount ~ stops after x amount of steps or if set to -1 it'll continue indefinitely 
+      step_amount: -1
+
+      #Ideal position to move to before scanning
+      AR_ideal_scan_position: [0.1675784, -0.14, -0.01298600]
+      AL_ideal_scan_position: [0.1675784, 0.14, -0.01298600]
+      BL_ideal_scan_position: [-0.1675784, 0.14, -0.01298600]
+      BR_ideal_scan_position: [-0.1675784, -0.14, -0.01298600]
+  
+      #Swing coverage. Angle in degrees scanned either side of target (e.g. 0.3 = 30 degree thus scan additonaly 15 degrees either side of target || 0.0 = stop scan when target is reached)
+      AR_swing_coverage:  1
+      AL_swing_coverage:  1
+      BL_swing_coverage:  0.2
+      BR_swing_coverage:  0.2
+
+     #Reachable Surface Direction Angles (xyz). Acceptable angles min, max ranges of a scanned surfaces normal in relation to the base link. i.e. [80, 100] between 80 and 100 degrees is reachable
+      x_reachable_direction_angle: [70, 110] #min, max
+      y_reachable_direction_angle: [70, 110] #min, max
+      z_reachable_direction_angle: [0, 30] #min, max
+      
+      # Force Torque Verification Enable. 
+      AL_force_enable: false
+      AR_force_enable: false
+      BL_force_enable: false
+      BR_force_enable: false
+      
+      # Force Torque Verification System Parameters
+      initial_orientation: [0, 1.5713, 0] # Initial orientation of the system at startup. RPY [rad]
+      attachment_force: -100 # Estimated magnet pull force. -ve -> Pull Force [N]
+      surface_coefficient: 0.5 # Estimated surface friction coefficient. []
+  ########################################################################################################################
+      # Magneto foothold selection
+      footstep_size: 0.025
+      safe_edge_distance: 0.025
+      magneto_foothold_debug: false
+      visualise_raw_clouds: false
+      debug_normals: false
+      
+      # Segmentation variables - K-nearest neighbour algorithm (estimate normals)
+      k_search: 25
+      # Segmentation variables - Region Growing algorithm
+      min_cluster_size: 100
+      max_cluster_size: 10000
+      number_of_neighbours: 50
+      smoothness_threshold: 5.0
+      curvature_threshold: 3.0
+      
+      # Max x,y,z Min x,y,z
+      AR_range: [ 0.383021, 0.166627, 0.200,  -0.110157, -0.356682, -0.20]
+      BR_range: [0.110313, 0.165970, 0.200, -0.382922, -0.356810, -0.20]
+      BL_range: [0.110313,  0.356810, 0.200, -0.382922,  0.165970, -0.20]
+      AL_range: [ 0.383021,  0.356682, 0.200,  -0.110157,  -0.16667, -0.20]
+
+  ########################################################################################################################
+      # Magneto Adhesion Interface
+      imu_threshold: 70
+      moving_average_size: 1
+
+########################################################################################################################
+      # Magneto adhesion controller parameters
+      step_order:   [AR, AL, BL, BR] #Modify magneto_3_auto_pose.yaml to ACTUALLY change order and update order here
+      boost_adjacent_leg_during_walk: false
+
+########################################################################################################################
+      # Magneto visualiser
+      display_nodes_output: ["/shc", "/motor_validation", "/adhesion_validation"]
+      overlay_text_queue_size: 10
+      display_warnings: false
+      display_errors: true
+
+########################################################################################################################
+########################################################################################################################

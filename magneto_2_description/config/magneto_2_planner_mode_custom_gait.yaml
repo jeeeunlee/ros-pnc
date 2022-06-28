@@ -1,0 +1,48 @@
+########################################################################################################################
+# Creates planner mode custom gait used by magneto autonomy controller
+########################################################################################################################
+
+syropod:
+  planner_mode_custom_gait:
+
+    # GAIT BEHAVIOURS
+    # [1]PRE_LOAD,               //The robot is in a "PRE_LOAD" state, it'll run correctional behaviours for robot before taking the next step
+    # [2]LEG_RAISE,              //The leg is in a 'LEG_RAISED' state, it'll attempt to raise the leg verically to prevent drag during next movement
+    # [3]LEG_SCAN_POSITION,      //The leg is in a 'LEG_SCAN_POSITION' state, it'll attempt to raise the leg to a position ideal for picoflex scanning
+    # [4]LEG_AND_BODY_SCAN_POSITION,//The robot is in a 'LEG_SCAN_POSITION' state, it'll attempt to raise the leg and body to a position ideal for picoflex scanning
+    # [5]LEG_SWEEP,              //The leg is in a 'LEG_SWEEP' state, it'll sweep the leg at the coxa joint to retrieve a 270 degree scan
+    # [6]LEG_MOVE_TO_PERCIEVED_TARGET, //The leg is in a 'LEG_MOVE_TO_PERCIEVED_TARGET' state, it'll attempt to move to a target position retrieved from a picoflex scan
+    # [7]LEG_AND_BODY_MOVE_TO_PERCIEVED_TARGET, //The leg is in a 'LEG_MOVE_TO_PERCIEVED_TARGET' state, it'll attempt to move to a target position retrieved from a picoflex scan
+    # [8]LEG_MOVE_TO_GAIT_TARGET,//The leg is in a 'LEG_MOVE_TO_GAIT_TARGET' state, it'll attempt to move to a pre-defined gait target position
+    # [9]LEG_AND_BODY_MOVE_TO_GAIT_TARGET,//The leg is in a 'LEG_MOVE_TO_GAIT_TARGET' state, it'll attempt to move to a pre-defined gait target position
+    # [10]LEG_LOWER,              //The leg is in a 'LEG_LOWER' state, it'll return to its original position
+    # [11]LEG_AND_BODY_LOWER,     //The leg is in a 'LEG_LOWER' state, it'll return to its original position
+    # [12]LEG_DROP,               //The leg is in a 'LEG_DROP' state, it'll drop from hover state ensuring the foot doesn't drag
+    # [13]LEG_ASSURE_CONTACT,     //The leg is in a "LEG_ASSURE_CONTACT" state, it'll assure the leg is in contact with a surface, if it isn't it'll lower to attempt to assure contact. 
+    # [14]EXECUTE_BODY_POSE_PLAN, //The robot is in a "EXECUTE_BODY_POSE_PLAN" it'll execute any body pose queued.
+    
+    # [15]START_PULL_TEST,        //The leg is in a 'LEG_PULL_TEST' state, will attempt to lift the leg tip directly (with adhesion ON)
+    # [16]END_PULL_TEST           //The leg is in a 'END_PULL_TEST' state, will reconfigure based on pull test results AUTOMATICALLY CALLED BY START PULL TEST
+    # [17]END_POSE_TRANSITION,    //The leg is in a "END_POSE_TRANSITION" state, it'll run behaviours that end a pose transition
+    # [18]LEG_TRANSITION_COMPLETE,//The leg is in a 'LEG_TRANSITION_COMPLETE' state, it'll complete the step (toggle adhesion & iterate to the next leg)
+    # [19]LEG_CYCLE,              //Switch to the next leg in the gait/walk cycle
+    # [20]FAILURE,                //FAILURE STATE ~ Needs to be manually retrieved/reset
+    # [21]LEG_MANUAL_MANIPULATE,  //The leg is in a "LEG_MANUAL_MANIPULATE" mode, it'll handle switching back and forth from manual to planner
+    # [22]CONFIGURE_DEFAULT_POSE, //The leg is in a "CONFIGURE_DEFAULT_POSE" mode, it'll configure itself to transition into the default pose
+
+    custom_gait: [1,2,9,12,13,15,19,1,2,4,5,7,12,13,15,19,1,2,4,5,7,12,13,15,19,1,2,4,5,7,12,13,15,19] #Blind back legs, scanning front legs
+    # PAPER PULL TEST GAITS
+    # custom_gait: [2, 3, 5, 6, 12, 13, 15] # Scan Autonomous mode pull test 1 leg
+    # custom_gait: [20, 2, 9, 12, 13, 15, 1, 19] # Blind mode pull test 1 leg
+    # custom_gait: [20, 15] # Pull test from stance (unpause to start and after pull test (failing/succeeding) it'll pause itself)
+    # custom_gait: [18,1,2,9,12,13,15,18] # Used to test leg collisions
+    # custom_gait: [] # Custom GAIT ADD gait behaviours by id # in order of desired execution
+    # custom_gait: [18, 2, 9, 12] #Multi leg demo ~ demonstrates moving two legs at the same time (requires secondary_leg = true in robot.yaml)
+
+########################################################################################################################
+# EXAMPLE
+    #custom_gait: [2, 5, 12]
+    #RUNS THE FOLLOWING BEHAVIOURS: [LEG_RAISE, LEG_SWEEP, LEG_DROP]
+    
+########################################################################################################################
+########################################################################################################################
