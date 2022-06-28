@@ -1,15 +1,15 @@
 
-#include <pnc_utils/Configuration.h>
+#include <pnc_utils/../../Configuration.h>
 
 #include <pnc_utils/robot_system.hpp>
 
 #include <magneto_pnc/magneto_definition.hpp>
 #include <magneto_pnc/magneto_interface.hpp>
-#include <magneto_pnc/magneto_command_api.hpp>
+#include <magneto_pnc/magneto_command.hpp>
 
 #include <magneto_pnc/magneto_planner/magneto_goal_planner.hpp>
 #include <pnc_utils/io_utilities.hpp>
-#include "pnc_utils/Math/pseudo_inverse.hpp"
+#include <pnc_utils/math_utilities.hpp>
 
 
 MagnetoGoalPlanner::MagnetoGoalPlanner(RobotSystem* robot) {

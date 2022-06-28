@@ -7,6 +7,9 @@ project(magneto_pnc)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+set(CMAKE_BUILD_TYPE "Release")
+find_package(Eigen3)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -104,7 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES magneto_pnc
+ LIBRARIES magneto_pnc
 #  CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
@@ -115,15 +118,24 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
+set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${PROJECT_SOURCE_DIR}
+  ${PROJECT_INCLUDE_DIR}
+  ${EIGEN3_INCLUDE_DIR}
 )
 
+file(GLOB_RECURSE sources "*.cpp")
+file(GLOB_RECURSE magneto_headers "*.hpp")
+
+#message("${sources}")
+#message("${magneto_headers}")
+
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/magneto_pnc.cpp
-# )
+add_library(${PROJECT_NAME} SHARED ${sources}
+                              ${magneto_headers})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -146,10 +158,14 @@ include_directories(
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(${PROJECT_NAME}
+                    ${catkin_LIBRARIES}
+                    pnc_utils
+                    pnc_core
+)
 
+target_include_directories(${PROJECT_NAME} PUBLIC   
+                            ${PROJECT_INCLUDE_DIR})
 #############
 ## Install ##
 #############

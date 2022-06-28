@@ -11,7 +11,7 @@ MagnetoReferenceGeneratorContainer::MagnetoReferenceGeneratorContainer(
   foot_trajectory_manager_ = new FootPosTrajectoryManager(robot_);                    
   com_trajectory_manager_ = new CoMTrajectoryManager(robot_);
   joint_trajectory_manager_ = new JointTrajectoryManager(robot_);
-  base_ori_trajectory_manager_ = new BaseOriTrajectoryManager(robot_);
+  base_ori_trajectory_manager_ = new BaseOriTrajectoryManager(robot_, MagnetoBodyNode::base_link);
 
   max_normal_force_manager_ = new SmoothTransitionManager(&ws_container_->max_rf_z_trans_);
   W_xddot_manager_ = new SmoothTransitionManager(&ws_container_->w_xddot_z_trans_);

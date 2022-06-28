@@ -1,5 +1,7 @@
 
-#include <pnc_core/reference_generator/foot_trajectory_manager.hpp>
+#include <magneto_pnc/magneto_planner/reference_generator/foot_trajectory_manager.hpp>
+#include <magneto_pnc/magneto_definition.hpp>
+
 
 FootPosTrajectoryManager::FootPosTrajectoryManager(RobotSystem* _robot)
                         : TrajectoryManagerBase(_robot) {
@@ -95,7 +97,7 @@ void FootPosTrajectoryManager::setFootPosTrajectory(const double& _start_time,
   //-----------------------------------------
   //            SET FOOT ORI
   //-----------------------------------------
-  foot_quat_ini_ = Eigen::Qufoot_pos_ini_aternion<double>(
+  foot_quat_ini_ = Eigen::Quaternion<double>(
                     robot_->getBodyNodeIsometry(link_idx_).linear() );
   foot_quat_des_ = foot_quat_ini_;
   quat_hermite_curve_.initialize(foot_quat_ini_, zero_vel_,

@@ -7,8 +7,8 @@
 
 #include <pnc_core/wbc/joint_integrator.hpp>
 #include <pnc_core/wbc/kin_wbc.hpp>
-#include <magneto_pnc/magneto_wbc_controller/mf_mcwbc.hpp>
-#include <magneto_pnc/magneto_wbc_controller/mr_mcwbc.hpp>
+#include <magneto_pnc/magneto_wbc_controller/mcwbc/mf_mcwbc.hpp>
+#include <magneto_pnc/magneto_wbc_controller/mcwbc/mr_mcwbc.hpp>
 
 // MCWBC (Magnetic Contact Whole Body Control)
 

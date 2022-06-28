@@ -5,7 +5,7 @@
 
 #include <pnc_core/control_architecture.hpp>
 #include <magneto_pnc/magneto_definition.hpp>
-#include <magneto_pnc/magneto_command_api.hpp>
+#include <magneto_pnc/magneto_command.hpp>
 
 #include <magneto_pnc/magneto_wbc_controller/state_machines/state_machine_set.hpp>
 // #include <magneto_pnc/magneto_wbc_controller/magneto_wbmc.hpp>
@@ -47,7 +47,7 @@ class MagnetoMpcControlArchitecture : public ControlArchitecture {
 
  public:
   // Task and Force Containers
-  MagnetoControlSpecContainer* ws_container_;magneto_planner_container
+  MagnetoControlSpecContainer* ws_container_;
   MagnetoReferenceGeneratorContainer* rg_container_;
 
   // Controller Object

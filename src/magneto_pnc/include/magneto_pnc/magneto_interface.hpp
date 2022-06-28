@@ -2,7 +2,7 @@
 
 #include "pnc_core/env_interface.hpp"
 #include "magneto_pnc/magneto_definition.hpp"
-#include "magneto_pnc/magneto_command_api.hpp"
+#include "magneto_pnc/magneto_command.hpp"
 
 
 class MagnetoStateProvider;

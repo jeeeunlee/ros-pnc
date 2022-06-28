@@ -5,7 +5,7 @@
 #include <magneto_pnc/magneto_interface.hpp>
 #include <magneto_pnc/magneto_state_estimator.hpp>
 #include <magneto_pnc/magneto_state_provider.hpp>
-#include <magneto_pnc/magneto_command_api.hpp>
+#include <magneto_pnc/magneto_command.hpp>
 #include <magneto_pnc/magneto_logic_interrupt/walking_interrupt_logic.hpp>
 #include <magneto_pnc/magneto_logic_interrupt/climbing_interrupt_logic.hpp>
 
@@ -190,7 +190,7 @@ void MagnetoInterface::GetOptimalCoM(Eigen::VectorXd& com_des) {
 
 void MagnetoInterface::GetCurrentFootStep(Eigen::VectorXd& foot_pos) {
     foot_pos = sp_->foot_pos_init;
-}run_mode_
+}
 
 ///////////////////////////////////////////////////////////////////////////////////
 

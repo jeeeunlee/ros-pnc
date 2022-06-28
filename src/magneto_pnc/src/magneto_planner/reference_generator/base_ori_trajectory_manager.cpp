@@ -1,9 +1,9 @@
-#include <pnc_core/reference_generator/base_ori_trajectory_manager.hpp>
+#include <magneto_pnc/magneto_planner/reference_generator/base_ori_trajectory_manager.hpp>
 
-BaseOriTrajectoryManager::BaseOriTrajectoryManager(RobotSystem* _robot)
-                        : TrajectoryManagerBase(_robot) {
+BaseOriTrajectoryManager::BaseOriTrajectoryManager(RobotSystem* _robot, int base_idx)
+                        : TrajectoryManagerBase(_robot)  {
   pnc_utils::pretty_constructor(2, "TrajectoryManager: Base Ori");
-
+  base_link_idx_ = base_idx;
   
   base_pos_ini_ = Eigen::VectorXd::Zero(4);
   base_quat_ini_ = Eigen::Quaternion<double> (1,0,0,0);;
@@ -38,7 +38,7 @@ void BaseOriTrajectoryManager::setBaseOriTrajectory(const double& _start_time,
 
   base_quat_ini_ = Eigen::Quaternion<double>(
                           robot_->getBodyNodeIsometry(
-                            MagnetoBodyNode::base_link).linear() );
+                            base_link_idx_).linear() );
   base_quat_des_ = _base_quat_des;
   quat_hermite_curve_.initialize(base_quat_ini_, zero_vel_,
                                  base_quat_des_, zero_vel_, traj_duration_);
@@ -49,7 +49,7 @@ void BaseOriTrajectoryManager::setBaseOriTrajectory(const double& _start_time,
   Eigen::Quaterniond _base_quat_des 
                         = Eigen::Quaternion<double>(
                           robot_->getBodyNodeIsometry(
-                            MagnetoBodyNode::base_link).linear() );
+                            base_link_idx_).linear() );
   setBaseOriTrajectory(_start_time, _duration, _base_quat_des);
 }
 

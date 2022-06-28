@@ -4,7 +4,7 @@
 #include <pnc_utils/io_utilities.hpp>
 #include <pnc_utils/robot_system.hpp>
 #include <magneto_pnc/magneto_definition.hpp>
-#include <magneto_pnc/magneto_command_api.hpp>
+#include <magneto_pnc/magneto_command.hpp>
 
 class Constraint {
    public:

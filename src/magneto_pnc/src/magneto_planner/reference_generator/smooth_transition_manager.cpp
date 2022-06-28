@@ -1,4 +1,4 @@
-#include <pnc_core/reference_generator/smooth_transition_manager.hpp>
+#include <magneto_pnc/magneto_planner/reference_generator/smooth_transition_manager.hpp>
 
 
 SmoothTransitionManager::SmoothTransitionManager(double* _val)

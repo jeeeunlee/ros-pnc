@@ -172,7 +172,9 @@ target_link_libraries(${PROJECT_NAME}
                       ${EIGEN_LIBRARIES})
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-                      ${PROJECT_INCLUDE_DIR})
+                      ${PROJECT_INCLUDE_DIR}
+                      ${YAML_INCLUDE_DIR}
+                      ${CDD_INCLUDE_DIR})
 
 
 #############

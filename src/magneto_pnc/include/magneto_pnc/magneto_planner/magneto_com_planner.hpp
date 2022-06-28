@@ -3,7 +3,7 @@
 #include <Eigen/Dense>
 
 #include <magneto_pnc/magneto_definition.hpp>
-#include <magneto_pnc/magneto_command_api.hpp>
+#include <magneto_pnc/magneto_command.hpp>
 
 
 class RobotSystem;

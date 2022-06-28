@@ -1,7 +1,7 @@
 #pragma once
 
 #include <magneto_pnc/magneto_planner/magneto_planner_set.hpp>
-#include <pnc_core/reference_generator/reference_generator_set.hpp>
+#include <magneto_pnc/magneto_planner/reference_generator/reference_generator_set.hpp>
 
 class RobotSystem;
 class MagnetoControlSpecContainer;

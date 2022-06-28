@@ -2,8 +2,7 @@
 
 #include <magneto_pnc/magneto_state_provider.hpp>
 #include <pnc_core/state_estimator.hpp>
-#include <pnc_utils/Math/low_pass_filter.h>
-#include <pnc_utils/Math/simple_kalman_filter.h>
+#include <pnc_utils/filter_utilities.hpp>
 #include <deque>
 
 class MagnetoControlSpecContainer;

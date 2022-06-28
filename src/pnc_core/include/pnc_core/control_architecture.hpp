@@ -2,7 +2,7 @@
 
 #include <map>
 
-#include <pnc_utils/Configuration.h>
+#include <pnc_utils/../../Configuration.h>
 #include <pnc_utils/io_utilities.hpp>
 
 #include <pnc_utils/robot_system.hpp>

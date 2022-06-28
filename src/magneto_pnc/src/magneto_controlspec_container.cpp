@@ -4,14 +4,9 @@
 #include <pnc_utils/math_utilities.hpp>
 #include <pnc_utils/robot_system.hpp>
 
-#include <pnc_core/wbc/Contact/ContactSpec.hpp>
 #include <pnc_core/wbc/Contact/BasicContactSpec.hpp>
 #include <pnc_core/wbc/Contact/BodyFrameContactSpec.hpp>
 
-#include <pnc_core/wbc/Task/task_set.hpp>
-
-#include <magneto_pnc/magneto_specs/MagnetSpec.hpp>
-#include <magneto_pnc/magneto_specs/ContactWeight.hpp>
 
 MagnetoControlSpecContainer::MagnetoControlSpecContainer(RobotSystem* _robot)
   : ControlSpecContainer(_robot) {

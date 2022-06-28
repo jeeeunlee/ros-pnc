@@ -1,12 +1,14 @@
 #pragma once
 
-#include <pnc_core/reference_generator/trajectory_manager_base.hpp>
+#include <magneto_pnc/magneto_planner/reference_generator/trajectory_manager_base.hpp>
 #include <pnc_core/wbc/Contact/BasicContactSpec.hpp>
 #include <pnc_core/wbc/Contact/BodyFrameContactSpec.hpp>
 #include <pnc_core/wbc/Task/basic_task.hpp>
 
-// interpolators
 #include <pnc_utils/curve_utilities.hpp>
+
+class ComMotionCommand;
+
 
 // Object to manage common trajectory primitives
 class CoMTrajectoryManager : public TrajectoryManagerBase {

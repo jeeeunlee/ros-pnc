@@ -1,6 +1,5 @@
 #pragma once
 
-#include <pnc_utils/Math/BSplineBasic.h>
 #include <magneto_pnc/magneto_state_provider.hpp>
 #include <pnc_core/state_machine.hpp>
 

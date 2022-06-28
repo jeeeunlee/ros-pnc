@@ -1,6 +1,5 @@
-#include <magneto_pnc/magneto_wbc_controller/tasks/com_task.hpp>
-#include <magneto_pnc/magneto_definition.hpp>
-#include <pnc_utils/Configuration.h>
+#include <pnc_core/wbc/Task/com_task.hpp>
+#include <pnc_utils/../../Configuration.h>
 #include <pnc_utils/io_utilities.hpp>
 
 CoMTask::CoMTask(RobotSystem* robot):Task(robot, 3)

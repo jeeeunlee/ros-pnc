@@ -1,7 +1,7 @@
 // #include <Eigen/LU>
 // #include <Eigen/SVD>
 
-#include <pnc_core/wbc/QuadProgSolver.hpp>
+#include <pnc_core/wbc/qp_solver.hpp>
 
 QuadProgSolver::QuadProgSolver() { 
     b_initialized = false;

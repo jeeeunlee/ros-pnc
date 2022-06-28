@@ -1,4 +1,8 @@
-#include <pnc_core/reference_generator/com_trajectory_manager.hpp>
+#include <magneto_pnc/magneto_planner/reference_generator/com_trajectory_manager.hpp>
+#include <magneto_pnc/magneto_definition.hpp>
+// interpolators
+
+#include <pnc_utils/robot_command.hpp>
 
 CoMTrajectoryManager::CoMTrajectoryManager(RobotSystem* _robot)
                         : TrajectoryManagerBase(_robot) {

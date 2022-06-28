@@ -1,4 +1,4 @@
-#include <pnc_core/wbc/JointIntegrator.hpp>
+#include <pnc_core/wbc/joint_integrator.hpp>
 
 JointIntegrator::JointIntegrator(const int num_joints_in, const double dt_in) {
   pnc_utils::pretty_constructor(3, "WBC Joint Integrator");

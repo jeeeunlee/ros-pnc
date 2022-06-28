@@ -1,4 +1,4 @@
-#include <pnc_core/reference_generator/joint_trajectory_manager.hpp>
+#include <magneto_pnc/magneto_planner/reference_generator/joint_trajectory_manager.hpp>
 
 JointTrajectoryManager::JointTrajectoryManager(RobotSystem* _robot)
     : TrajectoryManagerBase(_robot) {

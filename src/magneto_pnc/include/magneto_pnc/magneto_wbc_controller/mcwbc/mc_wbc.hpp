@@ -35,7 +35,7 @@ class MCWBC{
 
             // Set virtual & actuated selection matrix
             Sa_ = Eigen::MatrixXd::Zero(num_act_joint_, num_qdot_);
-            Sv_ = Eigen::MatrixXd::Zero(num_passive_, QuadPrognum_qdot_);            
+            Sv_ = Eigen::MatrixXd::Zero(num_passive_, num_qdot_);            
             int j(0), k(0);            
             for(int i(0); i <num_qdot_; ++i){
                 if(act_list[i]){

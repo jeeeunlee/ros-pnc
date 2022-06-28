@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pnc_utils/Configuration.h>
+#include <pnc_utils/../../Configuration.h>
 #include <Eigen/Dense>
 
 class MagnetoStateProvider;

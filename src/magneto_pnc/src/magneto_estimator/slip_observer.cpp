@@ -1,7 +1,7 @@
 #include <magneto_pnc/magneto_controlspec_container.hpp>
 #include <magneto_pnc/magneto_estimator/slip_observer.hpp>
 #include <magneto_pnc/magneto_control_architecture/magneto_control_architecture_set.hpp>
-#include <pnc_utils/Math/pseudo_inverse.hpp>
+#include <pnc_utils/math_utilities.hpp>
 
 SlipObserver::SlipObserver( MagnetoControlSpecContainer* ws_container,
               RobotSystem* _robot) : StateEstimator(_robot) {

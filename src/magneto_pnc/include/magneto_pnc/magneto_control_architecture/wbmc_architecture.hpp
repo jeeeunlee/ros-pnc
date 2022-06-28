@@ -5,7 +5,7 @@
 
 #include <pnc_core/control_architecture.hpp>
 #include <magneto_pnc/magneto_definition.hpp>
-#include <magneto_pnc/magneto_command_api.hpp>
+#include <magneto_pnc/magneto_command.hpp>
 
 #include <magneto_pnc/magneto_wbc_controller/state_machines/state_machine_set.hpp>
 #include <magneto_pnc/magneto_wbc_controller/magneto_mcwbc.hpp>

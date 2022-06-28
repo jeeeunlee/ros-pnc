@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pnc_core/reference_generator/trajectory_manager_base.hpp>
+#include <magneto_pnc/magneto_planner/reference_generator/trajectory_manager_base.hpp>
 #include <pnc_core/wbc/Contact/BasicContactSpec.hpp>
 #include <pnc_core/wbc/Contact/BodyFrameContactSpec.hpp>
 #include <pnc_core/wbc/Task/basic_task.hpp>
@@ -12,7 +12,7 @@
 // Object to manage common trajectory primitives
 class BaseOriTrajectoryManager : public TrajectoryManagerBase {
  public:
-  BaseOriTrajectoryManager(RobotSystem* _robot);
+  BaseOriTrajectoryManager(RobotSystem* _robot, int base_idx);
   ~BaseOriTrajectoryManager();
   
 
@@ -43,6 +43,7 @@ class BaseOriTrajectoryManager : public TrajectoryManagerBase {
  private:
   Eigen::VectorXd zero_vel_;
   HermiteQuaternionCurve quat_hermite_curve_;
+  int base_link_idx_;
 
  protected:
   void convertQuatDesToOriDes(const Eigen::Quaterniond& quat_in, 

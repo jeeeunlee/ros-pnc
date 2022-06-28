@@ -83,19 +83,24 @@ void weightedInverse(const Eigen::MatrixXd & J,
         Jinv = Winv * J.transpose() * lambda_inv;
 }
 
+///////////////////////////////////////////////////
 
-double smoothing(double ini, double fin, double rat) {
-  double ret(0.);
-  if (rat < 0) {
-    return ini;
-  } else if (rat > 1) {
-    return fin;
-  } else {
-    return ini + (fin - ini) * rat;
-  }
+Eigen::MatrixXd skew(const Eigen::Vector3d& w){
+    // [[ 0, -3,  2],
+    // [ 3,  0, -1],
+    // [-2,  1,  0]]
+    Eigen::MatrixXd Wx = Eigen::MatrixXd::Zero(3,3);
+    Wx <<   0.0,   -w(2),  w(1),
+           w(2),     0.0, -w(0),
+          -w(1),    w(0),  0.0;
+    return Wx;
 }
 
-Eigen::MatrixXd hStack(const Eigen::MatrixXd a, const Eigen::MatrixXd b) {
+Eigen::MatrixXd hStack(const Eigen::MatrixXd& a, const Eigen::MatrixXd& b) {
+    if (a.rows()==0 || a.cols()==0)
+        return b;
+    if (b.rows()==0 || b.cols()==0)
+        return a;
     if (a.rows() != b.rows()) {
         std::cout << "[hStack] Matrix Size is Wrong" << std::endl;
         exit(0);
@@ -106,7 +111,25 @@ Eigen::MatrixXd hStack(const Eigen::MatrixXd a, const Eigen::MatrixXd b) {
     return ab;
 }
 
-Eigen::MatrixXd vStack(const Eigen::MatrixXd a, const Eigen::MatrixXd b) {
+Eigen::MatrixXd hStack(const Eigen::VectorXd& a, const Eigen::VectorXd& b) {
+    if (a.size()==0)
+        return b;
+    if (b.size()==0)
+        return a;
+    if (a.size() != b.size()) {
+        std::cout << "[hStack] Vector Size is Wrong" << std::endl;
+        exit(0);
+    }
+    Eigen::MatrixXd ab = Eigen::MatrixXd::Zero(a.size(), 2);
+    ab << a, b;
+    return ab;
+}
+
+Eigen::MatrixXd vStack(const Eigen::MatrixXd& a, const Eigen::MatrixXd& b) {
+    if (a.rows()==0 || a.cols()==0)
+        return b;
+    if (b.rows()==0 || b.cols()==0)
+        return a;
     if (a.cols() != b.cols()) {
         std::cout << "[vStack] Matrix Size is Wrong" << std::endl;
         exit(0);
@@ -116,13 +139,25 @@ Eigen::MatrixXd vStack(const Eigen::MatrixXd a, const Eigen::MatrixXd b) {
     return ab;
 }
 
-Eigen::MatrixXd vStack(const Eigen::VectorXd a, const Eigen::VectorXd b) {
-    if (a.size() != b.size()) {
-        std::cout << "[vStack] Vector Size is Wrong" << std::endl;
-        exit(0);
-    }
-    Eigen::MatrixXd ab = Eigen::MatrixXd::Zero(a.size(), 2);
+Eigen::VectorXd vStack(const Eigen::VectorXd& a, const Eigen::VectorXd& b) {
+    if(a.size()==0) return b;
+    if(b.size()==0) return a;
+    Eigen::VectorXd ab = Eigen::VectorXd::Zero(a.size()+b.size());    
+    // ab.head( a.size() ) = a; 
+    // ab.tail( b.size() ) = b;
     ab << a, b;
+    return ab;
+}
+
+Eigen::MatrixXd dStack(const Eigen::MatrixXd& a, const Eigen::MatrixXd& b) {
+    // diagonally stack a,b -> [a 0; 0 b]
+    if (a.rows()==0 || a.cols()==0)
+        return b;
+    if (b.rows()==0 || b.cols()==0)
+        return a;
+    Eigen::MatrixXd ab = Eigen::MatrixXd::Zero(a.rows() + b.rows(), a.cols() + b.cols());
+    ab << a, Eigen::MatrixXd::Zero(a.rows(), b.cols()), 
+        Eigen::MatrixXd::Zero(b.rows(), a.cols()), b;
     return ab;
 }
 
@@ -132,6 +167,19 @@ Eigen::MatrixXd deleteRow(const Eigen::MatrixXd& a_, int row_) {
     ret.block(row_, 0, ret.rows() - row_, a_.cols()) =
         a_.block(row_ + 1, 0, ret.rows() - row_, a_.cols());
     return ret;
+}
+
+///////////////////////////////////////////////////
+
+double smoothing(double ini, double fin, double rat) {
+  double ret(0.);
+  if (rat < 0) {
+    return ini;
+  } else if (rat > 1) {
+    return fin;
+  } else {
+    return ini + (fin - ini) * rat;
+  }
 }
 
 double smooth_changing(double ini, double end, double moving_duration,

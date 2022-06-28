@@ -1,5 +1,5 @@
 #include <pnc_utils/robot_system.hpp>
-#include <pnc_core/wbc/QuadProgSolver.hpp>
+#include <pnc_core/wbc/qp_solver.hpp>
 #include <magneto_pnc/magneto_planner/magneto_com_planner.hpp>
 
 // #include <magneto_pnc/magneto_interface.hpp>
@@ -11,7 +11,6 @@
 
 #include <pnc_utils/io_utilities.hpp>
 #include <pnc_utils/math_utilities.hpp>
-#include "pnc_utils/Math/pseudo_inverse.hpp"
 #include <time.h>
 
 MagnetoCoMPlanner::MagnetoCoMPlanner(RobotSystem* robot) {

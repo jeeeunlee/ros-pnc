@@ -1,6 +1,6 @@
 #pragma once
 #include <Eigen/Dense>
-#include <pnc_core/reference_generator/transition_manager_base.hpp>
+#include <magneto_pnc/magneto_planner/reference_generator/transition_manager_base.hpp>
 
 // Object to manage common transectory primitives
 class SmoothTransitionManager : public TransitionManagerBase {

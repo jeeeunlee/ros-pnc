@@ -5,9 +5,9 @@
 #include <magneto_pnc/magneto_definition.hpp>
 #include <magneto_pnc/magneto_interface.hpp>
 #include <magneto_pnc/magneto_planner/magneto_giwc_planner.hpp>
-#include <my_geometry/Polytope/Polytope.h>
+#include <pnc_utils/eigen_cddlib.h>
 #include <pnc_utils/io_utilities.hpp>
-#include <pnc_utils/Math/pseudo_inverse.hpp>
+#include <pnc_utils/math_utilities.hpp>
 #include <random>
 
 

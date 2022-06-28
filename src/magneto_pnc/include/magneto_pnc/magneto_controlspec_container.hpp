@@ -11,10 +11,13 @@ typedef int FootIdx;
 typedef int FootLinkIdx;
 
 class RobotSystem;
-class Task;
-class ContactSpec;
-class MagnetSpec;
-class ContactWeight;
+
+#include <pnc_core/wbc/Contact/ContactSpec.hpp>
+
+
+#include <pnc_core/wbc/Task/task_set.hpp>
+#include <magneto_pnc/magneto_specs/MagnetSpec.hpp>
+#include <magneto_pnc/magneto_specs/ContactWeight.hpp>
 
 // Object which publicly contains all the tasks, contacts and reaction forces
 class MagnetoControlSpecContainer : public ControlSpecContainer{

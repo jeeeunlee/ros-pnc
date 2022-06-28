@@ -1,6 +1,6 @@
 #include <pnc_core/wbc/kin_wbc.hpp>
 #include <pnc_utils/io_utilities.hpp>
-#include <pnc_utils/Math/pseudo_inverse.hpp>
+#include <pnc_utils/math_utilities.hpp>
 
 #include <pnc_core/wbc/Contact/ContactSpec.hpp>
 #include <pnc_core/wbc/Task/task.hpp>

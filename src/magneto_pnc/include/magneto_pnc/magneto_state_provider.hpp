@@ -1,12 +1,12 @@
 #pragma once
 #include <utility>
 
-#include <pnc_utils/Configuration.h>
-#include <pnc_utils/General/Clock.hpp>
+#include <pnc_utils/../../Configuration.h>
+#include <pnc_utils/clock.hpp>
 #include <pnc_utils/io_utilities.hpp>
 //#include <RobotSystem/include/CentroidModel.hpp>
 #include <magneto_pnc/magneto_definition.hpp>
-#include <magneto_pnc/magneto_command_api.hpp>
+#include <magneto_pnc/magneto_command.hpp>
 
 class RobotSystem;
 // class MotionCommand;
