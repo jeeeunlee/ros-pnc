@@ -26,9 +26,11 @@ MagnetoInterface::MagnetoInterface() : EnvInterface() {
     _ParameterSetting(); 
 
     // declare
-    robot_ = new RobotSystem(
-        // 6+3*4, THIS_COM "robot_description/Robot/Magneto/MagnetoSim_limitup.urdf");
-        6+3*4, THIS_COM "robot_description/Robot/Magneto/MagnetoSim_Dart.urdf");//MagnetoSim_Dart
+    robot_ = new RobotSystem(6+3*4, 
+        // THIS_COM "robot_description/Robot/Magneto/MagnetoSim_limitup.urdf");
+        // THIS_COM "robot_description/Robot/Magneto/MagnetoSim_Dart.urdf");//MagnetoSim_Dart?
+        THIS_COM "src/magneto_2_description/robots/magneto_2_floatingbase.urdf");//MagnetoSim_Dart
+
         
     robot_->setActuatedJoint(Magneto::idx_adof);
     // robot_->setRobotMass();
@@ -192,6 +194,17 @@ void MagnetoInterface::GetCurrentFootStep(Eigen::VectorXd& foot_pos) {
     foot_pos = sp_->foot_pos_init;
 }
 
+void MagnetoInterface::GetNextFootStep(Eigen::VectorXd& foot_pos) {
+    foot_pos = sp_->foot_pos_target;
+}
+
+void MagnetoInterface::GetCoMPlans(Eigen::VectorXd& com_pos_ini,
+                                    Eigen::VectorXd& com_pos_goal) {
+    com_pos_ini = sp_->com_pos_init;
+    com_pos_goal = sp_->com_pos_target;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////
 
 void MagnetoInterface::AddScriptMotion(const YAML::Node& motion_cfg){
@@ -206,10 +219,6 @@ int MagnetoInterface::getCurrentMovingFootIdx() {
     return sp_-> curr_motion_command.get_moving_foot();
 }
 
-void MagnetoInterface::getSimulationEnvironment(double& mu, double& f_adhesive){
-    SimulationCommand sim_env = sp_->curr_simulation_command; 
-    sim_env.getSimEnv(mu, f_adhesive);
-}
 
 
 

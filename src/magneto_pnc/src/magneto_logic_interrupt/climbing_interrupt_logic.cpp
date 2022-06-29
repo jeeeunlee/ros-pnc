@@ -33,7 +33,7 @@ void ClimbingInterruptLogic::processInterrupts() {
             addStateCommand(MAGNETO_STATES::SWING, it);
             addStateCommand(MAGNETO_STATES::SWING_END_TRANS, it); 
             }         
-          addStateCommand(MAGNETO_STATES::BALANCE, SimMotionCommand() );
+          addStateCommand(MAGNETO_STATES::BALANCE, MotionCommand() );
         }
       break;
       default:
@@ -45,7 +45,7 @@ void ClimbingInterruptLogic::processInterrupts() {
 }
 
 void ClimbingInterruptLogic::addStateCommand(int _state_id, 
-                              const SimMotionCommand& _smc){
+                              const MotionCommand& _smc){
   user_state_cmd_->setCommand(_state_id, _smc);
   ctrl_arch_->addState(user_state_cmd_);
 }
@@ -80,12 +80,6 @@ void ClimbingInterruptLogic::setInterruptRoutine(const YAML::Node& motion_cfg) {
 
   MotionCommand mc_temp = MotionCommand(swing_motion, motion_periods);
 
-  // simulation enviroment spec
-  double mu;
-  double fm;
-  pnc_utils::readParameter(motion_cfg, "mu", mu);
-  pnc_utils::readParameter(motion_cfg, "fm", fm);
-  SimMotionCommand smc_temp = SimMotionCommand(mc_temp, mu, fm);
 
-  script_user_cmd_deque_.push_back( smc_temp );
+  script_user_cmd_deque_.push_back( mc_temp );
 }

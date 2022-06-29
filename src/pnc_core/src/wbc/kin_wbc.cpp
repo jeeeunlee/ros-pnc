@@ -44,7 +44,7 @@ bool KinWBC::FindConfigurationContactPriority(const Eigen::VectorXd & curr_confi
     Eigen::VectorXd delta_q, qdot, qddot;
     Eigen::MatrixXd Jt, JtPre, JtPre_pinv, N_nx, N_pre;
 
-
+    return false;
 }
 
 

@@ -9,17 +9,17 @@ constexpr int SWING = 3;
 constexpr int SWING_END_TRANS = 4;
 };  // namespace MAGNETO_STATES
 
-class SimMotionCommand;
+class MotionCommand;
 class MagnetoUserStateCommand {
    public:
    MagnetoUserStateCommand(){
        state_id = -1;
-       user_cmd = SimMotionCommand();
+       user_cmd = MotionCommand();
    }
-   void setCommand(int _state_id, const SimMotionCommand& _state_cmd) {
+   void setCommand(int _state_id, const MotionCommand& _state_cmd) {
        state_id = _state_id;
        user_cmd = _state_cmd;
    }
    int state_id;
-   SimMotionCommand user_cmd;
+   MotionCommand user_cmd;
 };

@@ -4,7 +4,7 @@
 #include <pnc_utils/io_utilities.hpp>
 #include <pnc_utils/math_utilities.hpp>
 #include <pnc_core/wbc/Contact/ContactSpec.hpp>
-#include <magneto_pnc/magneto_specs/MagnetSpec.hpp>
+#include <magneto_pnc/magneto_specs/magnet_spec.hpp>
 #include <magneto_pnc/magneto_wbc_controller/mcwbc/mf_mcwbc.hpp>
 
 // MFWBCC (Minimum Friction - Whole Body Climbing Control)
@@ -66,7 +66,6 @@ void MFWBCC::makeTorqueGivenRef(const Eigen::VectorXd& ref_cmd,
     // }
 
     _GetSolution(cmd);
-    // _saveDebug();  
 }
 
 
@@ -214,51 +213,3 @@ void MFWBCC::_GetSolution(Eigen::VectorXd& cmd) {
     cmd = Sa_ * tau_cmd_;
 }
 
-
-void MFWBCC::_saveDebug(){
-
-
-    static int numcount = 0;   
-
-    std::ofstream fout;
-    fout.open(THIS_COM "experiment_data/DEBUG/MFWBCC/W.txt");
-    Eigen::VectorXd Weights(dim_opt_);
-    Weights << data_->W_qddot_, data_->W_rf_, data_->W_xddot_;
-    fout<<Weights<<std::endl;
-    fout.close();
-
-    fout.open(THIS_COM "experiment_data/DEBUG/MFWBCC/A.txt");
-    fout<<Aeq_<<std::endl;
-    fout.close();
-    fout.open(THIS_COM "experiment_data/DEBUG/MFWBCC/B.txt");
-    fout<<beq_<<std::endl;
-    fout.close();
-
-    fout.open(THIS_COM "experiment_data/DEBUG/MFWBCC/C.txt");
-    fout<<Cieq_<<std::endl;
-    fout.close();
-    fout.open(THIS_COM "experiment_data/DEBUG/MFWBCC/D.txt");
-    fout<<dieq_<<std::endl;
-    fout.close();
-
-    fout.open(THIS_COM "experiment_data/DEBUG/MFWBCC/z.txt");
-    fout<<z<<std::endl;
-    fout.close();
-
-    fout.open(THIS_COM "experiment_data/DEBUG/MFWBCC/dqddot.txt");
-    fout<<delta_qddot_<<std::endl;
-    fout.close();
-    fout.open(THIS_COM "experiment_data/DEBUG/MFWBCC/Fc.txt");
-    fout<<Fc_<<std::endl;
-    fout.close();
-    fout.open(THIS_COM "experiment_data/DEBUG/MFWBCC/xddot.txt");
-    fout<<xc_ddot_<<std::endl;
-    fout.close(); 
-    fout.open(THIS_COM "experiment_data/DEBUG/MFWBCC/tau_cmd.txt");
-    fout<<tau_cmd_<<std::endl;
-    fout.close();      
-    
-    if(numcount++ > 5)
-        exit(0);
-
-}

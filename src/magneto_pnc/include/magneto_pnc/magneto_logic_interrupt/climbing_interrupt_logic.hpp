@@ -5,7 +5,7 @@
 
 // Forward Declare 
 class MagnetoStateProvider;
-class SimMotionCommand;
+class MotionCommand;
 class MagnetoUserStateCommand;
 
 class ClimbingInterruptLogic : public InterruptLogic {
@@ -20,8 +20,8 @@ class ClimbingInterruptLogic : public InterruptLogic {
   MagnetoStateProvider* sp_;
 
   MagnetoUserStateCommand* user_state_cmd_;
-  std::deque<SimMotionCommand> script_user_cmd_deque_;
+  std::deque<MotionCommand> script_user_cmd_deque_;
 
 private:
-  void addStateCommand(int _state_id, const SimMotionCommand& _smc);
+  void addStateCommand(int _state_id, const MotionCommand& _smc);
 };

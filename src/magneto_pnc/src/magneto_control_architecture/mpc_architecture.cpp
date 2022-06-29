@@ -22,8 +22,8 @@ MagnetoMpcControlArchitecture::MagnetoMpcControlArchitecture(RobotSystem* _robot
   slip_ob_ = new SlipObserver(ws_container_, robot_);
   slip_ob_data_ = new SlipObserverData();
 
-  states_sequence_ = new StateSequence<SimMotionCommand>();
-  user_cmd_ = SimMotionCommand();
+  states_sequence_ = new StateSequence<MotionCommand>();
+  user_cmd_ = MotionCommand();
 
   // Initialize states: add all states to the state machine map
   state_machines_[MAGNETO_STATES::BALANCE] =
@@ -153,8 +153,7 @@ void MagnetoMpcControlArchitecture::getCommand(void* _command) {
     prev_state_ = state_;
     if(states_sequence_->getNextState(state_, user_cmd_)){
       sp_->curr_state = state_;
-      sp_->curr_motion_command = (MotionCommand)user_cmd_;
-      sp_->curr_simulation_command = (SimulationCommand)user_cmd_;
+      sp_->curr_motion_command = (MotionCommand)user_cmd_;      
       b_state_first_visit_ = true;
     }
     std::cout<<"I'm here!"<<std::endl;

@@ -16,8 +16,8 @@ class RobotSystem;
 
 
 #include <pnc_core/wbc/Task/task_set.hpp>
-#include <magneto_pnc/magneto_specs/MagnetSpec.hpp>
-#include <magneto_pnc/magneto_specs/ContactWeight.hpp>
+#include <magneto_pnc/magneto_specs/magnet_spec.hpp>
+#include <magneto_pnc/magneto_specs/contact_weight.hpp>
 
 // Object which publicly contains all the tasks, contacts and reaction forces
 class MagnetoControlSpecContainer : public ControlSpecContainer{

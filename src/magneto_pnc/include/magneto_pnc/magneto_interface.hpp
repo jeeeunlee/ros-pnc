@@ -124,5 +124,4 @@ class MagnetoInterface : public EnvInterface {
     void AddScriptMotion(const YAML::Node& motion_cfg);
     int getCurrentMovingFootLinkIdx();
     int getCurrentMovingFootIdx();
-    void getSimulationEnvironment(double& mu, double& f_adhesive);
 };

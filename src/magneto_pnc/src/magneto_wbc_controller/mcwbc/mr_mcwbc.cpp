@@ -3,7 +3,7 @@
 
 #include <pnc_utils/math_utilities.hpp>
 #include <pnc_core/wbc/Contact/ContactSpec.hpp>
-#include <magneto_pnc/magneto_specs/MagnetSpec.hpp>
+#include <magneto_pnc/magneto_specs/magnet_spec.hpp>
 
 #include <magneto_pnc/magneto_wbc_controller/mcwbc/mr_mcwbc.hpp>
 
@@ -67,7 +67,6 @@ void MRWBCC::makeTorqueGivenRef(const Eigen::VectorXd& ref_cmd,
     // }
 
     _GetSolution(cmd);
-    // _SaveDebug();  
 }
 
 void MRWBCC::_BuildContactMtxVect(const std::vector<ContactSpec*>& contact_list) {
@@ -226,69 +225,3 @@ void MRWBCC::_GetSolution(Eigen::VectorXd& cmd) {
     cmd = Sa_ * tau_cmd_; 
 }
 
-
-void MRWBCC::_SaveDebug(){
-    // std::cout << "f: " << f << std::endl;
-    // std::cout << "x: " << z << std::endl;
-    // std::cout << "cmd: "<<cmd<<std::endl;
-
-    // if(f > 1.e5){
-    //   std::cout << "f: " << f << std::endl;
-    //   std::cout << "x: " << z << std::endl;
-    // std::cout << "cmd: "<<cmd<<std::endl;
-
-    //   printf("G:\n");
-    //   std::cout<<G<<std::endl;
-    //   printf("g0:\n");
-    //   std::cout<<g0<<std::endl;
-
-    //   printf("CE:\n");
-    //   std::cout<<CE<<std::endl;
-    //   printf("ce0:\n");
-    //   std::cout<<ce0<<std::endl;
-
-    //   printf("CI:\n");
-    //   std::cout<<CI<<std::endl;
-    //   printf("ci0:\n");
-    //   std::cout<<ci0<<std::endl;
-    // }
-    static int numcount = 0;   
-
-    std::ofstream fout;
-    fout.open(THIS_COM "experiment_data/DEBUG/MRWBCC/W.txt");
-    Eigen::VectorXd Weights(dim_opt_);
-    Weights << data_->W_qddot_, data_->W_rf_, data_->W_xddot_;
-    fout<<Weights<<std::endl;
-    fout.close();
-    
-    fout.open(THIS_COM "experiment_data/DEBUG/MRWBCC/A.txt");
-    fout<<Aeq_<<std::endl;
-    fout.close();
-    fout.open(THIS_COM "experiment_data/DEBUG/MRWBCC/B.txt");
-    fout<<beq_<<std::endl;
-    fout.close();
-
-    fout.open(THIS_COM "experiment_data/DEBUG/MRWBCC/C.txt");
-    fout<<Cieq_<<std::endl;
-    fout.close();
-    fout.open(THIS_COM "experiment_data/DEBUG/MRWBCC/D.txt");
-    fout<<dieq_<<std::endl;
-    fout.close();
-
-    fout.open(THIS_COM "experiment_data/DEBUG/MRWBCC/dqddot.txt");
-    fout<<delta_qddot_<<std::endl;
-    fout.close();
-    fout.open(THIS_COM "experiment_data/DEBUG/MRWBCC/Fc.txt");
-    fout<<Fc_<<std::endl;
-    fout.close();
-    fout.open(THIS_COM "experiment_data/DEBUG/MRWBCC/xddot.txt");
-    fout<<xc_ddot_<<std::endl;
-    fout.close();
-    fout.open(THIS_COM "experiment_data/DEBUG/MRWBCC/tau_cmd.txt");
-    fout<<tau_cmd_<<std::endl;
-    fout.close();      
-
-    if(numcount++ > 5)
-        exit(0);
-
-}

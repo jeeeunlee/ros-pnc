@@ -29,8 +29,8 @@ class MagnetoMpcControlArchitecture : public ControlArchitecture {
   void saveData();
   void getIVDCommand(void* _command);
   
-  StateSequence<SimMotionCommand>* states_sequence_;
-  SimMotionCommand user_cmd_;
+  StateSequence<MotionCommand>* states_sequence_;
+  MotionCommand user_cmd_;
   
   // initialize parameters
   void _ReadParameters();

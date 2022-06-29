@@ -65,7 +65,7 @@ void WalkingInterruptLogic::processInterrupts() {
 }
 
 void WalkingInterruptLogic::addStateCommand(int _state_id, const MotionCommand& _mc){
-  user_state_cmd_->setCommand(_state_id, SimMotionCommand(_mc));
+  user_state_cmd_->setCommand(_state_id, MotionCommand(_mc));
   ctrl_arch_->addState(user_state_cmd_);
 }
 

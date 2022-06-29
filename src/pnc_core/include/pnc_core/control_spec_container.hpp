@@ -13,7 +13,7 @@ class ControlSpecContainer {
   ControlSpecContainer(RobotSystem* _robot){
     robot_ = _robot;  
   }
-  ~ControlSpecContainer(); 
+  ~ControlSpecContainer(){} 
 
  public:
   RobotSystem* robot_;

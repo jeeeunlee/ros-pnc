@@ -69,6 +69,4 @@ class MFWBCC: public MCWBC{
         Eigen::VectorXd xc_ddot_;
         Eigen::VectorXd tau_cmd_; 
 
-    private:
-        void _saveDebug();
 };

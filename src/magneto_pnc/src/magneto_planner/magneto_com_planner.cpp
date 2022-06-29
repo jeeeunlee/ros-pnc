@@ -7,7 +7,7 @@
 #include <pnc_core/wbc/Contact/ContactSpec.hpp>
 #include <pnc_core/wbc/Contact/BasicContactSpec.hpp>
 #include <pnc_core/wbc/Contact/BodyFrameContactSpec.hpp>
-#include <magneto_pnc/magneto_specs/MagnetSpec.hpp>
+#include <magneto_pnc/magneto_specs/magnet_spec.hpp>
 
 #include <pnc_utils/io_utilities.hpp>
 #include <pnc_utils/math_utilities.hpp>

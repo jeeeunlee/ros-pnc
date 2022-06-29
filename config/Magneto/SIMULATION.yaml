@@ -7,7 +7,8 @@ plot_mpc_result: false # true
 plot_result: true # true
 
 # --configuration settings
-robot: robot_description/Robot/Magneto/MagnetoSim_Dart.urdf
+# robot: robot_description/Robot/Magneto/MagnetoSim_Dart.urdf
+robot: src/magneto_2_description/robots/magneto_2_floatingbase.urdf
 # robot: robot_description/Robot/Magneto/MagnetoSim_limitup.urdf
 
 # ground: robot_description/Ground/safe_climbing_test_2022/ground_3d.urdf

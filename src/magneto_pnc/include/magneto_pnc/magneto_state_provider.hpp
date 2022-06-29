@@ -35,7 +35,6 @@ class MagnetoStateProvider {
     // 
     int curr_state;
     MotionCommand curr_motion_command;
-    SimulationCommand curr_simulation_command;
     int num_state; // num of remaining states to run
     //
 

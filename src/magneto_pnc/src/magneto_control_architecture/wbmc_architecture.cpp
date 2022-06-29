@@ -16,7 +16,7 @@ MagnetoWbcArchitecture::MagnetoWbcArchitecture(RobotSystem* _robot)
 
   wbc_controller = new MagnetoMCWBC(ws_container_, robot_, controller_type_);
 
-  states_sequence_ = new StateSequence<SimMotionCommand>();
+  states_sequence_ = new StateSequence<MotionCommand>();
 
   // Initialize states: add all states to the state machine map
   state_machines_[MAGNETO_STATES::BALANCE] =
@@ -87,8 +87,7 @@ void MagnetoWbcArchitecture::getCommand(void* _command) {
     states_sequence_->getNextState(state_, user_cmd_);
     
     sp_->curr_state = state_;
-    sp_->curr_motion_command = (MotionCommand)user_cmd_;
-    sp_->curr_simulation_command = (SimulationCommand)user_cmd_;
+    sp_->curr_motion_command = (MotionCommand)user_cmd_;    
 
     b_state_first_visit_ = true;
   }
