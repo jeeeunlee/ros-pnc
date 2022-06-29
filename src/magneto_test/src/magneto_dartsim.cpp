@@ -227,8 +227,8 @@ void MagnetoWorldNode::setFrictionCoeff(){
 void MagnetoWorldNode::updateContactEnvSetup() {
     int foot_idx =  ((MagnetoInterface*)interface_)->getCurrentMovingFootIdx();
     // TODO get it from SIMULATION.YAML
-    coef_fric_[foot_idx], 
-    magnetic_force_[foot_idx]
+    // coef_fric_[foot_idx], 
+    // magnetic_force_[foot_idx]
 } 
 
 void MagnetoWorldNode::ApplyMagneticForce()  {

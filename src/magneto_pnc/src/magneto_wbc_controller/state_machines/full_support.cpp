@@ -54,10 +54,10 @@ void FullSupport::firstVisit() {
 
   sp_->com_pos_init = pcom;
   sp_->com_pos_target = pc_goal;
-  pnc_utils::pretty_print(pcom, std::cout, "pc_init");
-  pnc_utils::pretty_print(pc_goal, std::cout, "pc_goal");
-  pnc_utils::pretty_print(q_init, std::cout, "q_init");
-  pnc_utils::pretty_print(q_goal, std::cout, "q_goal");
+  // pnc_utils::pretty_print(pcom, std::cout, "pc_init");
+  // pnc_utils::pretty_print(pc_goal, std::cout, "pc_goal");
+  // pnc_utils::pretty_print(q_init, std::cout, "q_init");
+  // pnc_utils::pretty_print(q_goal, std::cout, "q_goal");
 
   // CoM planner
   Eigen::VectorXd periods;  
