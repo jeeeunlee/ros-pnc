@@ -118,7 +118,7 @@ class OneStepProgress : public osgGA::GUIEventHandler {
                 return true;
             } else {
                 uint16_t button_pressed = ea.getKey();
-                std::cout << "button(" << (char)button_pressed << ")  pressed handled @ Main.cpp" << std::endl;
+                std::cout << "button(" << (char)button_pressed << ")  pressed handled @ main_sim.cpp" << std::endl;
                 worldnode_->enableButtonFlag(button_pressed);
             }                     
         }
@@ -244,8 +244,6 @@ int main(int argc, char** argv) {
     std::string robot_file;
     Eigen::VectorXd q_floating_base_init = Eigen::VectorXd::Zero(6);
     Eigen::VectorXd q_leg_init = Eigen::VectorXd::Zero(6);
-    double q_temp;
-    double coef_fric;
     //std::ostringstream ground_file;
     std::cout<<"reading SIMULATION.yaml"<<std::endl;
     YAML::Node simulation_cfg;

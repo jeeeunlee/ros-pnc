@@ -1,5 +1,5 @@
-#include <magneto_pnc/magneto_planner_container.hpp>
-#include <magneto_pnc/magneto_controlspec_container.hpp>
+#include <magneto_pnc/magneto_control_architecture/magneto_planner_container.hpp>
+#include <magneto_pnc/magneto_control_architecture/magneto_controlspec_container.hpp>
 #include <magneto_pnc/magneto_wbc_controller/state_machines/swing.hpp>
 
 Swing::Swing(const StateIdentifier state_identifier_in,

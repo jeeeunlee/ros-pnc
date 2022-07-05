@@ -36,11 +36,20 @@ void RobotSystem::setActuatedJoint(const int *_idx_adof)  {
 }
 
 Eigen::VectorXd RobotSystem::getActiveJointValue(const Eigen::VectorXd& q_full)  {
-    Eigen::VectorXd q_a(num_actuated_dof_);
-    for(int i = 0; i < num_actuated_dof_; ++i)        
-        q_a[i] = q_full[idx_adof_[i]]; 
-    return  q_a;
+    // Eigen::VectorXd q_a(num_actuated_dof_);
+    // for(int i = 0; i < num_actuated_dof_; ++i)        
+    //     q_a[i] = q_full[idx_adof_[i]]; 
+    // return  q_a;
+    return getSelectedJointValue(q_full, idx_adof_);
 }
+
+Eigen::VectorXd RobotSystem::getSelectedJointValue(const Eigen::VectorXd& q_full,
+                                        const std::vector<int>& idx_selected){
+    Eigen::VectorXd q_s(idx_selected.size());
+    for(int i = 0; i < idx_selected.size(); ++i)        
+        q_s[i] = q_full[idx_selected[i]]; 
+    return  q_s;
+}                                      
 
 Eigen::MatrixXd RobotSystem::getMassMatrix() {
     return skel_ptr_->getMassMatrix();

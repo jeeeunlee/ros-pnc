@@ -58,6 +58,8 @@ class RobotSystem {
     Eigen::VectorXd getActiveQddot() { return getActiveJointValue(skel_ptr_->getAccelerations()); };
 
     Eigen::VectorXd getActiveJointValue(const Eigen::VectorXd& q_full);
+    Eigen::VectorXd getSelectedJointValue(const Eigen::VectorXd& q_full,
+                                        const std::vector<int>& idx_selected);
 
     // JE test for magneto
     void setRobotMass();
@@ -83,6 +85,14 @@ class RobotSystem {
     }
     Eigen::VectorXd GetPositionUpperLimits() {
         return skel_ptr_->getPositionUpperLimits();
+    }
+
+    Eigen::VectorXd GetVelocityLowerLimits(){
+        return skel_ptr_->getVelocityLowerLimits();
+    }
+
+    Eigen::VectorXd GetVelocityUpperLimits(){
+        return skel_ptr_->getVelocityUpperLimits();
     }
 
     Eigen::MatrixXd getMassMatrix();

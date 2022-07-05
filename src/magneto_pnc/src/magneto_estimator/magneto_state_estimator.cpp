@@ -1,7 +1,7 @@
 #include <pnc_utils/robot_system.hpp>
 #include <magneto_pnc/magneto_definition.hpp>
 #include <magneto_pnc/magneto_interface.hpp>
-#include <magneto_pnc/magneto_state_estimator.hpp>
+#include <magneto_pnc/magneto_estimator/magneto_state_estimator.hpp>
 #include <magneto_pnc/magneto_state_provider.hpp>
 #include <pnc_utils/io_utilities.hpp>
 
@@ -11,6 +11,7 @@ MagnetoStateEstimator::MagnetoStateEstimator(RobotSystem* robot) {
     robot_ = robot;
     sp_ = MagnetoStateProvider::getStateProvider(robot_);
     curr_config_ = Eigen::VectorXd::Zero(Magneto::n_dof);
+    prev_config_ = Eigen::VectorXd::Zero(Magneto::n_dof);
     curr_qdot_ = Eigen::VectorXd::Zero(Magneto::n_dof);
     prev_tau_cmd_ = Eigen::VectorXd::Zero(Magneto::n_dof);
 }
@@ -33,6 +34,7 @@ void MagnetoStateEstimator::Update(MagnetoSensorData* data) {
 }
 
 void MagnetoStateEstimator::_JointUpdate(MagnetoSensorData* data) {
+    prev_config_ = curr_config_;
     curr_config_.setZero();
     curr_qdot_.setZero();
     prev_tau_cmd_.setZero();

@@ -9,6 +9,8 @@
 // interpolators
 #include <pnc_utils/curve_utilities.hpp>
 
+class MagnetoStateProvider;
+
 // Object to manage common trajectory primitives
 class FootPosTrajectoryManager : public TrajectoryManagerBase {
  public:
@@ -66,4 +68,6 @@ class FootPosTrajectoryManager : public TrajectoryManagerBase {
   void setSwingPosCurve(const Eigen::VectorXd& foot_pos_ini, 
                         const Eigen::VectorXd& foot_pos_des,
                         const double& swing_height);
+
+  MagnetoStateProvider* sp_;
 };

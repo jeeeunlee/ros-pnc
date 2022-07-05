@@ -7,6 +7,7 @@ constexpr int BALANCE = 1; // DEFAULT
 constexpr int SWING_START_TRANS = 2;
 constexpr int SWING = 3;
 constexpr int SWING_END_TRANS = 4;
+constexpr int IDLE = 5;
 };  // namespace MAGNETO_STATES
 
 class MotionCommand;

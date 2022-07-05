@@ -10,8 +10,8 @@
 #include <magneto_pnc/magneto_wbc_controller/state_machines/state_machine_set.hpp>
 // #include <magneto_pnc/magneto_wbc_controller/magneto_wbmc.hpp>
 #include <magneto_pnc/magneto_wbc_controller/magneto_mcwbc.hpp>
-#include <magneto_pnc/magneto_controlspec_container.hpp>
-#include <magneto_pnc/magneto_planner_container.hpp>
+#include <magneto_pnc/magneto_control_architecture/magneto_controlspec_container.hpp>
+#include <magneto_pnc/magneto_control_architecture/magneto_planner_container.hpp>
 
 
 #include <magneto_pnc/magneto_estimator/slip_observer.hpp>
@@ -28,6 +28,7 @@ class MagnetoMpcControlArchitecture : public ControlArchitecture {
 
   void saveData();
   void getIVDCommand(void* _command);
+  void estimateAndReplan();
   
   StateSequence<MotionCommand>* states_sequence_;
   MotionCommand user_cmd_;

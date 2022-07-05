@@ -1,5 +1,6 @@
 #include <magneto_pnc/magneto_planner/reference_generator/com_trajectory_manager.hpp>
 #include <magneto_pnc/magneto_definition.hpp>
+#include <magneto_pnc/magneto_state_provider.hpp>
 // interpolators
 
 #include <pnc_utils/robot_command.hpp>
@@ -7,6 +8,8 @@
 CoMTrajectoryManager::CoMTrajectoryManager(RobotSystem* _robot)
                         : TrajectoryManagerBase(_robot) {
   pnc_utils::pretty_constructor(2, "TrajectoryManager: CoM");
+
+  sp_ = MagnetoStateProvider::getStateProvider(robot_);
 
   // Initialize member variables
   com_pos_des_.setZero();
@@ -25,8 +28,8 @@ void CoMTrajectoryManager::updateTask(const double&  current_time,
                             com_vel_des_, 
                             com_acc_des_); 
 
-  // sp_->com_pos_des = com_pos_des_;
-  // sp_->com_vel_des = com_vel_des_;
+  sp_->com_pos_des = com_pos_des_;
+  sp_->com_vel_des = com_vel_des_;
   // sp_->com_acc_des = com_acc_des_;
 }
 

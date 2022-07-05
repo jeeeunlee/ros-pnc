@@ -1,5 +1,5 @@
-#include <magneto_pnc/magneto_planner_container.hpp>
-#include <magneto_pnc/magneto_controlspec_container.hpp>
+#include <magneto_pnc/magneto_control_architecture/magneto_planner_container.hpp>
+#include <magneto_pnc/magneto_control_architecture/magneto_controlspec_container.hpp>
 #include <magneto_pnc/magneto_wbc_controller/state_machines/transition.hpp>
 
 Transition::Transition(const StateIdentifier state_identifier_in, 
@@ -42,9 +42,8 @@ void Transition::firstVisit() {
   
 
   // --set com traj
-  // rg_container_->com_trajectory_manager_
-  //           ->setCoMTrajectory(ctrl_start_time_, 
-  //                             ctrl_duration_);
+  Eigen::Vector3d pcom = robot_->getCoMPosition();
+  pnc_utils::pretty_print(pcom, std::cout, "pc_init");
   ComMotionCommand mc_com;
   if(b_contact_start_){
     mc_com = rg_container_->
@@ -53,6 +52,7 @@ void Transition::firstVisit() {
     mc_com = rg_container_->
             com_sequence_planner_->getSwingStartCoMCmd();
   }
+  mc_com.printMotionInfo();
   rg_container_->com_trajectory_manager_
                ->setCoMTrajectory(ctrl_start_time_, mc_com);
   ctrl_duration_ = rg_container_->com_trajectory_manager_->getTrajDuration();

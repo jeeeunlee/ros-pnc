@@ -1,5 +1,5 @@
 
-#include <magneto_pnc/magneto_controlspec_container.hpp>
+#include <magneto_pnc/magneto_control_architecture/magneto_controlspec_container.hpp>
 
 #include <pnc_utils/math_utilities.hpp>
 #include <pnc_utils/robot_system.hpp>

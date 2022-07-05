@@ -2,7 +2,6 @@
 #include <utility>
 
 #include <pnc_utils/../../Configuration.h>
-#include <pnc_utils/clock.hpp>
 #include <pnc_utils/io_utilities.hpp>
 //#include <RobotSystem/include/CentroidModel.hpp>
 #include <magneto_pnc/magneto_definition.hpp>
@@ -27,8 +26,6 @@ class MagnetoStateProvider {
     Eigen::VectorXd getVirtualJointValue(const Eigen::VectorXd& q_full);
     Eigen::VectorXd getFullJointValue(const Eigen::VectorXd& q_a);
     Eigen::VectorXd getFullJointValue(const Eigen::VectorXd& q_a, const Eigen::VectorXd& q_v);
-
-    Clock clock;
 
     double curr_time;
     

@@ -8,6 +8,8 @@
 
 #include <magneto_pnc/magneto_definition.hpp>
 #include <pnc_utils/io_utilities.hpp>
+#include <pnc_utils/clock.hpp>
+
 
 // MagnetoInterface
 class EnvInterface;
@@ -88,4 +90,5 @@ class MagnetoWorldNode : public dart::gui::osg::WorldNode {
     //
     void setFrictionCoeff();
     void setMagneticParameter();
+    Timer timer_;
 };

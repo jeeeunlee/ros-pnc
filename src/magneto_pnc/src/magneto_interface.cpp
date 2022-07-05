@@ -3,11 +3,11 @@
 #include <pnc_utils/robot_system.hpp>
 #include <magneto_pnc/magneto_control_architecture/magneto_control_architecture_set.hpp>
 #include <magneto_pnc/magneto_interface.hpp>
-#include <magneto_pnc/magneto_state_estimator.hpp>
+#include <magneto_pnc/magneto_estimator/magneto_state_estimator.hpp>
+#include <magneto_pnc/magneto_estimator/magneto_state_estimator_hw.hpp>
 #include <magneto_pnc/magneto_state_provider.hpp>
 #include <magneto_pnc/magneto_command.hpp>
-#include <magneto_pnc/magneto_logic_interrupt/walking_interrupt_logic.hpp>
-#include <magneto_pnc/magneto_logic_interrupt/climbing_interrupt_logic.hpp>
+#include <magneto_pnc/magneto_logic_interrupt/magneto_logic_interrupt_set.hpp>
 
 #include <pnc_utils/io_utilities.hpp>
 #include <pnc_utils/math_utilities.hpp>
@@ -34,9 +34,7 @@ MagnetoInterface::MagnetoInterface() : EnvInterface() {
         
     robot_->setActuatedJoint(Magneto::idx_adof);
     // robot_->setRobotMass();
-    // robot_->printRobotInfo();    
-
-    state_estimator_ = new MagnetoStateEstimator(robot_);
+    // robot_->printRobotInfo();
     sp_ = MagnetoStateProvider::getStateProvider(robot_);
 
     // control_architecture_ = new MagnetoWbcArchitecture(robot_);
@@ -46,10 +44,15 @@ MagnetoInterface::MagnetoInterface() : EnvInterface() {
         case RUN_MODE::BALANCE:
         case RUN_MODE::STATICWALK:
             interrupt_ = new WalkingInterruptLogic(control_architecture_);
+            state_estimator_ = new MagnetoStateEstimator(robot_);
         break;
         case RUN_MODE::MPCCLIMBING:
             interrupt_ = new ClimbingInterruptLogic(control_architecture_);  
+            state_estimator_ = new MagnetoStateEstimator(robot_);
         break;
+        case RUN_MODE::HWTEST:
+            interrupt_ = new HWTestInterruptLogic(control_architecture_);  
+            state_estimator_ = new MagnetoHWStateEstimator(robot_);
         default:
         break;
     }    
@@ -123,6 +126,8 @@ void MagnetoInterface::_ParameterSetting() {
             run_mode_ = RUN_MODE::BALANCE;
         } else if (test_name == "mpc_climbing_test") {
             run_mode_ = RUN_MODE::MPCCLIMBING;
+        } else if (test_name == "hardware_test"){
+            run_mode_ = RUN_MODE::HWTEST;
         } else {
             printf(
             "[Magneto Interface] There is no matching test with the "

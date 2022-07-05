@@ -8,6 +8,7 @@
 #include <pnc_utils/curve_utilities.hpp>
 
 class ComMotionCommand;
+class MagnetoStateProvider;
 
 
 // Object to manage common trajectory primitives
@@ -49,5 +50,6 @@ class CoMTrajectoryManager : public TrajectoryManagerBase {
 
   // Hermite Curve containers
   HermiteCurveVec pos_traj;
+  MagnetoStateProvider* sp_;
 
 };

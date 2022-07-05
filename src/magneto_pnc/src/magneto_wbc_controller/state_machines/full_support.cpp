@@ -1,5 +1,5 @@
-#include <magneto_pnc/magneto_planner_container.hpp>
-#include <magneto_pnc/magneto_controlspec_container.hpp>
+#include <magneto_pnc/magneto_control_architecture/magneto_planner_container.hpp>
+#include <magneto_pnc/magneto_control_architecture/magneto_controlspec_container.hpp>
 #include <magneto_pnc/magneto_wbc_controller/state_machines/full_support.hpp>
 
 FullSupport::FullSupport(const StateIdentifier state_identifier_in,
@@ -28,34 +28,34 @@ void FullSupport::firstVisit() {
   // ---------------------------------------
   //      Planning
   // ---------------------------------------
+  Eigen::Vector3d pcom = robot_->getCoMPosition();
+  Eigen::Vector3d pc_goal;
   // robot goal configuration
   Eigen::VectorXd q_init =  robot_->getQ();
   Eigen::VectorXd q_goal =  robot_->getQ();
-  Eigen::Vector3d pcom = robot_->getCoMPosition();
-  Eigen::Vector3d pc_goal;
-  rg_container_->goal_planner_->computeGoal(mc_curr_);  
-  rg_container_->goal_planner_->getGoalConfiguration(q_goal);
-  rg_container_->goal_planner_->getGoalComPosition(pc_goal);
+  // rg_container_->goal_planner_->computeGoal(mc_curr_);  
+  // rg_container_->goal_planner_->getGoalConfiguration(q_goal);
+  // rg_container_->goal_planner_->getGoalComPosition(pc_goal);
   
-  // SWING_DATA mdtmp;  
-  // Eigen::Vector3d com_dpos;
-  // if( mc_curr_.get_foot_motion(mdtmp) ) {        
-  //     com_dpos = mdtmp.dpose.pos;
-  //     if(mdtmp.dpose.is_baseframe){
-  //         Eigen::MatrixXd Rwb = robot_->getBodyNodeIsometry(MagnetoBodyNode::base_link).linear();
-  //         com_dpos = Rwb*com_dpos*0.25;
-  //         // com_dpos << 0.0, 0.0, 0.07*0.25;
-  //     }
-  // }
-  // else com_dpos = Eigen::VectorXd::Zero(3); 
-  // pc_goal = pcom+ com_dpos;
+  SWING_DATA mdtmp;  
+  Eigen::Vector3d com_dpos;
+  if( mc_curr_.get_foot_motion(mdtmp) ) {        
+      com_dpos = mdtmp.dpose.pos;
+      if(mdtmp.dpose.is_baseframe){
+          Eigen::MatrixXd Rwb = robot_->getBodyNodeIsometry(MagnetoBodyNode::base_link).linear();
+          com_dpos = Rwb*com_dpos*0.25;
+          // com_dpos << 0.0, 0.0, 0.07*0.25;
+      }
+  }
+  else com_dpos = Eigen::VectorXd::Zero(3); 
+  pc_goal = pcom+ com_dpos;
   // pc_goal = 0.5*pc_goal + 0.5*(pcom+ com_dpos);
   
 
   sp_->com_pos_init = pcom;
   sp_->com_pos_target = pc_goal;
-  // pnc_utils::pretty_print(pcom, std::cout, "pc_init");
-  // pnc_utils::pretty_print(pc_goal, std::cout, "pc_goal");
+  pnc_utils::pretty_print(pcom, std::cout, "pc_init");
+  pnc_utils::pretty_print(pc_goal, std::cout, "pc_goal");
   // pnc_utils::pretty_print(q_init, std::cout, "q_init");
   // pnc_utils::pretty_print(q_goal, std::cout, "q_goal");
 
@@ -93,6 +93,7 @@ void FullSupport::firstVisit() {
   //      TASK - SET TRAJECTORY
   // ---------------------------------------
   mc_curr_.printMotionInfo();
+  mc_com.printMotionInfo();
   // --set com traj
   rg_container_->com_trajectory_manager_
                ->setCoMTrajectory(ctrl_start_time_, mc_com);

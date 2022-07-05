@@ -1,11 +1,14 @@
 
 #include <magneto_pnc/magneto_planner/reference_generator/foot_trajectory_manager.hpp>
 #include <magneto_pnc/magneto_definition.hpp>
+#include <magneto_pnc/magneto_state_provider.hpp>
 
 
 FootPosTrajectoryManager::FootPosTrajectoryManager(RobotSystem* _robot)
                         : TrajectoryManagerBase(_robot) {
   pnc_utils::pretty_constructor(2, "TrajectoryManager: FootPos");
+
+  sp_ = MagnetoStateProvider::getStateProvider(robot_);
 
   // Initialize member variables
   foot_pos_des_.setZero();
@@ -103,9 +106,9 @@ void FootPosTrajectoryManager::setFootPosTrajectory(const double& _start_time,
   quat_hermite_curve_.initialize(foot_quat_ini_, zero_vel_,
                                  foot_quat_des_, zero_vel_,traj_duration_);
 
-  // sp_->foot_pos_init = foot_pos_ini_;
-  // sp_->foot_pos_target = foot_pos_des_;
-  // sp_->check_foot_planner_updated ++; // draw plot on the simulation
+  sp_->foot_pos_init = foot_pos_ini_;
+  sp_->foot_pos_target = foot_pos_des_;
+  sp_->check_foot_planner_updated ++; // draw plot on the simulation
 
 }
 

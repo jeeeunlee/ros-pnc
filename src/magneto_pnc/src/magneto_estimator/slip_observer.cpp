@@ -1,4 +1,4 @@
-#include <magneto_pnc/magneto_controlspec_container.hpp>
+#include <magneto_pnc/magneto_control_architecture/magneto_controlspec_container.hpp>
 #include <magneto_pnc/magneto_estimator/slip_observer.hpp>
 #include <magneto_pnc/magneto_control_architecture/magneto_control_architecture_set.hpp>
 #include <pnc_utils/math_utilities.hpp>
@@ -150,11 +150,11 @@ void SlipObserver::checkVelocityFoot(int foot_idx) {
     foot_acc_map_[foot_idx] = xcddot;
 
     // data saving
-    std::string foot_vel_name = MagnetoFoot::Names[foot_idx] + "_vel";
+    // std::string foot_vel_name = MagnetoFoot::Names[foot_idx] + "_vel";
     // pnc_utils::saveVector(xcdot, foot_vel_name);    
 
-    foot_vel_name = MagnetoFoot::Names[foot_idx] + "_vel_filtered";
-    pnc_utils::saveVector(xcdot_filtered, foot_vel_name);    
+    // foot_vel_name = MagnetoFoot::Names[foot_idx] + "_vel_filtered";
+    // pnc_utils::saveVector(xcdot_filtered, foot_vel_name);    
 }
 
 void SlipObserver::checkForce() {

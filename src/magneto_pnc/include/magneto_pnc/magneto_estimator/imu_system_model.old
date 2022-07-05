@@ -1,0 +1,52 @@
+#ifndef IMU_SYSTEM_MODE_H_
+#define IMU_SYSTEM_MODEL_H_
+
+#include <Eigen/Dense>
+#include <sensor_msgs/Imu.h>
+#include <geometry_msgs/TransformStamped.h>
+#include <nav_msgs/Odometry.h>
+#include <ros/ros.h>
+
+// #include <tf/transform_broadcaster.h>
+#include <list>
+
+
+class ImuSystemVariables{
+  public:
+    ImuSystemVariables();
+    double t_;
+    Eigen::Vector3d pos_; // linear pos
+    Eigen::Vector3d vel_; // linear velocity
+    Eigen::Quaterniond quat_; // orientation
+    Eigen::Vector3d ba_; // imu_linear_acceleration_bias_
+    Eigen::Vector3d bw_; // imu_angular_velocity_bias_
+};
+
+class ImuSystemModel{
+    public:
+        ImuSystemModel(const ros::NodeHandle& nh);
+        ~ImuSystemModel(){};
+
+        void resetCallback(); // gathering imu data for 10 seconds & reset the state
+        void imuCallback(const sensor_msgs::ImuConstPtr& msg);
+
+    private:
+    ImuSystemVariables x_cur_;
+    ImuSystemVariables x_prev_;
+
+    double estimate_timestamp_;
+
+
+    ros::Subscriber imu_sub_;
+    ros::Publisher odom_pub_;
+    ros::Publisher transform_pub_;
+    std::list<sensor_msgs::Imu> imu_queue_;
+}
+
+namespace ImuUtils{
+    void sensorMsg2struct(const sensor_msgs::ImuConstPtr& msg, data ){
+        
+    }
+} // namespace ImuUtils
+
+#endif

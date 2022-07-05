@@ -207,10 +207,10 @@ bool KinWBC::FindFullConfiguration(const Eigen::VectorXd& curr_config,
     qddot = - JcpinvJcDotQdot + JtPre_pinv * (task->acc_des - JtDotQdot); // modified 2021.2.7
     // qddot = JtPre_pinv * (task->op_cmd - JtDotQdot);
 
-    // Eigen::VectorXd xdot_c = Jc * delta_q;
-    // pnc_utils::saveVector(delta_q, "delta_q0");
-    // pnc_utils::saveVector(task->pos_err, "delta_x0");
-    // pnc_utils::saveVector(xdot_c, "xdot_c0");
+    Eigen::VectorXd xdot_c = Jc * delta_q;
+    pnc_utils::saveVector(delta_q, "delta_q0");
+    pnc_utils::saveVector(task->pos_err, "delta_x0");
+    pnc_utils::saveVector(xdot_c, "xdot_c0");
 
     Eigen::VectorXd prev_delta_q = delta_q;
     Eigen::VectorXd prev_qdot = qdot;
@@ -234,8 +234,8 @@ bool KinWBC::FindFullConfiguration(const Eigen::VectorXd& curr_config,
         qddot = prev_qddot +
                     JtPre_pinv * (task->acc_des - JtDotQdot - Jt * prev_qddot);
 
-        // pnc_utils::saveVector(delta_q, "delta_q" + std::to_string(i) + "_" + std::to_string(task_list.size()) );
-        // pnc_utils::saveVector(task->pos_err, "delta_x" + std::to_string(i) + "_" + std::to_string(task_list.size()) );
+        pnc_utils::saveVector(delta_q, "delta_q" + std::to_string(i) + "_" + std::to_string(task_list.size()) );
+        pnc_utils::saveVector(task->pos_err, "delta_x" + std::to_string(i) + "_" + std::to_string(task_list.size()) );
         // xdot_c = Jc * delta_q;
         // pnc_utils::saveVector(xdot_c, "xdot_c"+ std::to_string(i) + "_" + std::to_string(task_list.size()) );
 

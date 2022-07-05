@@ -110,8 +110,8 @@ void MagnetoCoMPlanner::planCentroidalMotion(const Eigen::Vector3d& pcom_goal,
 
     // motion period 
     _setPeriods( _motion_command.get_motion_periods() );
-    std::cout<<"Tf_="<<Tf_<<", Tt1_="<<Tt1_<<", Ts_="<<Ts_<<", Tt2="<<Tt2_<<std::endl;
-    std::cout<<"T1_="<<T1_<<", T2_="<<T2_<<", T3_="<<T3_<<std::endl;
+    // std::cout<<"Tf_="<<Tf_<<", Tt1_="<<Tt1_<<", Ts_="<<Ts_<<", Tt2="<<Tt2_<<std::endl;
+    // std::cout<<"T1_="<<T1_<<", T2_="<<T2_<<", T3_="<<T3_<<std::endl;
 
     // solve problem
     _solveQuadProg(); // get dir_com_swing_, alpha, beta
@@ -453,7 +453,7 @@ void MagnetoCoMPlanner::_solveQuadProgReplan(){
     // solve quad prob for x = alpha*dir
     // min 0.5*x'*x
     // s.t. -DDs*x <= -dds
-    std::cout<<"########################################################"<<std::endl;
+    // std::cout<<"########################################################"<<std::endl;
     Eigen::VectorXd x;
     qp_solver_->setProblem(Eigen::MatrixXd::Identity(3,3),
                         Eigen::VectorXd::Zero(3),-DDs,-dds);
@@ -464,14 +464,14 @@ void MagnetoCoMPlanner::_solveQuadProgReplan(){
     if(std::fabs(alpha_) > 1e-5) dir_com_swing_ = x/alpha_;
     else dir_com_swing_ = Eigen::VectorXd::Zero(3);
    
-    std::cout<<" dir_com_swing= " << dir_com_swing_.transpose() << std::endl;
-    std::cout<<" alpha= " <<alpha_ << std::endl;
+    // std::cout<<" dir_com_swing= " << dir_com_swing_.transpose() << std::endl;
+    // std::cout<<" alpha= " <<alpha_ << std::endl;    
+    // std::cout<<"########################################################"<<std::endl;
+
     if(alpha_>0.5) alpha_ = 0.5; 
-    std::cout<<"########################################################"<<std::endl;
 
     /* --  2. get Tt2 --*/
-
-
+    
 }
 
 
@@ -498,7 +498,7 @@ void MagnetoCoMPlanner::_solveQuadProg(){
     // pnc_utils::pretty_print(DDs,std::cout,"DD");
     // pnc_utils::pretty_print(dds,std::cout,"dd");
 
-    std::cout<<"########################################################"<<std::endl;
+    // std::cout<<"########################################################"<<std::endl;
     // solve quad prob for x = beta*dir
     // min 0.5*x'*x
     // s.t. -DD*x <= -dd
@@ -516,9 +516,9 @@ void MagnetoCoMPlanner::_solveQuadProg(){
 
     alpha_ = beta_*ratio;
     
-    std::cout<<" dir_com_swing= " << dir_com_swing_.transpose() << std::endl;
-    std::cout<<" alpha= " <<alpha_ << ", beta= " <<beta_ << std::endl;
+    // std::cout<<" dir_com_swing= " << dir_com_swing_.transpose() << std::endl;
+    // std::cout<<" alpha= " <<alpha_ << ", beta= " <<beta_ << std::endl;
     if(alpha_>1.2) alpha_ = 1.2; 
     beta_ = alpha_/ratio;
-    std::cout<<"########################################################"<<std::endl;
+    // std::cout<<"########################################################"<<std::endl;
 }

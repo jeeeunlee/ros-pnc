@@ -1,0 +1,49 @@
+#include <magneto_pnc/magneto_estimator/imu_system_model.hpp>
+
+ImuSystemModel::ImuSystemModel(const ros::NodeHandle& nh)
+    : nh_(nh){
+    imu_sub_ =
+      nh_.subscribe("imu", 1000, &OdomPredictor::imuCallback, this);
+}
+
+void ImuSystemModel::imuCallback(const sensor_msgs::ImuConstPtr& msg) {
+  if (msg->header.stamp < imu_queue_.back().header.stamp) {
+    ROS_ERROR_STREAM("Latest IMU message occured at time: "
+                     << msg->header.stamp
+                     << ". This is before the previously received IMU "
+                        "message that ouccured at: "
+                     << imu_queue_.back().header.stamp
+                     << ". The current imu queue will be reset.");
+    imu_queue_.clear();
+  }
+  if (imu_queue_.size() > max_imu_queue_length_) {
+    ROS_WARN_STREAM_THROTTLE(
+        10, "There has been over "
+                << max_imu_queue_length_
+                << " IMU messages since the last odometry update. The oldest "
+                   "measurement will be forgotten. This message is printed "
+                   "once every 10 seconds");
+    imu_queue_.pop_front();
+  }
+
+  imu_queue_.push_back(*msg);
+
+  if (!have_bias_ || !have_odom_) {
+    return;
+  }
+
+  try {
+    integrateIMUData(*msg);
+  } catch (std::exception& e) {
+    ROS_ERROR_STREAM(
+        "IMU INTEGRATION FAILED, RESETING EVERYTHING: " << e.what());
+    have_bias_ = false;
+    have_odom_ = false;
+    imu_queue_.clear();
+    return;
+  }
+
+  publishOdometry();
+  publishTF();
+  ++seq_;
+}

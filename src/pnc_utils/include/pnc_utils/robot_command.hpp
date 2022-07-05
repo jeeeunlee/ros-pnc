@@ -179,6 +179,7 @@ class ComMotionCommand {
       va = _va;
       vb = _vb;
       motion_period = _T;
+      acc = Eigen::Vector3d::Zero();// no use
       is_acc_constant = false;
     }
     ComMotionCommand(const Eigen::Vector3d& _pa,
@@ -189,10 +190,25 @@ class ComMotionCommand {
       va = _va;
       acc = _acc;
       motion_period = _T;
+      pb = Eigen::Vector3d::Zero(); // no use
+      vb = Eigen::Vector3d::Zero();// no use
       is_acc_constant = true;
     }
 
     ~ComMotionCommand() {};
+
+    void printMotionInfo(){
+      std::cout<<" -------------------------------- "<<std::endl;
+      std::cout<<" ComMotionCommand"<<std::endl;
+      std::cout<<"  * is_acc_constant : " << is_acc_constant<<std::endl;
+      std::cout<<"  * pa : " << pa.transpose()<<std::endl;
+      std::cout<<"  * pb : " << pb.transpose()<<std::endl;
+      std::cout<<"  * va : " << va.transpose()<<std::endl;
+      std::cout<<"  * vb : " << vb.transpose()<<std::endl;
+      std::cout<<"  * acc : " << acc.transpose()<<std::endl;
+      std::cout<<"  * motion_period : " << motion_period<<std::endl;
+      std::cout<<" -------------------------------- "<<std::endl;
+    }
 
   public:
     Eigen::Vector3d pa;

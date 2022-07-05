@@ -1,10 +1,16 @@
 # --simulator settings
-servo_rate: 0.001 # !!this should be match with controller servo rate!!
+servo_rate: 0.005 # !!this should be match with controller servo rate!!
 is_record: false
 show_joint_frame: false #false
 show_link_frame: true #false
 plot_mpc_result: false # true
 plot_result: true # true
+
+# --controller settings
+control_configuration:
+  kp: 10 #4 #20 #20 #35 #20 #300
+  kd: 1 #1 #3 #3 #3 #3 #15
+  torque_limit: 5 #4.5
 
 # --configuration settings
 # robot: robot_description/Robot/Magneto/MagnetoSim_Dart.urdf
@@ -28,7 +34,7 @@ robot: src/magneto_2_description/robots/magneto_2_floatingbase.urdf
 
 ground: robot_description/Ground/safe_climbing_test_2022/slope.urdf
 initial_pose: [ -0.3, 0.0, 0.55, 0.0, 1.0, 0.0 ] # x,y,z, rx,ry,rz
-initial_leg_config: [0.0, -0.15707963267, -1.5707963268, 0.0, 0.0, 0.0]
+initial_leg_config: [0.0, 0.0, -1.5707963268, 0.0, 0.0, 0.0]
 contact_frame: 2 # 0:foot local frame, 1:surface frame
 contact_surface_noraml:
   AL: [ 0.8414710, 0.0, 0.5403023 ]
@@ -37,10 +43,10 @@ contact_surface_noraml:
   BR: [ 0.8414710, 0.0, 0.5403023 ]
 motion_script: config/Magneto/MOTIONS/climbset.yaml
 contact_params:
-  friction: [0.5, 0.3, 0.5, 0.5] 
+  friction: [0.7, 0.7, 0.7, 0.7] 
 magnetism_params:
   # [AL, AR, BL, BR] >> MagnetoFoot @ magneto_definition.hpp
-  magnetic_force: [70., 30., 70., 70.] #[N]
+  magnetic_force: [150., 150., 150., 150.] #[N]
   residual_magnetism: [0.0, 0.0, 0.0, 0.0] #5.0 # 3.0 #[%]
 
 # ground: robot_description/Ground/safe_climbing_test_2022/hexa_column.urdf
@@ -88,9 +94,4 @@ magnetism_params:
 # motion_script: config/Magneto/MOTIONS/climbset_normal.yaml
 
 
-# --controller settings
-control_configuration:
-  kp: 20 #20 #35 #20 #300
-  kd: 3 #3 #3 #3 #15
-  torque_limit: 5 #4.5
 

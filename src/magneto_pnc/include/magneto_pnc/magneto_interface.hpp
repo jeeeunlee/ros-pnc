@@ -12,7 +12,31 @@ namespace RUN_MODE {
 constexpr int BALANCE = 0;
 constexpr int STATICWALK = 1;
 constexpr int MPCCLIMBING = 2;
+constexpr int HWTEST = 3;
 };  // namespace RUN_MODE
+
+
+class IMUSensorData{
+    public:
+    IMUSensorData() {
+        orientation = Eigen::Quaternion<double>::Identity();
+         
+        angular_velocity.setZero();
+        linear_acceleration.setZero();
+
+        orientation_covariance.setZero();
+        angular_velocity_covariance.setZero();
+        linear_acceleration_covariance.setZero();
+    }
+    ~IMUSensorData(){}
+    Eigen::Quaternion<double> orientation;
+    Eigen::Matrix3d orientation_covariance;
+    Eigen::Vector3d angular_velocity;
+    Eigen::Matrix3d angular_velocity_covariance;
+    Eigen::Vector3d linear_acceleration;
+    Eigen::Matrix3d linear_acceleration_covariance;
+
+};
 
 class MagnetoSensorData {
    public:
@@ -33,6 +57,8 @@ class MagnetoSensorData {
         tau_cmd_prev = Eigen::VectorXd::Zero(Magneto::n_adof);
         surface_normal = {Eigen::Vector3d::UnitZ(), Eigen::Vector3d::UnitZ(), 
                         Eigen::Vector3d::UnitZ(), Eigen::Vector3d::UnitZ()};
+
+        imu_data = IMUSensorData();
     }
     virtual ~MagnetoSensorData() {}
 
@@ -52,6 +78,7 @@ class MagnetoSensorData {
     Eigen::VectorXd tau_cmd_prev;
     
     std::array<Eigen::Vector3d, Magneto::n_leg> surface_normal;
+    IMUSensorData imu_data;
 };
 
 class MagnetoCommand {

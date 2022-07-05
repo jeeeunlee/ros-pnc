@@ -4,6 +4,7 @@
 #include <pnc_utils/math_utilities.hpp>
 
 
+
 MagnetoWorldNode::MagnetoWorldNode(const dart::simulation::WorldPtr& _world)
     : dart::gui::osg::WorldNode(_world), count_(0), t_(0.0), servo_rate_(0) {
     world_ = _world;
@@ -45,6 +46,7 @@ MagnetoWorldNode::MagnetoWorldNode(const dart::simulation::WorldPtr& _world)
 
     // ---- SET control parameters %% motion script
     run_mode_ = ((MagnetoInterface*)interface_)->getRunMode();
+
 }
 
 MagnetoWorldNode::~MagnetoWorldNode() {
@@ -81,6 +83,7 @@ void MagnetoWorldNode::enableButtonFlag(uint16_t key) {
 }
 
 void MagnetoWorldNode::customPreStep() {
+
 
     static Eigen::VectorXd qInit = robot_->getPositions();
 
@@ -127,16 +130,19 @@ void MagnetoWorldNode::customPreStep() {
     //                       kp_ * (command_->q[i] - sensor_data_->q[i]);
     // }
     // spring in gimbal    
-    double ks = 5.0;// N/rad
+    double ks = 1.0;// N/rad
     for(int i=6; i< Magneto::n_vdof; ++i) {
         trq_cmd_[Magneto::idx_vdof[i]] = ks * ( 0.0 - sensor_data_->virtual_q[i]);
     }
 
-    static int init_count = 0;   
-    if(init_count++ < 50)
-    {
-        trq_cmd_.setZero();
-    }
+    // static int init_count = 0;   
+    // if(init_count++ < 10)
+    // {
+    //     trq_cmd_.setZero();
+    // }
+
+    if(t_ < 0.015) {trq_cmd_.setZero();
+    std::cout<<"initial trq set to be zero at t="<<t_<<std::endl;}
 
     EnforceTorqueLimit();
     updateContactEnvSetup();
@@ -157,7 +163,7 @@ void MagnetoWorldNode::customPreStep() {
         }
     }
 
-    // saveData();
+    saveData();
     count_++;
 }
 
@@ -553,6 +559,18 @@ void MagnetoWorldNode::UpdateContactSwitchData_() {
         = contact_distance_[MagnetoFoot::AR] < contact_threshold_;
     sensor_data_->brfoot_contact
         = contact_distance_[MagnetoFoot::BR] < contact_threshold_;
+
+    static bool first_contact = false;
+    if(!first_contact) {
+        if(sensor_data_->alfoot_contact || 
+            sensor_data_->blfoot_contact || 
+            sensor_data_->arfoot_contact || 
+            sensor_data_->brfoot_contact){
+            Eigen::Vector3d p_com = robot_->getCOM(); 
+            std::cout<< count_<< " / first_contact! com position :" << p_com(0) << "," << p_com(1) << "," << p_com(2) << std::endl;
+            first_contact = true;
+        }
+    }
 
     // static bool first_contact = false;
     // if(!first_contact) {

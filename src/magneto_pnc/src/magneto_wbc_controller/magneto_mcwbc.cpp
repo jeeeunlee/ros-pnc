@@ -1,4 +1,5 @@
 #include <magneto_pnc/magneto_wbc_controller/magneto_mcwbc.hpp>
+#include <magneto_pnc/magneto_control_architecture/magneto_control_architecture_set.hpp>
 
 MagnetoMCWBC::MagnetoMCWBC( MagnetoControlSpecContainer* _ws_container, 
                             RobotSystem* _robot, int _controller_type ){
@@ -12,6 +13,9 @@ MagnetoMCWBC::MagnetoMCWBC( MagnetoControlSpecContainer* _ws_container,
 
   // Initialize State Provider
   sp_ = MagnetoStateProvider::getStateProvider(robot_);
+
+  // Create joint_integrator_
+  joint_integrator_ = new JointIntegrator(Magneto::n_adof, MagnetoAux::servo_rate);
 
   // Initialize Actuator selection list  
   act_list_.resize(Magneto::n_dof, true);
@@ -37,6 +41,9 @@ MagnetoMCWBC::MagnetoMCWBC( MagnetoControlSpecContainer* _ws_container,
   jpos_des_ = Eigen::VectorXd::Zero(Magneto::n_dof);
   jvel_des_ = Eigen::VectorXd::Zero(Magneto::n_dof);
   jacc_des_ = Eigen::VectorXd::Zero(Magneto::n_dof);
+
+  jvel_des_integrated_ = Eigen::VectorXd::Zero(Magneto::n_adof);
+  jpos_des_integrated_ = Eigen::VectorXd::Zero(Magneto::n_adof);
 }
 
 MagnetoMCWBC::~MagnetoMCWBC() {
@@ -47,13 +54,14 @@ MagnetoMCWBC::~MagnetoMCWBC() {
 
 void MagnetoMCWBC::ctrlInitialization(const YAML::Node& node) {
   // WBC Defaults
-  wbc_dt_ = MagnetoAux::servo_rate;
   b_enable_torque_limits_ = true;  // Enable WBC torque limits
 
-  // Joint Integrator Defaults
-  vel_freq_cutoff_ = 2.0;  // Hz
-  pos_freq_cutoff_ = 1.0;  // Hz
-  max_pos_error_ = 0.2;    // Radians
+  // Joint Integrator parameters
+  double vel_freq_cutoff = 2.; // Hz
+  double pos_freq_cutoff = 1.; // Hz
+  double max_pos_error = 0.2; // radians. 
+                            // After position integrator, 
+                            // deviation from current position
 
   // Load Custom Parmams ----------------------------------
   try {
@@ -61,9 +69,9 @@ void MagnetoMCWBC::ctrlInitialization(const YAML::Node& node) {
     pnc_utils::readParameter(node, "enable_torque_limits", b_enable_torque_limits_);
     pnc_utils::readParameter(node, "torque_limit", torque_limit_); 
 
-    pnc_utils::readParameter(node, "velocity_freq_cutoff", vel_freq_cutoff_);
-    pnc_utils::readParameter(node, "position_freq_cutoff", pos_freq_cutoff_);
-    pnc_utils::readParameter(node, "max_position_error", max_pos_error_);
+    pnc_utils::readParameter(node, "velocity_freq_cutoff", vel_freq_cutoff);
+    pnc_utils::readParameter(node, "position_freq_cutoff", pos_freq_cutoff);
+    pnc_utils::readParameter(node, "max_position_error", max_pos_error);
 
     pnc_utils::readParameter(node, "kp", Kp_);
     pnc_utils::readParameter(node, "kd", Kd_);
@@ -78,7 +86,6 @@ void MagnetoMCWBC::ctrlInitialization(const YAML::Node& node) {
 
   // Set WBC Parameters
   // Enable Torque Limits
-
   Eigen::VectorXd tau_min =
       // sp_->getActiveJointValue(robot_->GetTorqueLowerLimits());
       Eigen::VectorXd::Constant(Magneto::n_adof, -torque_limit_); //-2500.
@@ -87,7 +94,21 @@ void MagnetoMCWBC::ctrlInitialization(const YAML::Node& node) {
       Eigen::VectorXd::Constant(Magneto::n_adof, torque_limit_); //-2500.
   mcwbc_->setTorqueLimits(tau_min, tau_max);
 
-  // Set Joint Integrator Parameters
+  // Set Joint Integrator Parameters  
+  pnc_utils::pretty_print(robot_->GetVelocityLowerLimits(), std::cout, "vel limit");
+  pnc_utils::pretty_print(robot_->GetVelocityUpperLimits(), std::cout, "vel limit");
+  pnc_utils::pretty_print(robot_->GetPositionLowerLimits(), std::cout, "pos limit");
+  pnc_utils::pretty_print(robot_->GetPositionUpperLimits(), std::cout, "pos limit");
+
+  joint_integrator_->setVelocityFrequencyCutOff(vel_freq_cutoff);
+  joint_integrator_->setPositionFrequencyCutOff(pos_freq_cutoff);
+  joint_integrator_->setMaxPositionError(max_pos_error);
+  joint_integrator_->setVelocityBounds( 
+    robot_->getActiveJointValue(robot_->GetVelocityLowerLimits()),
+    robot_->getActiveJointValue(robot_->GetVelocityUpperLimits()) );
+  joint_integrator_->setPositionBounds( 
+    robot_->getActiveJointValue(robot_->GetPositionLowerLimits()),
+    robot_->getActiveJointValue(robot_->GetPositionUpperLimits()) );
 }
 
 void MagnetoMCWBC::_PreProcessing_Command() {
@@ -127,48 +148,66 @@ void MagnetoMCWBC::_PreProcessing_Command() {
 
 void MagnetoMCWBC::getCommand(void* _cmd) {
 
-  // grab & update task_list and contact_list & QP weights
-  _PreProcessing_Command();
-
-  // ---- Solve Inv Kinematics
-  
-  // kin_wbc_->FindConfiguration(sp_->q, task_list_, contact_list_, 
-  //                               jpos_des_, jvel_des_, jacc_des_); 
-  // pnc_utils::saveVector(jpos_des_, "jpos_des");
-  // pnc_utils::saveVector(jvel_des_, "jvel_des");
-  kin_wbc_->FindFullConfiguration(sp_->q, task_list_, contact_list_, 
-                                    jpos_des_, jvel_des_, jacc_des_); 
-  // pnc_utils::saveVector(jpos_des_, "jpos_des_full");
-  // pnc_utils::saveVector(jvel_des_, "jvel_des_full");
-                
-  Eigen::VectorXd jacc_des_cmd = jacc_des_;
-  // for(int i(0); i<Magneto::n_dof; ++i) {
-  //   jacc_des_cmd[i] +=
-  //         Kp_[0]*(jpos_des_[i] - sp_->q[i])
-  //         + Kd_[0]*(jvel_des_[i] - sp_->qdot[i]);
-  // }
-  for(int i(0); i<Magneto::n_adof; ++i) {
-    jacc_des_cmd[Magneto::idx_adof[i]] +=
-          Kp_[i]*(jpos_des_[Magneto::idx_adof[i]] - sp_->q[Magneto::idx_adof[i]])
-          + Kd_[i]*(jvel_des_[Magneto::idx_adof[i]] - sp_->qdot[Magneto::idx_adof[i]]);
+  if (b_first_visit_) {
+    firstVisit();
+    b_first_visit_ = false;
   }
-                                
-  // wbmc
-  mcwbc_->updateSetting(A_, Ainv_, coriolis_, grav_);
-  mcwbc_->makeTorqueGivenRef(jacc_des_cmd, contact_list_, magnet_list_, jtrq_des_, mcwbc_param_);
 
-  set_grf_des();
-  
+  // GET jacc_des_cmd
+  Eigen::VectorXd jacc_des_cmd = Eigen::VectorXd::Zero(Magneto::n_dof);
+  if( sp_->curr_state == MAGNETO_STATES::IDLE ){
+    jtrq_des_.setZero();
+  }  else if( sp_->curr_state == MAGNETO_STATES::INITIALIZE ){
+    // jpos_des_integrated_ = ws_container_->joint_task->pos_des;
+    // jvel_des_integrated_ = ws_container_->joint_task->vel_des;
+    jpos_des_ << 0.0, 0.0, -1.5707963268, 
+                  0.0, 0.0, -1.5707963268, 
+                  0.0, 0.0, -1.5707963268, 
+                  0.0, 0.0, -1.5707963268;
+
+    jvel_des_.setZero();
+     
+    for(int i(0); i<Magneto::n_adof; ++i) {
+      jacc_des_cmd[Magneto::idx_adof[i]] +=
+            Kp_[i]*(jpos_des_[Magneto::idx_adof[i]] - sp_->q[Magneto::idx_adof[i]])
+            + Kd_[i]*(jvel_des_[Magneto::idx_adof[i]] - sp_->qdot[Magneto::idx_adof[i]]);
+    }
+    jtrq_des_.setZero();
+  }   else {     
+    // grab & update task_list and contact_list & QP weights
+    _PreProcessing_Command();
+
+    // KIN-WBC 
+    kin_wbc_->FindFullConfiguration(sp_->q, task_list_, contact_list_, 
+                                      jpos_des_, jvel_des_, jacc_des_); 
+
+    jacc_des_cmd = jacc_des_;
+    for(int i(0); i<Magneto::n_adof; ++i) {
+      jacc_des_cmd[Magneto::idx_adof[i]] +=
+            Kp_[i]*(jpos_des_[Magneto::idx_adof[i]] - sp_->q[Magneto::idx_adof[i]])
+            + Kd_[i]*(jvel_des_[Magneto::idx_adof[i]] - sp_->qdot[Magneto::idx_adof[i]]);
+    }
+                                  
+    // DYN-WBC
+    mcwbc_->updateSetting(A_, Ainv_, coriolis_, grav_);
+    mcwbc_->makeTorqueGivenRef(jacc_des_cmd, contact_list_, magnet_list_, jtrq_des_, mcwbc_param_);
+    set_grf_des(); // sp_->al_rf_des FROM mcwbc_param_->Fr_     
+  }
+
+  // JOINT INTEGRATOR
+  joint_integrator_->integrate(robot_->getActiveJointValue(jacc_des_cmd), 
+                                robot_->getActiveQdot(),
+                                robot_->getActiveQ(), 
+                                jvel_des_integrated_,
+                                jpos_des_integrated_);   
+
+  // SET COMMAND
   ((MagnetoCommand*)_cmd)->jtrq = jtrq_des_;
-  ((MagnetoCommand*)_cmd)->q = sp_->getActiveJointValue(jpos_des_);
-  ((MagnetoCommand*)_cmd)->qdot = sp_->getActiveJointValue(jvel_des_);
+  ((MagnetoCommand*)_cmd)->q = jpos_des_integrated_; // sp_->getActiveJointValue(jpos_des_);
+  ((MagnetoCommand*)_cmd)->qdot = jvel_des_integrated_; // sp_->getActiveJointValue(jvel_des_);
   ws_container_->get_magnetism_onoff(((MagnetoCommand*)_cmd)->magnetism_onoff);
   
-
-  // _PostProcessing_Command(); // unset task and contact
-
-   
-
+  // SAVE DATA  
   // pnc_utils::pretty_print(((MagnetoCommand*)_cmd)->jtrq, std::cout, "jtrq");
   // pnc_utils::pretty_print(jpos_des_, std::cout, "jpos_des_");
   // pnc_utils::pretty_print(((MagnetoCommand*)_cmd)->q, std::cout, "q");
@@ -177,17 +216,16 @@ void MagnetoMCWBC::getCommand(void* _cmd) {
 
 
 void MagnetoMCWBC::firstVisit() { 
-  
+  Eigen::VectorXd jvel_ini = robot_->getActiveQdot();
+  Eigen::VectorXd jpos_ini = robot_->getActiveQ();
+  joint_integrator_->initializeStates(jvel_ini, jpos_ini);  
 }
 
 void MagnetoMCWBC::set_grf_des(){
-
-
-  std::array<Eigen::VectorXd, Magneto::n_leg> grf_des_list;  
   // initialize
+  std::array<Eigen::VectorXd, Magneto::n_leg> grf_des_list;  
   for(int foot_idx(0); foot_idx<Magneto::n_leg; ++foot_idx) 
-    grf_des_list[foot_idx] = Eigen::VectorXd::Zero(6);
-  
+    grf_des_list[foot_idx] = Eigen::VectorXd::Zero(6);  
 
   int dim_grf_stacked(0), dim_grf(0), foot_idx;
   for ( auto &contact : contact_list_) {

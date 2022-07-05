@@ -11,6 +11,10 @@ constexpr int n_adof = n_leg*n_leg_adof;
 constexpr int n_dof = n_vdof + n_adof;
 constexpr int idx_vdof [n_vdof] = {0,1,2,3,4,5,9,10,11,15,16,17,21,22,23,27,28,29};
 constexpr int idx_adof [n_adof] = {6,7,8,12,13,14,18,19,20,24,25,26};
+constexpr int idx_al_pdof [n_leg_pdof] = {9,10,11};
+constexpr int idx_ar_pdof [n_leg_pdof] = {15,16,17};
+constexpr int idx_bl_pdof [n_leg_pdof] = {21,22,23};
+constexpr int idx_br_pdof [n_leg_pdof] = {27,28,29};
 }  // namespace Magneto
 
 namespace MagnetoFoot {
@@ -104,5 +108,5 @@ constexpr int BR_foot_joint_3 = 29;
 }  // namespace MagnetoDoF
 
 namespace MagnetoAux {
-constexpr double servo_rate = 0.01;
+constexpr double servo_rate = 0.005;
 }

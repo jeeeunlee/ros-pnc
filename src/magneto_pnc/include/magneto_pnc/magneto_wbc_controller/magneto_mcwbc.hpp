@@ -3,7 +3,7 @@
 #include <magneto_pnc/magneto_definition.hpp>
 #include <magneto_pnc/magneto_interface.hpp>
 #include <magneto_pnc/magneto_state_provider.hpp>
-#include <magneto_pnc/magneto_controlspec_container.hpp>
+#include <magneto_pnc/magneto_control_architecture/magneto_controlspec_container.hpp>
 
 #include <pnc_core/wbc/joint_integrator.hpp>
 #include <pnc_core/wbc/kin_wbc.hpp>
@@ -39,6 +39,7 @@ class MagnetoMCWBC {
 
  protected:
   RobotSystem* robot_;
+  JointIntegrator *joint_integrator_;
   MagnetoControlSpecContainer* ws_container_;
   MagnetoStateProvider* sp_;  
 
@@ -57,6 +58,9 @@ class MagnetoMCWBC {
   Eigen::VectorXd jacc_des_;
   Eigen::VectorXd jtrq_des_;
 
+  Eigen::VectorXd jvel_des_integrated_;
+  Eigen::VectorXd jpos_des_integrated_;
+
   Eigen::MatrixXd A_;
   Eigen::MatrixXd Ainv_;
   Eigen::MatrixXd grav_;
@@ -69,13 +73,6 @@ class MagnetoMCWBC {
   // Parameters
   // -------------------------------------------------------  
   Eigen::VectorXd Kp_, Kd_;
-
-  // Joint Integrator parameters
-  double wbc_dt_;
-  double vel_freq_cutoff_;  // Hz
-  double pos_freq_cutoff_;  // Hz
-  double max_pos_error_;    // radians. After position integrator, deviation
-                            // from current position
 
   // 
   bool b_first_visit_;
