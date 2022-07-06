@@ -14,6 +14,7 @@ find_package(catkin REQUIRED
     roscpp
     rospy
     std_msgs
+    sensor_msgs
     pnc_utils
     pnc_core
     magneto_pnc
@@ -65,21 +66,29 @@ include_directories(
 # target_include_directories(magneto_sim_lib PUBLIC
 # ${PROJECT_INCLUDE_DIR})
 
-file(GLOB_RECURSE headers "*.hpp")
-file(GLOB_RECURSE sources "*.cpp")
+file(GLOB_RECURSE sim_headers "include/magneto_test/simulation/*.hpp")
+file(GLOB_RECURSE sim_sources "src/simulation/*.cpp")
+
+file(GLOB_RECURSE hw_headers "include/magneto_test/hwtest/*.hpp")
+file(GLOB_RECURSE hw_sources "src/hwtest/*.cpp")
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(magneto_sim ${PROJECT_SOURCE_DIR}/src/main_sim.cpp)
-add_executable(magneto_sim ${sources} ${headers})
-
+add_executable(magneto_sim ${sim_sources} ${sim_headers})
 target_link_libraries(magneto_sim                     
                     ${catkin_LIBRARIES}
                     ${DART_LIBRARIES}
                     ${EIGEN_LIBRARIES}
 )
 
+add_executable(magneto_hw ${hw_headers} ${hw_sources})
+target_link_libraries(magneto_hw                     
+                    ${catkin_LIBRARIES}
+                    ${DART_LIBRARIES}
+                    ${EIGEN_LIBRARIES}
+)
 
 
 ## Rename C++ executable without prefix

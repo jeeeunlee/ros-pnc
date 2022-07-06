@@ -2,7 +2,7 @@
 #include <string>
 
 namespace Magneto {
-constexpr int n_bodynode = 81;
+constexpr int n_bodynode = 34;
 constexpr int n_leg = 4;
 constexpr int n_leg_pdof = 3;
 constexpr int n_leg_adof = 3;
@@ -108,5 +108,5 @@ constexpr int BR_foot_joint_3 = 29;
 }  // namespace MagnetoDoF
 
 namespace MagnetoAux {
-constexpr double servo_rate = 0.005;
+constexpr double servo_rate = 0.001;
 }

@@ -58,6 +58,8 @@ add_library(${PROJECT_NAME} SHARED ${sources}
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
                     ${catkin_LIBRARIES}
+                    ${DART_LIBRARIES}
+                    ${EIGEN_LIBRARIES}
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC   

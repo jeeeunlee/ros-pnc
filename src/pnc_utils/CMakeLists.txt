@@ -131,7 +131,7 @@ include_directories(
 
 ## Declare a C++ library
 FILE(GLOB_RECURSE sources *.cpp)
-FILE(GLOB headers "include/pnc_utils/*.hpp")
+FILE(GLOB_RECURSE headers "include/pnc_utils/*.hpp")
 
 add_library(${PROJECT_NAME} SHARED ${sources} ${headers})
 

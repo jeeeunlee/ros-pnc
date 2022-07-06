@@ -133,7 +133,14 @@ class MagnetoInterface : public EnvInterface {
     virtual ~MagnetoInterface();
 
     virtual void getCommand(void* _sensor_data, void* _command_data);
-    int getRunMode() {return run_mode_;}    
+
+    int getRunMode() {return run_mode_;}
+    void AddScriptMotion(const YAML::Node& motion_cfg);    
+
+
+    // FOR SIMULATION DISPLAY
+    int getCurrentMovingFootLinkIdx();
+    int getCurrentMovingFootIdx();
 
     void GetFeasibleCoM(std::vector <std::pair<double, Eigen::Vector3d>>& 
                         feasible_com_list);
@@ -147,8 +154,4 @@ class MagnetoInterface : public EnvInterface {
     
     bool IsPlannerUpdated();
     bool IsFootPlannerUpdated();
-
-    void AddScriptMotion(const YAML::Node& motion_cfg);
-    int getCurrentMovingFootLinkIdx();
-    int getCurrentMovingFootIdx();
 };

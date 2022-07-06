@@ -21,6 +21,7 @@ MagnetoHWStateEstimator::MagnetoHWStateEstimator(RobotSystem* robot)
 MagnetoHWStateEstimator::~MagnetoHWStateEstimator() {}
 
 void MagnetoHWStateEstimator::Initialization(MagnetoSensorData* data) {
+    std::cout<< "MagnetoHWStateEstimator - Initialization"<<std::endl;
     sp_->jpos_ini = data->q; //sp_->getActiveJointValue(curr_config_);
     _JointUpdate(data);
     _InitializeVirtualJointState(data);
@@ -79,7 +80,7 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
 
     // initialize
     for (int i = 0; i < Magneto::n_vdof; ++i) {
-        curr_config_[Magneto::idx_vdof[i]] = 0.0;
+        curr_config_[Magneto::idx_vdof[i]] = prev_config_[Magneto::idx_vdof[i]];
         curr_qdot_[Magneto::idx_vdof[i]] = 0.0;
     }
 
@@ -122,6 +123,7 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
     }
 
     // Assume num of contact >= 3 
+    std::cout << "nc = "<< nc << " / ";
     if(Jc.cols()>0){
         // build Jc w.r.t joint type        
         Eigen::MatrixXd Jc_virtual = Jc.leftCols<6>();
@@ -155,19 +157,18 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
                         -Jc_active*(robot_->getActiveJointValue(
                                     curr_config_-prev_config_)));
         for (int i = 0; i < 6; ++i){
-            curr_qdot_[Magneto::idx_vdof[i]] = 
+            curr_config_[Magneto::idx_vdof[i]] = 
                     prev_config_[Magneto::idx_vdof[i]] 
                     + delq_vnp[i];            
         }
         for (int i=0; i<idx_contact_passive.size(); ++i){
-            curr_qdot_[idx_contact_passive[i]] = 
+            curr_config_[idx_contact_passive[i]] = 
                     prev_config_[Magneto::idx_vdof[i]] 
                     + delq_vnp[i+6];
         }
     }
-    
-
-
+    pnc_utils::pretty_print(curr_config_, std::cout, "curr_config_");
+    // pnc_utils::pretty_print(curr_qdot_, std::cout, "curr_qdot_");
 }
 
 void MagnetoHWStateEstimator::_InitializeVirtualJointState(MagnetoSensorData* data){
@@ -186,9 +187,9 @@ void MagnetoHWStateEstimator::_InitializeVirtualJointState(MagnetoSensorData* da
     
     double rx(0.), ry(0.), rz(0.);
     // solve for rz(C)*ry(B)*rx(A) = R
-    // (-sin(B), cos(B)sin(A), cos(B)cos(A)) = -gdir // C=0.
+    // (-sin(B), cos(B)sin(A), cos(B)cos(A)) = gdir // C=0.
 
-    ry = std::asin(gdir(0));
+    ry = std::asin(-gdir(0));
     if( fabs(gdir(2))>1e-5 )
         rx = std::atan(gdir(1)/gdir(2));     
 

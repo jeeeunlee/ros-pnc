@@ -195,11 +195,11 @@ void MagnetoMCWBC::getCommand(void* _cmd) {
   }
 
   // JOINT INTEGRATOR
-  joint_integrator_->integrate(robot_->getActiveJointValue(jacc_des_cmd), 
+  joint_integrator_->integrate(robot_->getActiveJointValue(mcwbc_param_->qddot_), 
                                 robot_->getActiveQdot(),
                                 robot_->getActiveQ(), 
                                 jvel_des_integrated_,
-                                jpos_des_integrated_);   
+                                jpos_des_integrated_);
 
   // SET COMMAND
   ((MagnetoCommand*)_cmd)->jtrq = jtrq_des_;
@@ -208,6 +208,14 @@ void MagnetoMCWBC::getCommand(void* _cmd) {
   ws_container_->get_magnetism_onoff(((MagnetoCommand*)_cmd)->magnetism_onoff);
   
   // SAVE DATA  
+  pnc_utils::pretty_print(jpos_des_, std::cout, "jpos_des");
+  pnc_utils::pretty_print(jpos_des_integrated_, std::cout, "jpos_des_integrated_");
+  std::cout<<"----------"<<std::endl;
+  pnc_utils::pretty_print(jacc_des_cmd, std::cout, "jacc_des_cmd");
+  pnc_utils::pretty_print(mcwbc_param_->qddot_ , std::cout, "qddot");
+  std::cout<<"----------"<<std::endl;
+  
+  // pnc_utils::pretty_print(jvel_des_integrated_, std::cout, "jvel_des");
   // pnc_utils::pretty_print(((MagnetoCommand*)_cmd)->jtrq, std::cout, "jtrq");
   // pnc_utils::pretty_print(jpos_des_, std::cout, "jpos_des_");
   // pnc_utils::pretty_print(((MagnetoCommand*)_cmd)->q, std::cout, "q");

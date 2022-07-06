@@ -88,9 +88,12 @@ add_library(${PROJECT_NAME} SHARED ${sources}
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES}
-                            # pnc_utils
-                            myGoldfarb)
+target_link_libraries(${PROJECT_NAME} 
+                      ${catkin_LIBRARIES}
+                      ${DART_LIBRARIES}
+                      ${EIGEN_LIBRARIES}
+                      # pnc_utils
+                      myGoldfarb)
 
 target_include_directories(${PROJECT_NAME} PUBLIC   
                       ${PROJECT_INCLUDE_DIR}

@@ -1,5 +1,5 @@
 #include <pnc_utils/../../Configuration.h>
-#include <magneto_test/magneto_dartsim.hpp>
+#include <magneto_test/simulation/magneto_dartsim.hpp>
 #include <pnc_utils/io_utilities.hpp>
 #include <dart/dart.hpp>
 #include <dart/gui/osg/osg.hpp>

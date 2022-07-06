@@ -12,8 +12,8 @@ class MagnetoStateEstimator {
     MagnetoStateEstimator(RobotSystem* robot);
     ~MagnetoStateEstimator();
 
-    void Initialization(MagnetoSensorData*);
-    void Update(MagnetoSensorData*);
+    virtual void Initialization(MagnetoSensorData*);
+    virtual void Update(MagnetoSensorData*);
 
    protected:
     MagnetoStateProvider* sp_;
@@ -24,7 +24,7 @@ class MagnetoStateEstimator {
     Eigen::VectorXd prev_config_;
     Eigen::VectorXd prev_tau_cmd_;
 
-    void _JointUpdate(MagnetoSensorData* data);
-    void _ConfigurationAndModelUpdate();
-    void _FootContactUpdate(MagnetoSensorData* data);
+    virtual void _JointUpdate(MagnetoSensorData* data);
+    virtual void _ConfigurationAndModelUpdate();
+    virtual void _FootContactUpdate(MagnetoSensorData* data);
 };

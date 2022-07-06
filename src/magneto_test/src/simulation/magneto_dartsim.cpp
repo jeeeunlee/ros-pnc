@@ -1,8 +1,8 @@
 #include <pnc_utils/../../Configuration.h>
 #include <magneto_pnc/magneto_interface.hpp>
-#include <magneto_test/magneto_dartsim.hpp>
+#include <magneto_test/simulation/magneto_dartsim.hpp>
 #include <pnc_utils/math_utilities.hpp>
-
+#include <pnc_utils/io_utilities.hpp>
 
 
 MagnetoWorldNode::MagnetoWorldNode(const dart::simulation::WorldPtr& _world)
@@ -91,6 +91,7 @@ void MagnetoWorldNode::customPreStep() {
 
     Eigen::VectorXd q = robot_->getPositions();
     Eigen::VectorXd qdot = robot_->getVelocities();
+    pnc_utils::pretty_print(q, std::cout, "real_config_");
 
     for(int i=0; i< Magneto::n_adof; ++i) {
         sensor_data_->q[i] = q[Magneto::idx_adof[i]];
@@ -101,8 +102,13 @@ void MagnetoWorldNode::customPreStep() {
     for(int i=0; i< Magneto::n_vdof; ++i) {
         sensor_data_->virtual_q[i] = q[Magneto::idx_vdof[i]];
         sensor_data_->virtual_qdot[i] = qdot[Magneto::idx_vdof[i]];
-    }    
+    }
 
+    // for hw test
+    Eigen::Vector3d gravity_imu; gravity_imu<< 0,0,-9.8;
+    Eigen::Isometry3d base_tf = robot_->getBodyNode("base_link")->getTransform();
+    sensor_data_->imu_data.linear_acceleration = base_tf.linear() * gravity_imu;
+    
     // update contact_distance_
     UpdateContactDistance_();
     // update sensor_data_->b_foot_contact 
@@ -117,18 +123,18 @@ void MagnetoWorldNode::customPreStep() {
 
     trq_cmd_.setZero();
     //  
-    for(int i=0; i< Magneto::n_adof; ++i) {
-        trq_cmd_[Magneto::idx_adof[i]] =
-                          command_->jtrq[i] + 
-                          kd_ * (command_->qdot[i] - sensor_data_->qdot[i]) +
-                          kp_ * (command_->q[i] - sensor_data_->q[i]);
-    }
-
     // for(int i=0; i< Magneto::n_adof; ++i) {
-    //     trq_cmd_[Magneto::idx_adof[i]] = 
+    //     trq_cmd_[Magneto::idx_adof[i]] =
+    //                       command_->jtrq[i] + 
     //                       kd_ * (command_->qdot[i] - sensor_data_->qdot[i]) +
     //                       kp_ * (command_->q[i] - sensor_data_->q[i]);
     // }
+
+    for(int i=0; i< Magneto::n_adof; ++i) {
+        trq_cmd_[Magneto::idx_adof[i]] = 
+                          kd_ * (command_->qdot[i] - sensor_data_->qdot[i]) +
+                          kp_ * (command_->q[i] - sensor_data_->q[i]);
+    }
     // spring in gimbal    
     double ks = 1.0;// N/rad
     for(int i=6; i< Magneto::n_vdof; ++i) {
@@ -142,7 +148,7 @@ void MagnetoWorldNode::customPreStep() {
     // }
 
     if(t_ < 0.015) {trq_cmd_.setZero();
-    std::cout<<"initial trq set to be zero at t="<<t_<<std::endl;}
+    std::cout<<"initial trq set to be zero at t="<<t_<<std::endl;}    
 
     EnforceTorqueLimit();
     updateContactEnvSetup();
