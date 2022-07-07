@@ -1,5 +1,5 @@
 # --hwtest settings
-servo_rate: 0.005 # !!this should be match with controller servo rate!!
+# servo_rate: 0.005 # !!this should be match with controller servo rate!!
 
 motion_script: config/Magneto/MOTIONS/climbset.yaml
 

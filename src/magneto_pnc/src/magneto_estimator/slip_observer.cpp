@@ -121,7 +121,6 @@ void SlipObserver::updateContact(){
 }
 
 void SlipObserver::checkVelocity(){
-    updateContact();
     checkVelocityFoot(MagnetoFoot::AL);
     checkVelocityFoot(MagnetoFoot::BL);
     checkVelocityFoot(MagnetoFoot::AR);

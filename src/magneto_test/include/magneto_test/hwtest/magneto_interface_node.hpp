@@ -4,21 +4,23 @@
 #include <pnc_utils/io_utilities.hpp>
 
 
-class MagnetoInterface;
+class MagnetoHWInterface;
 class MagnetoSensorData;
 class MagnetoCommand;
 class IMUSensorData;
 
 enum SystemState
 {
-  SUSPENDED,          ///< Controller system is temporarily suspended, waiting for user input.
-  OPERATIONAL,        ///< Controller system is operational and running.
-  SYSTEM_STATE_COUNT, ///< Misc enum defining number of System States
+    SUSPENDED,      ///< Controller system is temporarily suspended, 
+    CHECKED,        ///< waiting for user input="GO TO INITIAL CONFIGURATION."
+    IDLE,           ///< waiting for user input="RESET ESTIMATOR."
+    READY,          ///< Estimator is initialized, ready to operate
+    RUNNING,        ///< Controller system is running.
 };
 
 class MagnetoInterfaceParams {
   public: 
-    MagnetoInterfaceParams();
+    MagnetoInterfaceParams(){init();}
     ~MagnetoInterfaceParams(){}
 
     void init(){
@@ -27,6 +29,8 @@ class MagnetoInterfaceParams {
 
     // control parameters
     double control_rate;
+    Eigen::VectorXd init_joint_configuration;
+    std::string motion_script_name;
 };
 
 class MagnetoInterfaceNode {
@@ -41,6 +45,9 @@ class MagnetoInterfaceNode {
 
     // get, set, initializes
     void getParams();
+    void setSensorData();
+    bool systemInitialized();
+    bool resetEstimator();
 
     // state function and main loop
     void loop();
@@ -59,9 +66,11 @@ class MagnetoInterfaceNode {
     MagnetoInterfaceParams params_;
     SystemState system_state_;
 
-    MagnetoInterface* interface_;
+    MagnetoHWInterface* interface_;
     MagnetoSensorData* sensor_data_;
     MagnetoCommand* command_;
+
+    bool joint_state_initialized_, imu_state_initialized_;
 
     //
     ros::Publisher desired_joint_state_publisher_, adhesion_publisher_;    

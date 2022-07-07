@@ -44,9 +44,6 @@ MagnetoWorldNode::MagnetoWorldNode(const dart::simulation::WorldPtr& _world)
     sensor_data_ = new MagnetoSensorData();
     command_ = new MagnetoCommand();
 
-    // ---- SET control parameters %% motion script
-    run_mode_ = ((MagnetoInterface*)interface_)->getRunMode();
-
 }
 
 MagnetoWorldNode::~MagnetoWorldNode() {

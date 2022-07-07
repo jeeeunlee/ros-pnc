@@ -66,12 +66,18 @@ MagnetoMpcControlArchitecture::~MagnetoMpcControlArchitecture() {
 
 void MagnetoMpcControlArchitecture::ControlArchitectureInitialization() {}
 
+
+void MagnetoMpcControlArchitecture::getInitialCommand(const Eigen::VectorXd& _jnt_pos_des,
+                                                      void* _command){
+  wbc_controller->getInitialCommand(_jnt_pos_des, _command);
+}
+
 void MagnetoMpcControlArchitecture::getCommand(void* _command) {
 
   // --------------------------------------------------
   // State Estimator / Observer
-    slip_ob_->checkVelocity();    
-    slip_ob_->checkForce();
+  // slip_ob_->checkVelocity();    
+  // slip_ob_->checkForce();
 
   // --------------------------------------------------
   // Initialize State
@@ -81,31 +87,25 @@ void MagnetoMpcControlArchitecture::getCommand(void* _command) {
   }
   
   // estimate friction parameters and replanning
-  estimateAndReplan();
-
-  
+  // estimateAndReplan();    
 
   // Update State Machine
   state_machines_[state_]->oneStep();
 
   // Update Weights based on slippage level
-  if(prev_state_ != MAGNETO_STATES::INITIALIZE){  
-    slip_ob_->weightShaping();
-  }
-  
+  // if(prev_state_ != MAGNETO_STATES::INITIALIZE)    
+  //   slip_ob_->weightShaping();  
 
   // Get Wholebody control commands
-  if (state_ == MAGNETO_STATES::INITIALIZE) {
-    getIVDCommand(_command);
-  } else {
-    wbc_controller->getCommand(_command);
-  }
-
+  wbc_controller->getCommand(_command);
+  
   // Save Data
   saveData();
 
   // Check for State Transitions
-  if (state_machines_[state_]->endOfState() && states_sequence_->getNumStates()>0) {
+  if (state_ != MAGNETO_STATES::INITIALIZE &&
+      state_machines_[state_]->endOfState() && 
+      states_sequence_->getNumStates()>0) {
 
     state_machines_[state_]->lastVisit();
     prev_state_ = state_;

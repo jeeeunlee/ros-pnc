@@ -57,7 +57,6 @@ class MagnetoWorldNode : public dart::gui::osg::WorldNode {
     double kd_;
     double torque_limit_;
 
-    int run_mode_;
     int contact_frame_type_;
 
     Eigen::MatrixXd R_ground_;

@@ -28,6 +28,8 @@ class MagnetoMpcControlArchitecture : public ControlArchitecture {
 
   void saveData();
   void getIVDCommand(void* _command);
+  void getInitialCommand(const Eigen::VectorXd& _jnt_pos_des,
+                        void* _command);
   void estimateAndReplan();
   
   StateSequence<MotionCommand>* states_sequence_;

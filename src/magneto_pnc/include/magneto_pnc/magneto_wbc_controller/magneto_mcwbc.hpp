@@ -28,6 +28,9 @@ class MagnetoMCWBC {
   virtual void getCommand(void* _cmd);
   virtual void ctrlInitialization(const YAML::Node& node);
 
+  void getInitialCommand(const Eigen::VectorXd& _jnt_pos_des,
+                        void* _cmd)
+
  protected:
   //  Processing Step for first visit
   virtual void firstVisit();  
