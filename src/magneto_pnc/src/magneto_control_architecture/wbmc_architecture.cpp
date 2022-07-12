@@ -100,6 +100,10 @@ void MagnetoWbcArchitecture::addState(void* _user_state_command) {
                             state_pair->user_cmd);
 }
 
+void MagnetoWbcArchitecture::deleteState(){
+  states_sequence_->deleteState();
+}
+
 ///////////////////////////////////////////////////////////////////////
 
 void MagnetoWbcArchitecture::getIVDCommand(void* _cmd) {

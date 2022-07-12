@@ -76,6 +76,7 @@ file(GLOB_RECURSE hw_sources "src/hwtest/*.cpp")
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(magneto_sim ${PROJECT_SOURCE_DIR}/src/main_sim.cpp)
+
 add_executable(magneto_sim ${sim_sources} ${sim_headers})
 target_link_libraries(magneto_sim                     
                     ${catkin_LIBRARIES}

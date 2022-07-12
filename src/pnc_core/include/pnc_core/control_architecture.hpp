@@ -20,6 +20,7 @@ class ControlArchitecture {
   virtual void ControlArchitectureInitialization() = 0;
   virtual void getCommand(void* _command) = 0;  
   virtual void addState(void* _user_state_command) = 0;
+  virtual void deleteState()=0;
   
   int getState() { return state_; }
   int getPrevState() { return prev_state_; }

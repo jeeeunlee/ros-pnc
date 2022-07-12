@@ -22,9 +22,6 @@ MagnetoInterface::MagnetoInterface() : EnvInterface() {
     pnc_utils::color_print(myColor::BoldCyan, border);
     pnc_utils::pretty_constructor(0, "Magneto Interface");
 
-    // set run_mode from interface.yaml
-    _ParameterSetting(); 
-
     // declare
     robot_ = new RobotSystem(6+3*4, 
         // THIS_COM "robot_description/Robot/Magneto/MagnetoSim_limitup.urdf");
@@ -39,33 +36,20 @@ MagnetoInterface::MagnetoInterface() : EnvInterface() {
 
     // control_architecture_ = new MagnetoWbcArchitecture(robot_);
     control_architecture_ = new MagnetoMpcControlArchitecture(robot_);
+    interrupt_ = new HWTestInterruptLogic(control_architecture_);  
+    state_estimator_ = new MagnetoHWStateEstimator(robot_);
 
-    switch(run_mode_) {
-        case RUN_MODE::BALANCE:
-        case RUN_MODE::STATICWALK:
-            interrupt_ = new WalkingInterruptLogic(control_architecture_);
-            state_estimator_ = new MagnetoStateEstimator(robot_);
-        break;
-        case RUN_MODE::MPCCLIMBING:
-            interrupt_ = new ClimbingInterruptLogic(control_architecture_);  
-            state_estimator_ = new MagnetoStateEstimator(robot_);
-        break;
-        case RUN_MODE::HWTEST:
-            interrupt_ = new HWTestInterruptLogic(control_architecture_);  
-            state_estimator_ = new MagnetoHWStateEstimator(robot_);
-        default:
-        break;
-    }    
+    // read from hwtest.yaml
+    _ParameterSetting(); 
 
+    // initialize the parameters
     count_ = 0;
-    waiting_count_ = 2;
+    reset_count_ = 0;
+    waiting_count_ = 5;
+    
     cmd_jpos_ = Eigen::VectorXd::Zero(Magneto::n_adof);
     cmd_jvel_ = Eigen::VectorXd::Zero(Magneto::n_adof);
     cmd_jtrq_ = Eigen::VectorXd::Zero(Magneto::n_adof);
-
-
-    check_com_planner_updated = 0;
-    check_foot_planner_updated = 0;    
 
     pnc_utils::color_print(myColor::BoldCyan, border);
 }
@@ -77,20 +61,46 @@ MagnetoInterface::~MagnetoInterface() {
     delete interrupt_;
 }
 
+void MagnetoInterface::getInitialCommand(void* _data, void* _command){
+    MagnetoCommand* cmd = ((MagnetoCommand*)_command);
+    MagnetoSensorData* data = ((MagnetoSensorData*)_data);
+    state_estimator_->Update(data);
+    ((MagnetoMpcControlArchitecture*)control_architecture_)->getInitialCommand(ini_q_config_ ,cmd); 
+}
+
+bool MagnetoInterface::checkInitialJointConfiguration(){  
+    // check position
+    Eigen::VectorXd pos_err = robot_->getActiveQ() - ini_q_config_;
+    Eigen::VectorXd vel_err = robot_->getActiveQdot();
+    std::cout<<"pos_err =  "<<pos_err.norm() <<", vel_err = "<< vel_err.norm()<<std::endl;
+    if(pos_err.norm() < 0.2 && vel_err.norm() < 0.1 )
+        return true;
+    else return false;
+}
+
+void MagnetoInterface::getStopCommand(void* _data, void* _command){
+    MagnetoCommand* cmd = ((MagnetoCommand*)_command);
+    MagnetoSensorData* data = ((MagnetoSensorData*)_data);
+
+    state_estimator_->Update(data); // robot skelPtr in robotSystem updated 
+    _SetStopCommand(data,cmd);
+
+    running_time_ = ((double)count_)*MagnetoAux::servo_rate;
+    sp_->curr_time = running_time_;
+    ++count_;
+}
+
 void MagnetoInterface::getCommand(void* _data, void* _command) {
     MagnetoCommand* cmd = ((MagnetoCommand*)_command);
     MagnetoSensorData* data = ((MagnetoSensorData*)_data);
+
+    state_estimator_->Update(data); // robot skelPtr in robotSystem updated 
+    interrupt_->processInterrupts();
+    control_architecture_->getCommand(cmd);   
     
-
-    if(!_Initialization(data, cmd)) {
-        state_estimator_->Update(data); // robot skelPtr in robotSystem updated 
-        interrupt_->processInterrupts();
-        control_architecture_->getCommand(cmd);
-        
-        
-        if(!_CheckCommand(cmd)) { _SetStopCommand(data,cmd); }    
-    }   
-
+    if(!_CheckCommand(cmd)) { 
+        _SetStopCommand(data,cmd); } 
+    
     // save data
     _SaveDataCmd(data,cmd);
 
@@ -99,46 +109,89 @@ void MagnetoInterface::getCommand(void* _data, void* _command) {
     ++count_;
 }
 
-bool MagnetoInterface::_Initialization(MagnetoSensorData* data,
-                                        MagnetoCommand* _command) {
-    static bool test_initialized(false);
-    if (!test_initialized) {
+bool MagnetoInterface::initialize(MagnetoSensorData* data, 
+                                    MagnetoCommand* cmd) {
+    static bool ctrlarch_initialized(false);
+    if (!ctrlarch_initialized) {
         control_architecture_->ControlArchitectureInitialization();
-        test_initialized = true;
+        ctrlarch_initialized = true;
     }
-    if (count_ < waiting_count_) {
-         _SetStopCommand(data, _command);
+    static int initialize_count(0);
+    if ( ++initialize_count < waiting_count_) {
+         _SetStopCommand(data, cmd);
+        state_estimator_->Initialization(data);
+        return false;    
+    } else{
+        _SetStopCommand(data, cmd);
         state_estimator_->Initialization(data);
         return true;
     }
-    return false;
+}
+
+bool MagnetoInterface::resetEstimator(MagnetoSensorData* data, 
+                                        MagnetoCommand* cmd) { 
+
+  
+    if ( ++reset_count_ < waiting_count_) {  
+         _SetStopCommand(data, cmd);  
+        state_estimator_->Initialization(data);
+        return false;    
+    } else{  
+        _SetStopCommand(data, cmd); 
+        state_estimator_->Initialization(data);
+        count_ = 0;
+        reset_count_ = 0;
+        return true;
+    }    
+
+    // _SetStopCommand(data, cmd);  
+    // state_estimator_->Initialization(data);
+    // return true;
 }
 
 void MagnetoInterface::_ParameterSetting() {
+    std::string motion_file_name;    
+    
     try {
         YAML::Node cfg =
-            YAML::LoadFile(THIS_COM "config/Magneto/INTERFACE.yaml");
-        std::string test_name =
-            pnc_utils::readParameter<std::string>(cfg, "test_name");
-        if (test_name == "static_walking_test") {
-            run_mode_ = RUN_MODE::STATICWALK;
-        } else if (test_name == "balance_test") {
-            run_mode_ = RUN_MODE::BALANCE;
-        } else if (test_name == "mpc_climbing_test") {
-            run_mode_ = RUN_MODE::MPCCLIMBING;
-        } else if (test_name == "hardware_test"){
-            run_mode_ = RUN_MODE::HWTEST;
-        } else {
-            printf(
-            "[Magneto Interface] There is no matching test with the "
-            "name\n");
-            exit(0);
-        }
+            YAML::LoadFile(THIS_COM "config/Magneto/HWTEST.yaml");
+            pnc_utils::readParameter(cfg, "motion_script", motion_file_name);
+            pnc_utils::readParameter(cfg, "initialize_configuration", ini_q_config_);
+        
     } catch (std::runtime_error& e) {
         std::cout << "Error reading parameter [" << e.what() << "] at file: ["
                   << __FILE__ << "]" << std::endl
                   << std::endl;
         exit(0);
+    }    
+
+    addScriptMotion(motion_file_name);
+}
+
+
+int MagnetoInterface::getNumStates(){ return sp_->num_state;}
+bool MagnetoInterface::checkSystemIdle(){return sp_->system_idle; }
+
+void MagnetoInterface::addScriptMotion(const std::string& _motion_file_name){
+    std::ostringstream motion_file_name;    
+    motion_file_name << THIS_COM << _motion_file_name;
+    // std::cout<< "add script motions : " << motion_file_name.str() << std::endl;
+
+    // script motion
+    try { 
+        YAML::Node motion_cfg = YAML::LoadFile(motion_file_name.str());
+        int num_motion;
+        pnc_utils::readParameter(motion_cfg, "num_motion", num_motion); 
+        for(int i(0); i<num_motion; ++i){   
+            std::ostringstream stringStream;
+            stringStream << "motion" << i;
+            std::cout<< "stringStream=" <<stringStream.str()<< std::endl;
+            interrupt_->setInterruptRoutine(motion_cfg[stringStream.str()]);            
+        }
+    } catch (std::runtime_error& e) {
+        std::cout << "Error reading parameter [" << e.what() << "] at file: ["
+                  << __FILE__ << "]" << std::endl
+                  << std::endl;
     }
 }
 
@@ -149,11 +202,9 @@ bool MagnetoInterface::_CheckCommand(MagnetoCommand* cmd){
 }
 
 void MagnetoInterface::_SetStopCommand(MagnetoSensorData* data, MagnetoCommand* cmd) {
-  for (int i(0); i < robot_->getNumActuatedDofs(); ++i) {
-    cmd->jtrq[i] = 0.;
-    cmd->q[i] = data->q[i];
-    cmd->qdot[i] = 0.;
-  }
+    cmd->q= data->q;
+    cmd->jtrq = Eigen::VectorXd::Zero(Magneto::n_adof);
+    cmd->qdot =Eigen::VectorXd::Zero(Magneto::n_adof);
 }
 
 void MagnetoInterface::_SaveDataCmd(MagnetoSensorData* data, MagnetoCommand* cmd)  {
@@ -163,70 +214,3 @@ void MagnetoInterface::_SaveDataCmd(MagnetoSensorData* data, MagnetoCommand* cmd
     cmd_jvel_ = cmd->qdot;
     cmd_jpos_ = cmd->q;
 }
-
-bool MagnetoInterface::IsPlannerUpdated() {
-    if (check_com_planner_updated == sp_->check_com_planner_updated) {
-        return false;
-    } else {
-        check_com_planner_updated = sp_->check_com_planner_updated;
-        return true;
-    }   
-}
-
-bool MagnetoInterface::IsFootPlannerUpdated() {
-    if (check_foot_planner_updated == sp_->check_foot_planner_updated) {
-        return false;
-    } else {
-        check_foot_planner_updated = sp_->check_foot_planner_updated;
-        return true;
-    }   
-}
-
-void MagnetoInterface::GetFeasibleCoM(
-    std::vector <std::pair<double, Eigen::Vector3d>>& feasible_com_list) {
-    feasible_com_list = sp_->feasible_com_list;
-}
-
-void MagnetoInterface::GetCurrentCoM(Eigen::VectorXd& com_des) {
-    com_des = sp_->com_pos_init;
-}
-
-void MagnetoInterface::GetOptimalCoM(Eigen::VectorXd& com_des) {
-    com_des = sp_->com_pos_target;
-}
-
-void MagnetoInterface::GetCurrentFootStep(Eigen::VectorXd& foot_pos) {
-    foot_pos = sp_->foot_pos_init;
-}
-
-void MagnetoInterface::GetNextFootStep(Eigen::VectorXd& foot_pos) {
-    foot_pos = sp_->foot_pos_target;
-}
-
-void MagnetoInterface::GetCoMPlans(Eigen::VectorXd& com_pos_ini,
-                                    Eigen::VectorXd& com_pos_goal) {
-    com_pos_ini = sp_->com_pos_init;
-    com_pos_goal = sp_->com_pos_target;
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////
-
-void MagnetoInterface::AddScriptMotion(const YAML::Node& motion_cfg){
-    interrupt_->setInterruptRoutine(motion_cfg);
-}
-
-int MagnetoInterface::getCurrentMovingFootLinkIdx() {
-    int foot_idx =  sp_-> curr_motion_command.get_moving_foot(); 
-    return MagnetoFoot::LinkIdx[foot_idx];
-}
-int MagnetoInterface::getCurrentMovingFootIdx() {
-    return sp_-> curr_motion_command.get_moving_foot();
-}
-
-
-
-
-
-
-

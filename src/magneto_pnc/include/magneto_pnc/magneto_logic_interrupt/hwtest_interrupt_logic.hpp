@@ -24,4 +24,5 @@ class HWTestInterruptLogic : public InterruptLogic {
 
 private:
   void addStateCommand(int _state_id, const MotionCommand& _smc);
+  void deleteStateCommand();
 };

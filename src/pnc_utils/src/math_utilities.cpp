@@ -293,6 +293,23 @@ double CropValue(double value, double min, double max, std::string source) {
     return value;
 }
 
+void CropVector(Eigen::VectorXd &value, 
+                const Eigen::VectorXd & min,
+                const Eigen::VectorXd & max){
+    assert(value.size() = min.size());
+    assert(value.size() = max.size());
+    int n_data = value.size();
+    for (int i = 0; i < n_data; ++i) {
+        if (value[i] > max[i]) {
+            value[i] = max[i];
+        }
+        if (value[i] < min[i]) {
+            value[i] = min[i];
+        }
+    }
+}
+
+
 Eigen::VectorXd CropVector(Eigen::VectorXd value, Eigen::VectorXd min,
                            Eigen::VectorXd max, std::string source) {
     assert(value.size() = min.size());

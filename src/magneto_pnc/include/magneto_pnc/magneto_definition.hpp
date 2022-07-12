@@ -107,6 +107,9 @@ constexpr int BR_foot_joint_2 = 28;
 constexpr int BR_foot_joint_3 = 29;
 }  // namespace MagnetoDoF
 
+
+
+
 namespace MagnetoAux {
 constexpr double servo_rate = 0.001;
 }

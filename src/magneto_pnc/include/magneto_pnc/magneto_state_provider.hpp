@@ -33,6 +33,7 @@ class MagnetoStateProvider {
     int curr_state;
     MotionCommand curr_motion_command;
     int num_state; // num of remaining states to run
+    bool system_idle; // true if end of state & # of states==0
     //
 
     Eigen::VectorXd q_des;

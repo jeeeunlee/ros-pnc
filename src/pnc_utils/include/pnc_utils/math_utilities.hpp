@@ -64,6 +64,10 @@ bool isEqual(const Eigen::VectorXd a, const Eigen::VectorXd b,
              const double threshold = 0.00001);
 double CropValue(double value, double min, double max, std::string source);
 
+void CropVector(Eigen::VectorXd &value, 
+                const Eigen::VectorXd &min,
+                const Eigen::VectorXd &max);
+
 Eigen::VectorXd CropVector(Eigen::VectorXd value, Eigen::VectorXd min,
                            Eigen::VectorXd max, std::string source);
 

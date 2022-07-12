@@ -103,27 +103,36 @@ void MagnetoMpcControlArchitecture::getCommand(void* _command) {
   saveData();
 
   // Check for State Transitions
-  if (state_ != MAGNETO_STATES::INITIALIZE &&
-      state_machines_[state_]->endOfState() && 
-      states_sequence_->getNumStates()>0) {
-
-    state_machines_[state_]->lastVisit();
-    prev_state_ = state_;
-    if(states_sequence_->getNextState(state_, user_cmd_)){
-      sp_->curr_state = state_;
-      sp_->curr_motion_command = (MotionCommand)user_cmd_;      
-      b_state_first_visit_ = true;
-    }
+  if (state_ != MAGNETO_STATES::INITIALIZE 
+        && state_machines_[state_]->endOfState() ) {  
+      if(states_sequence_->getNextState(state_, user_cmd_)){
+        state_machines_[state_]->lastVisit();
+        prev_state_ = state_;
+        sp_->curr_state = state_;
+        sp_->curr_motion_command = (MotionCommand)user_cmd_;      
+        b_state_first_visit_ = true;
+      }else{
+        sp_->system_idle = true;
+      }
     // if(states_sequence_->getNumStates()==0)
     //   exit(0);
   }
+  else sp_->system_idle = false;
+
   sp_->num_state = states_sequence_->getNumStates();
+
+  
 };
 
 void MagnetoMpcControlArchitecture::addState(void* _user_state_command) {
   MagnetoUserStateCommand* state_pair = ((MagnetoUserStateCommand*)_user_state_command); 
   states_sequence_->addState( state_pair->state_id, state_pair->user_cmd);
 }
+
+void MagnetoMpcControlArchitecture::deleteState(){
+  states_sequence_->deleteState();
+}
+
 
 ///////////////////////////////////////////////////////////////////////
 

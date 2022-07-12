@@ -36,6 +36,10 @@ void HWTestInterruptLogic::processInterrupts() {
           addStateCommand(MAGNETO_STATES::BALANCE, MotionCommand() );
         }
       break;
+      case 't':
+        // std::cout << "@@@@ [Climbing Interrupt Logic] button T pressed << STOP" << std::endl;
+        deleteStateCommand();
+        addStateCommand(MAGNETO_STATES::BALANCE, MotionCommand() );
       default:
         break;
     }
@@ -50,6 +54,9 @@ void HWTestInterruptLogic::addStateCommand(int _state_id,
   ctrl_arch_->addState(user_state_cmd_);
 }
 
+void HWTestInterruptLogic::deleteStateCommand(){  
+  ctrl_arch_->deleteState();
+}
 
 // climbset.yaml
 // # foot : AL-0, AR-1, BL-2, BR-3
@@ -76,10 +83,7 @@ void HWTestInterruptLogic::setInterruptRoutine(const YAML::Node& motion_cfg) {
   pnc_utils::readParameter(motion_cfg, "swing_height", swing_motion.swing_height);
 
   Eigen::VectorXd motion_periods;
-  pnc_utils::readParameter(motion_cfg, "durations", motion_periods);
-
+  pnc_utils::readParameter(motion_cfg, "durations", motion_periods);  
   MotionCommand mc_temp = MotionCommand(swing_motion, motion_periods);
-
-
   script_user_cmd_deque_.push_back( mc_temp );
 }

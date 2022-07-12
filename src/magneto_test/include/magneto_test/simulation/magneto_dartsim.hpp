@@ -23,18 +23,11 @@ class MagnetoWorldNode : public dart::gui::osg::WorldNode {
     void UpdateContactSwitchData_();
     void UpdateContactWrenchData_();
     
-    void ReadMotions_(const std::string& _motion_file_name);
-    
-    void PlotResult_();
-    void PlotFootStepResult_();
-    void PlotForce_(int fidx, const Eigen::Vector3d& frc_foot);
-
-    
+    void PlotForce_(int fidx, const Eigen::Vector3d& frc_foot);    
     void CheckRobotSkeleton(const dart::dynamics::SkeletonPtr& skel);
     
     void EnforceTorqueLimit(); 
     void ApplyMagneticForce();
-    void updateContactEnvSetup();
 
     void saveData();
 

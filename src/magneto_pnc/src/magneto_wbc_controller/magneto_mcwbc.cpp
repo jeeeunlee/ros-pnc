@@ -68,13 +68,15 @@ void MagnetoMCWBC::ctrlInitialization(const YAML::Node& node) {
     // Load Integration Parameters
     pnc_utils::readParameter(node, "enable_torque_limits", b_enable_torque_limits_);
     pnc_utils::readParameter(node, "torque_limit", torque_limit_); 
+    pnc_utils::readParameter(node, "acc_limit", acc_limit_);
 
     pnc_utils::readParameter(node, "velocity_freq_cutoff", vel_freq_cutoff);
     pnc_utils::readParameter(node, "position_freq_cutoff", pos_freq_cutoff);
     pnc_utils::readParameter(node, "max_position_error", max_pos_error);
 
     pnc_utils::readParameter(node, "kp", Kp_);
-    pnc_utils::readParameter(node, "kd", Kd_);
+    pnc_utils::readParameter(node, "kd", Kd_);   
+
 
   } catch (std::runtime_error& e) {
     std::cout << "Error reading parameter [" << e.what() << "] at file: ["
@@ -86,13 +88,16 @@ void MagnetoMCWBC::ctrlInitialization(const YAML::Node& node) {
 
   // Set WBC Parameters
   // Enable Torque Limits
-  Eigen::VectorXd tau_min =
+  tau_min_ =
       // sp_->getActiveJointValue(robot_->GetTorqueLowerLimits());
       Eigen::VectorXd::Constant(Magneto::n_adof, -torque_limit_); //-2500.
-  Eigen::VectorXd tau_max =
+  tau_max_ =
       // sp_->getActiveJointValue(robot_->GetTorqueUpperLimits());
       Eigen::VectorXd::Constant(Magneto::n_adof, torque_limit_); //-2500.
-  mcwbc_->setTorqueLimits(tau_min, tau_max);
+  mcwbc_->setTorqueLimits(tau_min_, tau_max_);
+
+  acc_min_ = Eigen::VectorXd::Constant(Magneto::n_adof, -acc_limit_);
+  acc_max_ = Eigen::VectorXd::Constant(Magneto::n_adof, +acc_limit_);
 
   // Set Joint Integrator Parameters  
   pnc_utils::pretty_print(robot_->GetVelocityLowerLimits(), std::cout, "vel limit");
@@ -153,20 +158,27 @@ void MagnetoMCWBC::getInitialCommand(const Eigen::VectorXd& _jnt_pos_des,
   //               0.0, 0.0, -1.5707963268, 
   //               0.0, 0.0, -1.5707963268;  
 
+  if (b_first_visit_) {
+    firstVisit();
+    b_first_visit_ = false;
+  }  
+
   jvel_des_.setZero();
   jtrq_des_.setZero();
   jpos_des_.setZero();
   for(int i(0); i<Magneto::n_adof; ++i){
     jpos_des_[Magneto::idx_adof[i]] = _jnt_pos_des[i];
-  }  
+  }
     
+  Eigen::VectorXd jacc_des_cmd = Eigen::VectorXd::Zero(Magneto::n_adof);
   for(int i(0); i<Magneto::n_adof; ++i) {
-    jacc_des_cmd[Magneto::idx_adof[i]] +=
-          Kp_[i]*(jpos_des_[Magneto::idx_adof[i]] - robot_->getActiveQ())
-          + Kd_[i]*(jvel_des_[Magneto::idx_adof[i]] - robot_->getActiveQdot());
+    jacc_des_cmd[i] +=
+          Kp_[i]*(jpos_des_[Magneto::idx_adof[i]] - sp_->q[Magneto::idx_adof[i]])
+          + Kd_[i]*(jvel_des_[Magneto::idx_adof[i]] - sp_->qdot[Magneto::idx_adof[i]]);
   }
 
-  joint_integrator_->integrate(robot_->getActiveJointValue(mcwbc_param_->qddot_), 
+  pnc_utils::CropVector(jacc_des_cmd, acc_min_, acc_max_);
+  joint_integrator_->integrate(jacc_des_cmd, 
                                 robot_->getActiveQdot(),
                                 robot_->getActiveQ(), 
                                 jvel_des_integrated_,
@@ -177,17 +189,17 @@ void MagnetoMCWBC::getInitialCommand(const Eigen::VectorXd& _jnt_pos_des,
   ((MagnetoCommand*)_cmd)->q = jpos_des_integrated_; // sp_->getActiveJointValue(jpos_des_);
   ((MagnetoCommand*)_cmd)->qdot = jvel_des_integrated_; // sp_->getActiveJointValue(jvel_des_);
   
-  ((MagnetoCommand*)_cmd)->magnetism_onoff[MagnetoFoot::AL] = 0;
-  ((MagnetoCommand*)_cmd)->magnetism_onoff[MagnetoFoot::AR] = 0;
-  ((MagnetoCommand*)_cmd)->magnetism_onoff[MagnetoFoot::BL] = 0;
-  ((MagnetoCommand*)_cmd)->magnetism_onoff[MagnetoFoot::BR] = 0; 
+  ((MagnetoCommand*)_cmd)->magnetism_onoff[MagnetoFoot::AL] = 1;
+  ((MagnetoCommand*)_cmd)->magnetism_onoff[MagnetoFoot::AR] = 1;
+  ((MagnetoCommand*)_cmd)->magnetism_onoff[MagnetoFoot::BL] = 1;
+  ((MagnetoCommand*)_cmd)->magnetism_onoff[MagnetoFoot::BR] = 1; 
   
   // SAVE DATA  
-  pnc_utils::pretty_print(jpos_des_, std::cout, "jpos_des");
+  Eigen::VectorXd current_q = robot_->getActiveQ();
+  pnc_utils::pretty_print(current_q, std::cout, "current_q");
+  pnc_utils::pretty_print(_jnt_pos_des, std::cout, "_jnt_pos_des");
   pnc_utils::pretty_print(jpos_des_integrated_, std::cout, "jpos_des_integrated_");
-  std::cout<<"----------"<<std::endl;
   pnc_utils::pretty_print(jacc_des_cmd, std::cout, "jacc_des_cmd");
-  pnc_utils::pretty_print(mcwbc_param_->qddot_ , std::cout, "qddot");
   std::cout<<"----------"<<std::endl;
   
 }
@@ -237,18 +249,37 @@ void MagnetoMCWBC::getCommand(void* _cmd) {
   ws_container_->get_magnetism_onoff(((MagnetoCommand*)_cmd)->magnetism_onoff);
   
   // SAVE DATA  
-  pnc_utils::pretty_print(jpos_des_, std::cout, "jpos_des");
-  pnc_utils::pretty_print(jpos_des_integrated_, std::cout, "jpos_des_integrated_");
-  std::cout<<"----------"<<std::endl;
-  pnc_utils::pretty_print(jacc_des_cmd, std::cout, "jacc_des_cmd");
-  pnc_utils::pretty_print(mcwbc_param_->qddot_ , std::cout, "qddot");
-  std::cout<<"----------"<<std::endl;
+  // std::cout<<"----------"<<std::endl;
+  Eigen::VectorXd current_q = robot_->getActiveQ();
+  Eigen::VectorXd jpos_des_kin = robot_->getActiveJointValue(jpos_des_);
+  // pnc_utils::pretty_print(current_q, std::cout, "current_q");  
+  // pnc_utils::pretty_print(jpos_des_integrated_, std::cout, "jpos_des_integrated_");
+  // pnc_utils::pretty_print(jpos_des_kin, std::cout, "jpos_des_kin");
+  pnc_utils::saveVector(current_q,"current_q");
+  pnc_utils::saveVector(jpos_des_integrated_,"jpos_des_integrated_");
+  pnc_utils::saveVector(jpos_des_kin,"jpos_des_kin");
+  // std::cout<<"----------"<<std::endl;
+  Eigen::VectorXd jacc_des_cmd_kin = robot_->getActiveJointValue(jacc_des_cmd);
+  Eigen::VectorXd jacc_des_cmd_dyn = robot_->getActiveJointValue(mcwbc_param_->qddot_);
+  
+  // pnc_utils::pretty_print(jacc_des_cmd_kin, std::cout, "jacc_des_cmd_kin");
+  // pnc_utils::pretty_print(jacc_des_cmd_dyn, std::cout, "jacc_des_cmd_dyn");  
+  pnc_utils::saveVector(jacc_des_cmd_kin,"jacc_des_cmd_kin");
+  pnc_utils::saveVector(jacc_des_cmd_dyn,"jacc_des_cmd_dyn");  
+  // std::cout<<"----------"<<std::endl;
   
   // pnc_utils::pretty_print(jvel_des_integrated_, std::cout, "jvel_des");
   // pnc_utils::pretty_print(((MagnetoCommand*)_cmd)->jtrq, std::cout, "jtrq");
   // pnc_utils::pretty_print(jpos_des_, std::cout, "jpos_des_");
   // pnc_utils::pretty_print(((MagnetoCommand*)_cmd)->q, std::cout, "q");
   // pnc_utils::pretty_print(((MagnetoCommand*)_cmd)->qdot, std::cout, "qdot");
+
+  Eigen::VectorXd magnet_state = Eigen::VectorXd::Zero(4);
+  magnet_state<<((MagnetoCommand*)_cmd)->magnetism_onoff[0],
+                ((MagnetoCommand*)_cmd)->magnetism_onoff[1],
+                ((MagnetoCommand*)_cmd)->magnetism_onoff[2],
+                ((MagnetoCommand*)_cmd)->magnetism_onoff[3];
+  pnc_utils::saveVector(magnet_state,"magnet_state");  
 }
 
 

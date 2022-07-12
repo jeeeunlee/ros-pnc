@@ -76,7 +76,7 @@ void MagnetoWorldNode::customPostStep(){
 
 void MagnetoWorldNode::enableButtonFlag(uint16_t key) {
     std::cout << "button(" << (char)key << ") pressed handled @ MagnetoWorldNode::enableButtonFlag" << std::endl;
-    ((MagnetoInterface*)interface_) -> interrupt_ -> setFlags(key);    
+    ((MagnetoInterface*)interface_) -> interrupt_ -> setFlags(key);
 }
 
 void MagnetoWorldNode::customPreStep() {
@@ -88,7 +88,7 @@ void MagnetoWorldNode::customPreStep() {
 
     Eigen::VectorXd q = robot_->getPositions();
     Eigen::VectorXd qdot = robot_->getVelocities();
-    pnc_utils::pretty_print(q, std::cout, "real_config_");
+    // pnc_utils::pretty_print(q, std::cout, "real_config_");
 
     for(int i=0; i< Magneto::n_adof; ++i) {
         sensor_data_->q[i] = q[Magneto::idx_adof[i]];
@@ -148,23 +148,9 @@ void MagnetoWorldNode::customPreStep() {
     std::cout<<"initial trq set to be zero at t="<<t_<<std::endl;}    
 
     EnforceTorqueLimit();
-    updateContactEnvSetup();
     setFrictionCoeff();
     ApplyMagneticForce();
     robot_->setForces(trq_cmd_);
-
-    // --------------------------------------------------------------
-    //          Plot
-    // --------------------------------------------------------------
-
-    if (b_plot_result_) {
-        if (((MagnetoInterface*)interface_)->IsPlannerUpdated()) {
-            PlotResult_();
-        }
-        if (((MagnetoInterface*)interface_)->IsFootPlannerUpdated()) {
-            PlotFootStepResult_();
-        }
-    }
 
     saveData();
     count_++;
@@ -233,13 +219,6 @@ void MagnetoWorldNode::setFrictionCoeff(){
     robot_->getBodyNode("BR_foot_link_3")->setFrictionCoeff(coef_fric_[MagnetoFoot::BR]);
 }
 
-void MagnetoWorldNode::updateContactEnvSetup() {
-    int foot_idx =  ((MagnetoInterface*)interface_)->getCurrentMovingFootIdx();
-    // TODO get it from SIMULATION.YAML
-    // coef_fric_[foot_idx], 
-    // magnetic_force_[foot_idx]
-} 
-
 void MagnetoWorldNode::ApplyMagneticForce()  {
     bool is_force_local = false; 
     double fm(0.);
@@ -270,70 +249,6 @@ void MagnetoWorldNode::ApplyMagneticForce()  {
     }
 }
 
-void MagnetoWorldNode::PlotResult_() {
-    // world_->removeAllSimpleFrames();
-
-    Eigen::VectorXd com_pos = Eigen::VectorXd::Zero(3);
-
-    ((MagnetoInterface*)interface_)-> GetOptimalCoM(com_pos);
-    Eigen::Isometry3d com_tf = Eigen::Isometry3d::Identity();
-    com_tf.translation() = com_pos;
-    std::vector <std::pair<double, Eigen::Vector3d>> feasible_com_list;
-    ((MagnetoInterface*)interface_)-> GetFeasibleCoM(feasible_com_list); 
-
-    // set color
-    Eigen::Vector4d feasible_color = Eigen::Vector4d(0.0, 0.0, 1.0, 1.0); // blue
-    Eigen::Vector4d infeasible_color = Eigen::Vector4d(1.0, 0, 0.0, 1.0); // red
-
-    // set Shape
-    std::shared_ptr<dart::dynamics::PointCloudShape> feasible_shape =
-        std::make_shared<dart::dynamics::PointCloudShape>(
-            dart::dynamics::PointCloudShape(0.003));
-
-    std::shared_ptr<dart::dynamics::PointCloudShape> infeasible_shape =
-        std::make_shared<dart::dynamics::PointCloudShape>(
-            dart::dynamics::PointCloudShape(0.003));
-
-    std::shared_ptr<dart::dynamics::SphereShape> s_shape =
-        std::make_shared<dart::dynamics::SphereShape>(
-            dart::dynamics::SphereShape(0.01));
-
-
-    for (auto it = feasible_com_list.begin(); it != feasible_com_list.end(); it++) {
-        if( (*it).first > 0.0 )
-            feasible_shape->addPoint((*it).second);
-        else
-            infeasible_shape->addPoint((*it).second);
-    }
-    std::cout<<"PlotResult :Feasible Points:" << feasible_shape->getNumPoints()
-     << ", Infeasible Points:" << infeasible_shape->getNumPoints() << std::endl;
-
-    // set Frame
-    dart::dynamics::SimpleFramePtr feasible_com_frame, infeasible_com_frame;
-    dart::dynamics::SimpleFramePtr optimal_com_frame;
-    
-    feasible_com_frame = std::make_shared<dart::dynamics::SimpleFrame>(
-        dart::dynamics::Frame::World(), "com_feasible");
-    infeasible_com_frame = std::make_shared<dart::dynamics::SimpleFrame>(
-        dart::dynamics::Frame::World(), "com_infeasible");
-    optimal_com_frame = std::make_shared<dart::dynamics::SimpleFrame>(
-        dart::dynamics::Frame::World(), "com_target", com_tf);
-    
-    feasible_com_frame->setShape(feasible_shape);
-    feasible_com_frame->getVisualAspect(true)->setColor(feasible_color);
-    world_->addSimpleFrame(feasible_com_frame);
-
-    infeasible_com_frame->setShape(infeasible_shape);
-    infeasible_com_frame->getVisualAspect(true)->setColor(infeasible_color);
-    world_->addSimpleFrame(infeasible_com_frame);
-
-    optimal_com_frame->setShape(s_shape);
-    optimal_com_frame->getVisualAspect(true)->setColor(infeasible_color);
-    world_->addSimpleFrame(optimal_com_frame);
-
-    
-}
-
 void MagnetoWorldNode::PlotForce_(int fidx, const Eigen::Vector3d& frc_foot){
 
     static int plotFrcCnt[Magneto::n_leg] = {0};
@@ -345,107 +260,11 @@ void MagnetoWorldNode::PlotForce_(int fidx, const Eigen::Vector3d& frc_foot){
         Eigen::Vector3d arrow_tail = Eigen::Vector3d::Zero(); // foot_tf.translation();
         Eigen::Vector3d arrow_head(1.0, 1.0, 1.0);// arrow_tail + frc_foot;
         
-        // // set shape
-        // dart::dynamics::ArrowShapePtr arrow_shape = 
-        //     std::make_shared<dart::dynamics::ArrowShape>(
-        //         dart::dynamics::ArrowShape(arrow_tail, 
-        //             arrow_head,
-        //             dart::dynamics::ArrowShape::Properties(0.002, 1.8),
-        //             dart::Color::Orange(1.0)) );
-
-        // // set frame     
-        // dart::dynamics::SimpleFramePtr frc_frame 
-        // = std::make_shared<dart::dynamics::SimpleFrame>(
-        //     dart::dynamics::Frame::World(), "frc_frame");
-
-        // if( frc_frame->getShape()== arrow_shape){
-        //     frc_frame->removeVisualAspect();
-        // }
-        // frc_frame->setShape(arrow_shape);
-        // world_->addSimpleFrame(frc_frame);
-
-
         std::cout<< robot_->getBodyNode(MagnetoFoot::LinkIdx[fidx])->getName() <<"= (";
         std::cout<< frc_foot.transpose() <<"), " <<frc_foot.norm();
         Eigen::Vector3d zdir = foot_tf.linear().col(2);
         std::cout<< ", zdir = ("<< zdir.transpose() <<")" << std::endl;
     }
-}
-
-
-void MagnetoWorldNode::PlotFootStepResult_() {
-    // world_->removeAllSimpleFrames();
-    
-    Eigen::VectorXd foot_pos;
-    ((MagnetoInterface*)interface_)-> GetNextFootStep(foot_pos);
-    Eigen::Isometry3d foot_tf = robot_->getBodyNode("base_link")->getTransform();
-    foot_tf.translation() = foot_pos;  
-    // pnc_utils::pretty_print(foot_pos, std::cout, "PlotFootStepResult_"); 
-
-    // set shape
-    dart::dynamics::BoxShapePtr foot_shape =
-        std::make_shared<dart::dynamics::BoxShape>(
-            dart::dynamics::BoxShape(Eigen::Vector3d(0.02, 0.02, 0.02))); // Eigen::Vector3d(0.02, 0.02, 0.001)
-
-    // set color
-    Eigen::Vector4d foot_step_color = Eigen::Vector4d(0.0, 0.0, 1.0, 1.0); // blue
-
-    // set frame
-    dart::dynamics::SimpleFramePtr foot_frame;
-    foot_frame = std::make_shared<dart::dynamics::SimpleFrame>(
-        dart::dynamics::Frame::World(), "next_foot", foot_tf);
-    foot_frame->setShape(foot_shape);
-    foot_frame->getVisualAspect(true)->setColor(foot_step_color);
-    world_->addSimpleFrame(foot_frame);
-
-    // for mpc test
-
-    // std::cout<<"================================"<<std::endl;
-    // Eigen::VectorXd composini, composgoal;
-    // ((MagnetoInterface*)interface_)-> GetCoMPlans(composini, composgoal);
-    // // pnc_utils::pretty_print(base_pos, std::cout, "P_com");  
-    // std::cout<<"  com: ["<<composini(0)<<", "<<composini(1)<<", "<<composini(2)<<"]"<<std::endl;
-    // std::cout<<"  com_goal: ["<<composgoal(0)<<", "<<composgoal(1)<<", "<<composgoal(2)<<"]"<<std::endl;
-
-    // std::string varname;
-    // Eigen::Isometry3d foot_iso;
-    // Eigen::VectorXd fp;
-    // Eigen::MatrixXd fr;
-    // Eigen::Quaterniond fq;
-    // std::cout<<"  eef_pose:"<<std::endl;
-    // for(int i(0); i<Magneto::n_leg; ++i){
-    //     varname = "    eef_"+MagnetoFoot::NamesLower[i];
-    //     foot_iso = robot_->getBodyNode(MagnetoFoot::LinkIdx[i])->getWorldTransform();
-    //     fp = foot_iso.translation();
-    //     fr = foot_iso.linear();
-    //     fq = Eigen::Quaternion<double>(foot_iso.linear());
-    //     // pnc_utils::pretty_print(fp, std::cout, varname);
-    //     // pnc_utils::pretty_print(fr, std::cout, varname);
-    //     // pnc_utils::pretty_print(foot_quat_, std::cout, varname);
-    //     std::cout << varname.c_str()<<": [1.0, " << fp(0) <<", "<< fp(1) <<", " << fp(2) <<", ";
-    //     std::cout << fq.w() <<", "<< fq.x() <<", "<< fq.y() <<", "<< fq.z() <<"]"<<std::endl;        
-    // }
-    // std::cout<<"  eef_env:"<<std::endl;
-    // for(int i(0); i<Magneto::n_leg; ++i){
-    //     varname = "    eef_"+MagnetoFoot::NamesLower[i];
-    //     std::cout << varname.c_str()<<": [" << coef_fric_[i] <<", 0.0, 0.0, "<< magnetic_force_[i] <<"]"<<std::endl;
-    // }
-    // for(int i(0); i<Magneto::n_leg; ++i){
-    //     varname = "  eefcnt_"+MagnetoFoot::NamesLower[i];
-    //     std::cout<< varname.c_str()<<": "<<std::endl;
-    //     foot_iso = robot_->getBodyNode(MagnetoFoot::LinkIdx[i])->getWorldTransform();
-
-    //     fp = foot_iso.translation();
-    //     fr = foot_iso.linear();
-    //     fq = Eigen::Quaternion<double>(foot_iso.linear());        
-    //     std::cout<<"    cnt0: [0.0, TT, " <<fp(0) <<", "<< fp(1) <<", " << fp(2) <<", ";
-    //     std::cout << fq.w() <<", "<< fq.x() <<", "<< fq.y() <<", "<< fq.z() <<", ";
-    //     std::cout<< "1.0, " << coef_fric_[i] <<", "<< magnetic_force_[i] <<"]"<<std::endl;
-    // }
-
-    // std::cout<<"================================"<<std::endl;
-    
-
 }
 
 void MagnetoWorldNode::setParameters(const YAML::Node& simulation_cfg) {
@@ -476,7 +295,7 @@ void MagnetoWorldNode::setParameters(const YAML::Node& simulation_cfg) {
         // read motion scripts
         std::string motion_file_name;      
         pnc_utils::readParameter(simulation_cfg, "motion_script", motion_file_name);
-        ReadMotions_(motion_file_name);
+        ((MagnetoInterface*)interface_)->addScriptMotion(motion_file_name);
     } 
     catch (std::runtime_error& e) {
         std::cout << "Error reading parameter [" << e.what() << "] at file: ["
@@ -498,40 +317,6 @@ void MagnetoWorldNode::setParameters(const YAML::Node& simulation_cfg) {
     // pnc_utils::pretty_print(coef_fric_, std::cout, "sim : coef_fric_");
 
     setFrictionCoeff();
-}
-
-void MagnetoWorldNode::ReadMotions_(const std::string& _motion_file_name) {
-    std::ostringstream motion_file_name;    
-    motion_file_name << THIS_COM << _motion_file_name;
-    
-    try { 
-        YAML::Node motion_cfg = YAML::LoadFile(motion_file_name.str());
-        int num_motion;
-        int type_motion;
-        pnc_utils::readParameter(motion_cfg, "num_motion", num_motion);
-        pnc_utils::readParameter(motion_cfg, "type_motion", type_motion);
-        for(int i(0); i<num_motion; ++i){
-            std::ostringstream stringStream;
-            stringStream << "motion" << i;
-            std::string conf = stringStream.str();
-            switch(type_motion){
-                case 0: //clmibing
-                    ((MagnetoInterface*)interface_)->
-                    AddScriptMotion(motion_cfg[conf]);
-                    break;
-                case 1: //walking
-                case 2: //balancing
-                    ((MagnetoInterface*)interface_)->
-                    AddScriptMotion(motion_cfg[conf]);
-                    break;
-            }
-            
-        }
-    } catch (std::runtime_error& e) {
-        std::cout << "Error reading parameter [" << e.what() << "] at file: ["
-                  << __FILE__ << "]" << std::endl
-                  << std::endl;
-    }
 }
 
 void MagnetoWorldNode::UpdateContactDistance_() {

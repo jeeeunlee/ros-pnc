@@ -4,11 +4,16 @@ controller_params:
     # Enable torque limits
     enable_torque_limits: true
     torque_limit: 5 #4.5
+    acc_limit: 5
     # WBC pd gain
-    #kp: [ 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+    kp: [ 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
+    kd: [ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 ]
+    #kp: [ 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12]
     #kd: [ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3 ]
-    kp: [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
-    kd: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ]
+    #kp: [ 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
+    #kd: [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 ]
+    #kp: [ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+    #kd: [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ]
     # Integration_parameters
     velocity_freq_cutoff: 2.0 #Hz
     position_freq_cutoff: 1.0 #Hz

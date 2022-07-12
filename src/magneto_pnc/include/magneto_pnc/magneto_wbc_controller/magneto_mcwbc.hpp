@@ -29,7 +29,7 @@ class MagnetoMCWBC {
   virtual void ctrlInitialization(const YAML::Node& node);
 
   void getInitialCommand(const Eigen::VectorXd& _jnt_pos_des,
-                        void* _cmd)
+                        void* _cmd);
 
  protected:
   //  Processing Step for first visit
@@ -83,6 +83,10 @@ class MagnetoMCWBC {
   double torque_limit_;
   Eigen::VectorXd tau_min_;
   Eigen::VectorXd tau_max_;
+  double acc_limit_;
+  Eigen::VectorXd acc_min_;
+  Eigen::VectorXd acc_max_;
+
 
  private:
  // Controller Objects

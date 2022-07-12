@@ -123,7 +123,7 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
     }
 
     // Assume num of contact >= 3 
-    std::cout << "nc = "<< nc << " / ";
+    // std::cout << "nc = "<< nc << " / ";
     if(Jc.cols()>0){
         // build Jc w.r.t joint type        
         Eigen::MatrixXd Jc_virtual = Jc.leftCols<6>();
@@ -139,6 +139,7 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
         // update qdot : // curr_qdot_
         // 0 = xcdot = Jc(a)*qdot(a) + Jc(v)*qdot(v) + Jc(p)*qdot(p)
         // - Jc(a)*qdot(a) = [Jc(v) Jc(p)] * [qdot(v); qdot(p)]
+        // Jc_vnp = 6+12=18 or 6+9=15
         Eigen::MatrixXd Jc_vnp = pnc_utils::hStack(Jc_virtual, Jc_passive);
         Eigen::MatrixXd Jc_vnp_inv;
         pnc_utils::pseudoInverse(Jc_vnp, 0.0001 , Jc_vnp_inv);
@@ -155,7 +156,8 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
 
         Eigen::VectorXd delq_vnp = Jc_vnp_inv*(
                         -Jc_active*(robot_->getActiveJointValue(
-                                    curr_config_-prev_config_)));
+                                    curr_config_-prev_config_)));        
+        
         for (int i = 0; i < 6; ++i){
             curr_config_[Magneto::idx_vdof[i]] = 
                     prev_config_[Magneto::idx_vdof[i]] 
@@ -165,10 +167,15 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
             curr_config_[idx_contact_passive[i]] = 
                     prev_config_[Magneto::idx_vdof[i]] 
                     + delq_vnp[i+6];
+
+        pnc_utils::saveVector(delq_vnp,"delq_vnp"); 
         }
+    } else{
+        // std::cout<<"no contact for state estimation"<< std::endl;
     }
-    pnc_utils::pretty_print(curr_config_, std::cout, "curr_config_");
+    // pnc_utils::pretty_print(curr_config_, std::cout, "curr_config_");
     // pnc_utils::pretty_print(curr_qdot_, std::cout, "curr_qdot_");
+    pnc_utils::saveVector(curr_config_,"curr_config_est"); 
 }
 
 void MagnetoHWStateEstimator::_InitializeVirtualJointState(MagnetoSensorData* data){
@@ -182,21 +189,28 @@ void MagnetoHWStateEstimator::_InitializeVirtualJointState(MagnetoSensorData* da
     // initialize the orientation given the imu value 
     // Assume stationary state & no bias
 
-    Eigen::Vector3d gdir = data->imu_data.linear_acceleration;
-    gdir.normalize();
+    Eigen::Vector3d g_imu = data->imu_data.linear_acceleration;
+    Eigen::MatrixXd R_bg = Eigen::MatrixXd::Zero(3,3); 
+    R_bg << 0, 1, 0, 0, -1, 0, 0, 0, -1;   
+    Eigen::Vector3d g_base = R_bg * g_imu;
+    g_base.normalize();
+    
     
     double rx(0.), ry(0.), rz(0.);
     // solve for rz(C)*ry(B)*rx(A) = R
-    // (-sin(B), cos(B)sin(A), cos(B)cos(A)) = gdir // C=0.
+    // (-sin(B), cos(B)sin(A), cos(B)cos(A)) = g_base // C=0.
 
-    ry = std::asin(-gdir(0));
-    if( fabs(gdir(2))>1e-5 )
-        rx = std::atan(gdir(1)/gdir(2));     
+    ry = std::asin(-g_base(0));
+    if( fabs(g_base(2))>1e-5 )
+        rx = std::atan(g_base(1)/g_base(2)); 
 
+
+    curr_config_[MagnetoDoF::baseRotZ]  = rz;
     curr_config_[MagnetoDoF::baseRotY] = ry;
-    curr_config_[MagnetoDoF::_base_joint]  = rx;
+    curr_config_[MagnetoDoF::_base_joint]  = rx;    
 
     std::cout << " Initial Base Configuration is set to = 0,0,0, " 
                 << rz << ", " << ry << ", " << rx << std::endl;
+    pnc_utils::pretty_print(curr_config_,std::cout,"curr_config_=");
 
 }

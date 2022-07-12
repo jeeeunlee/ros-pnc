@@ -233,6 +233,9 @@ class StateSequence{
     void addState(int state_id, const T& state_cmd){
       state_sequence_.push_back( std::make_pair(state_id, state_cmd) );
     }
+    void deleteState(){
+      state_sequence_.clear();
+    }
     bool getNextState(int& state_id, T& state_cmd){
       if(state_sequence_.empty()){
         return false;

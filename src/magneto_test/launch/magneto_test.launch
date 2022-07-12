@@ -1,0 +1,11 @@
+<launch>
+
+<node pkg="joy" type="joy_node" name="joystick"/>
+<!--include file="$(find syropod_keyboard_control)/launch/syropod_keyboard_control.launch" /-->
+
+
+<node pkg="magneto_test" type="magneto_hw" name="magneto_hw" output="screen">
+
+</node>
+
+</launch>

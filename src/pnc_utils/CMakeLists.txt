@@ -14,6 +14,7 @@ set(CATKIN_ENABLE_TESTING "0")
 # set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -g")
 
 find_package(Eigen3)
+find_package(DART 6.9 REQUIRED COMPONENTS utils-urdf CONFIG)
 add_subdirectory(ThirdParty/CDD)
 add_subdirectory(ThirdParty/myYaml)
 

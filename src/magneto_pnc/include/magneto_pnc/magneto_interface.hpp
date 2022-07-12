@@ -6,15 +6,7 @@
 
 
 class MagnetoStateProvider;
-class MagnetoStateEstimator;
-
-namespace RUN_MODE {
-constexpr int BALANCE = 0;
-constexpr int STATICWALK = 1;
-constexpr int MPCCLIMBING = 2;
-constexpr int HWTEST = 3;
-};  // namespace RUN_MODE
-
+class MagnetoHWStateEstimator;
 
 class IMUSensorData{
     public:
@@ -111,47 +103,36 @@ class MagnetoInterface : public EnvInterface {
 
     virtual void getCommand(void* _sensor_data, void* _command_data);
 
-    void AddScriptMotion(const YAML::Node& motion_cfg); 
+    void getStopCommand(void* _data, void* _command);
+    void getInitialCommand(void* _data, void* _command);
+    bool checkInitialJointConfiguration();                            
 
-    // FOR HW TEST ONLY
+    bool initialize(MagnetoSensorData* data, MagnetoCommand* cmd);
+    bool resetEstimator(MagnetoSensorData* data, MagnetoCommand* cmd);
 
-
-
-    // FOR SIMULATION ONLY
-    int getCurrentMovingFootLinkIdx();
-    int getCurrentMovingFootIdx();
-
-    void GetFeasibleCoM(std::vector <std::pair<double, Eigen::Vector3d>>& 
-                        feasible_com_list);
-    void GetCurrentCoM(Eigen::VectorXd& com_pos);
-    void GetOptimalCoM(Eigen::VectorXd& com_pos);
-    void GetCurrentFootStep(Eigen::VectorXd& foot_pos);
-    void GetNextFootStep(Eigen::VectorXd& foot_pos);
-
-    void GetCoMPlans(Eigen::VectorXd& com_pos_ini,
-                    Eigen::VectorXd& com_pos_goal);
-    
-    bool IsPlannerUpdated();
-    bool IsFootPlannerUpdated();
+    int getNumStates();
+    bool checkSystemIdle();
+    void addScriptMotion(const std::string& _motion_file_name);    
 
   protected:
     void _ParameterSetting();
-    bool _Initialization(MagnetoSensorData*, MagnetoCommand*);
+    // bool _Initialization(MagnetoSensorData* data, MagnetoCommand* cmd);
     bool _CheckCommand(MagnetoCommand* cmd);
     void _SetStopCommand(MagnetoSensorData*, MagnetoCommand* cmd);
     void _SaveDataCmd(MagnetoSensorData*, MagnetoCommand* cmd);
+    
 
     std::string test_name_;
 
-    MagnetoStateEstimator* state_estimator_;
+    MagnetoHWStateEstimator* state_estimator_;
     MagnetoStateProvider* sp_;
 
     int count_;
     int waiting_count_;
+    int reset_count_;
     Eigen::VectorXd cmd_jpos_;
     Eigen::VectorXd cmd_jvel_;
-    Eigen::VectorXd cmd_jtrq_;
+    Eigen::VectorXd cmd_jtrq_;   
 
-    int check_com_planner_updated;
-    int check_foot_planner_updated;
+    Eigen::VectorXd ini_q_config_; 
 };
