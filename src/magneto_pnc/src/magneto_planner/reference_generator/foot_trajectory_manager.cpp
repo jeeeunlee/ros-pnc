@@ -62,7 +62,9 @@ void FootPosTrajectoryManager::setFootPosTrajectory(const double& _start_time,
       pos_dev_b = motion_cmd_data.dpose.pos;
       swing_height_ = motion_cmd_data.swing_height;
       is_base_frame_ = motion_cmd_data.dpose.is_baseframe;
-      std::cout<<" setFootPosTrajectory " << foot_idx_<< ", " << link_idx_<< std::endl;
+      std::cout <<" setFootPosTrajectory - " 
+                << MagnetoFoot::Names[foot_idx_].c_str() 
+                << ", " << link_idx_<< std::endl;
   } else {
     // heuristic computation
     std::cout<< "NOOOOO!! no foot motion cmd?" << std::endl;
@@ -86,10 +88,11 @@ void FootPosTrajectoryManager::setFootPosTrajectory(const double& _start_time,
     // TODOJE : ? getBodyNodeIsometry(MagnetoBodyNode::base_link)
     Eigen::MatrixXd R_wb = robot_->getBodyNodeIsometry(MagnetoBodyNode::base_link).linear(); 
     // Eigen::MatrixXd R_wb = robot_->getBodyNodeIsometry(link_idx_).linear();
-    foot_pos_des_ = foot_pos_ini_ + R_wb*pos_dev_b;
+    pnc_utils::pretty_print(R_wb, std::cout, "R_wb");
+    pos_dev_b = R_wb*pos_dev_b;
   }
-  else // absolute coordinate
-    foot_pos_des_ = foot_pos_ini_ + pos_dev_b;
+  
+  foot_pos_des_ = foot_pos_ini_ + pos_dev_b;
 
   pnc_utils::pretty_print(pos_dev_b,std::cout,"pos_dev_b");
   // pnc_utils::pretty_print(foot_pos_ini_,std::cout,"foot_pos_ini_");

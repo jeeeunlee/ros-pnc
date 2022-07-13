@@ -187,21 +187,20 @@ void MagnetoHWStateEstimator::_InitializeVirtualJointState(MagnetoSensorData* da
     // Assume stationary state & no bias
 
     Eigen::Vector3d g_imu = data->imu_data.linear_acceleration;
-    Eigen::MatrixXd R_bg = Eigen::MatrixXd::Zero(3,3); 
-    // R_bg << 0, 1, 0, -1, 0, 0, 0, 0, -1; // base to imu
-    R_bg << 0, -1, 0, 1, 0, 0, 0, 0, -1; // base to imu
-    Eigen::Vector3d g_base = R_bg * g_imu;
-    g_base.normalize();
+    Eigen::MatrixXd R_bi = Eigen::MatrixXd::Zero(3,3); 
+    // R_bi << 0, 1, 0, -1, 0, 0, 0, 0, -1; // base to imu
+    R_bi << 0, -1, 0, 1, 0, 0, 0, 0, -1;  // base to imu
+    Eigen::Vector3d g_base = R_bi * g_imu;    
+    pnc_utils::pretty_print(g_imu, std::cout, "g_imu");
+    pnc_utils::pretty_print(g_base, std::cout, "g_base");
     
-    
+    // solve for rz(C)*ry(B)*rx(A) = R_wb, g_w = R_wb*g_b
+    // (-sin(B), cos(B)sin(A), cos(B)cos(A)) = -g_base , C=0.    
     double rx(0.), ry(0.), rz(0.);
-    // solve for rz(C)*ry(B)*rx(A) = R
-    // (-sin(B), cos(B)sin(A), cos(B)cos(A)) = g_base // C=0.
-
-    ry = std::asin(-g_base(0));
+    g_base.normalize();
+    ry = - std::asin( - g_base(0));
     if( fabs(g_base(2))>1e-5 )
-        rx = std::atan(g_base(1)/g_base(2)); 
-
+        rx = std::atan(g_base(1)/g_base(2));
 
     curr_config_[MagnetoDoF::baseRotZ]  = rz;
     curr_config_[MagnetoDoF::baseRotY] = ry;

@@ -107,13 +107,14 @@ void MagnetoWorldNode::customPreStep() {
     Eigen::MatrixXd R_wb = base_tf.linear();
     Eigen::MatrixXd R_bi = Eigen::MatrixXd::Zero(3,3);
     R_bi << 0, -1, 0, 1, 0, 0, 0, 0, -1;  // base to imu    
-    // g_i = Rib*Rbw*g_w
-    gravity_imu = (R_bi.transpose())*(R_wb.transpose())*gravity_imu;  
-    // std::cout <<"gravity_imu = "<< gravity_imu.transpose()<<std::endl;
-    // pnc_utils::pretty_print(R_bi, std::cout, "Rbi");
-    // pnc_utils::pretty_print(R_wb, std::cout, "Rwb");
+    gravity_imu = (R_bi.transpose())*(R_wb.transpose())*gravity_imu;
     sensor_data_->imu_data.linear_acceleration = gravity_imu;
-    
+
+    static bool estimator_reset = false;
+    if(!estimator_reset){
+        ((MagnetoInterface*)interface_)->resetEstimator(sensor_data_, command_);
+        estimator_reset = true;
+    }
     
     // update contact_distance_
     UpdateContactDistance_();
@@ -161,7 +162,7 @@ void MagnetoWorldNode::customPreStep() {
     ApplyMagneticForce();
     robot_->setForces(trq_cmd_);
 
-    saveData();
+    // saveData();
     count_++;
 }
 
@@ -177,11 +178,11 @@ void MagnetoWorldNode::saveData() {
     }
 
     // joint command
-    pnc_utils::saveVector(sensor_data_->qdot, "qdot_sen_simulation");
-    pnc_utils::saveVector(command_->qdot, "qdot_cmd_simulation");
-    pnc_utils::saveVector(sensor_data_->q, "q_sen_simulation");
-    pnc_utils::saveVector(command_->q, "q_cmd_simulation");
-    pnc_utils::saveVector(command_->jtrq, "jtrq_simulation");    
+    // pnc_utils::saveVector(sensor_data_->qdot, "qdot_sen_simulation");
+    // pnc_utils::saveVector(command_->qdot, "qdot_cmd_simulation");
+    // pnc_utils::saveVector(sensor_data_->q, "q_sen_simulation");
+    // pnc_utils::saveVector(command_->q, "q_cmd_simulation");
+    // pnc_utils::saveVector(command_->jtrq, "jtrq_simulation");    
     // pnc_utils::pretty_print(command_->jtrq, std::cout, "command_->jtrq");
     // pnc_utils::pretty_print(command_->qdot,std::cout, "command_->qdot");
     // pnc_utils::pretty_print(sensor_data_->qdot, std::cout, "sensor_data_->qdot");
@@ -189,10 +190,10 @@ void MagnetoWorldNode::saveData() {
     // pnc_utils::pretty_print(sensor_data_->q, std::cout, "sensor_data_->q"); 
 
     // contact force
-    pnc_utils::saveVector(sensor_data_->alf_wrench, "alf_wrench_local");
-    pnc_utils::saveVector(sensor_data_->blf_wrench, "blf_wrench_local");   
-    pnc_utils::saveVector(sensor_data_->arf_wrench, "arf_wrench_local");   
-    pnc_utils::saveVector(sensor_data_->brf_wrench, "brf_wrench_local");   
+    // pnc_utils::saveVector(sensor_data_->alf_wrench, "alf_wrench_local");
+    // pnc_utils::saveVector(sensor_data_->blf_wrench, "blf_wrench_local");   
+    // pnc_utils::saveVector(sensor_data_->arf_wrench, "arf_wrench_local");   
+    // pnc_utils::saveVector(sensor_data_->brf_wrench, "brf_wrench_local");   
 
     // com position
     Eigen::Vector3d pcom = robot_->getCOM();

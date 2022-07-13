@@ -17,14 +17,19 @@ robot: src/magneto_2_description/robots/magneto_2_floatingbase.urdf
 
 # ---------------------------------------------------------
 ground: robot_description/Ground/magneto/wall.urdf
-initial_pose: [ 0.08, 1.0, 0.55, 0, -1.5707963268, -3.1415927 ] # x,y,z, rz,ry,rx
+# initial_pose: [ -0.08, -1.0, 0.55, 0, -1.5707963268, 0.0 ]
+initial_pose: [ -1.0, -1.0, 0.08, 0, 0.0, 0.0 ]
 initial_leg_config: [0.0, 0.0, -1.5707963268, 0.0, 0.0, 0.0]
 contact_frame: 2 # 0:foot local frame, 1:surface frame
 contact_surface_noraml:
-  AL: [ 1.0, 0.0, 0.0 ]
-  AR: [ 1.0, 0.0, 0.0 ]
-  BL: [ 1.0, 0.0, 0.0 ] 
-  BR: [ 1.0, 0.0, 0.0 ]
+  # AL: [ -1.0, 0.0, 0.0 ]
+  # AR: [ -1.0, 0.0, 0.0 ]
+  # BL: [ -1.0, 0.0, 0.0 ] 
+  # BR: [ -1.0, 0.0, 0.0 ]
+  AL: [ 0.0, 0.0, 1.0 ]
+  AR: [ 0.0, 0.0, 1.0 ]
+  BL: [ 0.0, 0.0, 1.0 ] 
+  BR: [ 0.0, 0.0, 1.0 ]
 motion_script: config/Magneto/MOTIONS/climbset.yaml
 contact_params:
   friction: [0.7, 0.7, 0.7, 0.7] 

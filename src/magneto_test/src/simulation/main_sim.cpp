@@ -50,11 +50,11 @@ void displayLinkFrames(const dart::simulation::WorldPtr& world,
     // -- DISPLAY CERTAIN LINKS
     std::vector<std::string> LinkNametoDisplay;
     LinkNametoDisplay.clear();
-    LinkNametoDisplay.push_back("AL_foot_link");
-    LinkNametoDisplay.push_back("AR_foot_link");
-    LinkNametoDisplay.push_back("BL_foot_link");
-    LinkNametoDisplay.push_back("BR_foot_link");
-    // LinkNametoDisplay.push_back("base_link");
+    // LinkNametoDisplay.push_back("AL_foot_link");
+    // LinkNametoDisplay.push_back("AR_foot_link");
+    // LinkNametoDisplay.push_back("BL_foot_link");
+    // LinkNametoDisplay.push_back("BR_foot_link");
+    LinkNametoDisplay.push_back("base_link");
 
     for(int i=0; i<LinkNametoDisplay.size(); i++) {
         dart::dynamics::BodyNode* bn = robot->getBodyNode(LinkNametoDisplay[i]);
