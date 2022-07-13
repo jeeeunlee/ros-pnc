@@ -6,7 +6,7 @@
 
 FootPosTrajectoryManager::FootPosTrajectoryManager(RobotSystem* _robot)
                         : TrajectoryManagerBase(_robot) {
-  pnc_utils::pretty_constructor(2, "TrajectoryManager: FootPos");
+  pnc_utils::pretty_constructor(3, "TrajectoryManager: FootPos");
 
   sp_ = MagnetoStateProvider::getStateProvider(robot_);
 

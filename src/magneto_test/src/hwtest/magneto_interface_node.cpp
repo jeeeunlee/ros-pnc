@@ -45,6 +45,7 @@ MagnetoInterfaceNode::MagnetoInterfaceNode(){
     b_stop_ = false;
 
     imu_data_ = new IMUSensorData();
+
     qa_config_ = Eigen::VectorXd::Zero(Magneto::n_adof);
     qa_dot_ = Eigen::VectorXd::Zero(Magneto::n_adof);
     qa_stop_ = Eigen::VectorXd::Zero(Magneto::n_adof);
@@ -64,20 +65,6 @@ MagnetoInterfaceNode::MagnetoInterfaceNode(){
     startbutton_pressed = false;
     debounce_stopbutton_ = true;
     stopbutton_pressed = false;
-
-    // index
-    
-    // magneto_actuator_['AL_coxa_joint']
-    // magneto_actuator_['AL_femur_joint']
-    // magneto_actuator_['AL_tibia_joint']
-    // magneto_actuator_['AR_coxa_joint']
-    // magneto_actuator_['AR_femur_joint']
-    // magneto_actuator_[]
-    // magneto_actuator_[]
-    // magneto_actuator_[]
-    // magneto_actuator_[]
-    // magneto_actuator_[]
-
    
 }
 
@@ -119,9 +106,11 @@ void MagnetoInterfaceNode::setSensorData(){
 bool MagnetoInterfaceNode::systemInitialized() {
 
     if(!joint_state_initialized_)
-        ROS_INFO_THROTTLE(THROTTLE_PERIOD, "joint state is not initialized yet");
+        ROS_INFO_THROTTLE(THROTTLE_PERIOD, 
+            "joint state is not initialized yet");
     if(!imu_state_initialized_)
-        ROS_INFO_THROTTLE(THROTTLE_PERIOD, "imu state is not initialized yet");
+        ROS_INFO_THROTTLE(THROTTLE_PERIOD, 
+            "imu state is not initialized yet");
 
     if(joint_state_initialized_ && imu_state_initialized_){
         ROS_INFO("both state is initialized!!");
@@ -131,12 +120,12 @@ bool MagnetoInterfaceNode::systemInitialized() {
         return true;
     }
     else{
-        ROS_INFO_THROTTLE(THROTTLE_PERIOD,"joint_state_initialized_,imu_state_initialized_ =%d, %d", 
-                        joint_state_initialized_, imu_state_initialized_);
+        ROS_INFO_THROTTLE(THROTTLE_PERIOD,
+            "joint_state_initialized_,imu_state_initialized_ =%d, %d", 
+            joint_state_initialized_, imu_state_initialized_);
         system_state_ = SUSPENDED;
         return false;
     }
-        
 }
 
 bool MagnetoInterfaceNode::resetEstimator(){
@@ -365,5 +354,5 @@ void MagnetoInterfaceNode::imuStateCallback(const sensor_msgs::Imu &data){
     imu_data_->linear_acceleration << data.linear_acceleration.x,
                                     data.linear_acceleration.y, 
                                     data.linear_acceleration.z;
-    imu_state_initialized_ = true;  
+    imu_state_initialized_ = true;    
 }

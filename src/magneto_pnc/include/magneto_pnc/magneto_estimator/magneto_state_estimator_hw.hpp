@@ -8,7 +8,7 @@ class MagnetoStateProvider;
 class RobotSystem;
 class MagnetoSensorData;
 
-class MagnetoHWStateEstimator : public MagnetoStateEstimator{
+class MagnetoHWStateEstimator{
    public:
     MagnetoHWStateEstimator(RobotSystem* robot);
     ~MagnetoHWStateEstimator();
@@ -17,13 +17,13 @@ class MagnetoHWStateEstimator : public MagnetoStateEstimator{
     void Update(MagnetoSensorData*);
 
    protected:
-    // MagnetoStateProvider* sp_;
-    // RobotSystem* robot_;
+    MagnetoStateProvider* sp_;
+    RobotSystem* robot_;
 
-    // Eigen::VectorXd curr_config_;
-    // Eigen::VectorXd curr_qdot_;
-    // Eigen::VectorXd prev_config_;
-    // Eigen::VectorXd prev_tau_cmd_;
+    Eigen::VectorXd curr_config_;
+    Eigen::VectorXd curr_qdot_;
+    Eigen::VectorXd prev_config_;
+    Eigen::VectorXd prev_tau_cmd_;
 
     void _JointUpdate(MagnetoSensorData* data);
     void _ConfigurationAndModelUpdate();

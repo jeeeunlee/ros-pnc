@@ -33,7 +33,7 @@ class RobotSystem {
 
    public:
     RobotSystem(const RobotSystem& robotsys);
-    RobotSystem(int numVirtual_, std::string file);
+    RobotSystem(int numVirtual_, std::string file, int const_order=1);
     virtual ~RobotSystem(void);
 
     void setActuatedJoint(); // DEFAULT : assume the last num_actuated_dof_ is adof

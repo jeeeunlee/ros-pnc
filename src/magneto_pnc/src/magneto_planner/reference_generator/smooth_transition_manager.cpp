@@ -3,7 +3,7 @@
 
 SmoothTransitionManager::SmoothTransitionManager(double* _val)
   :TransitionManagerBase() {
-  pnc_utils::pretty_constructor(2, "SmoothTransitionManager");
+  pnc_utils::pretty_constructor(3, "SmoothTransitionManager");
   val_ = _val;
 }
 
@@ -29,7 +29,7 @@ void SmoothTransitionManager::updateTransition(const double& current_time) {
 
 SmoothVectorTransitionManager::SmoothVectorTransitionManager(Eigen::VectorXd* _val) 
   :TransitionManagerBase() {
-  pnc_utils::pretty_constructor(2, "SmoothVectorTransitionManager");
+  pnc_utils::pretty_constructor(3, "SmoothVectorTransitionManager");
   val_ = _val;
 }
 

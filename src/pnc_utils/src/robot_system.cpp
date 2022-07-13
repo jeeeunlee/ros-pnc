@@ -2,11 +2,11 @@
 #include <chrono>
 
 RobotSystem::RobotSystem(const RobotSystem& robotsys) 
-:RobotSystem(robotsys.num_virtual_dof_, robotsys.skel_file_name_)  {
+:RobotSystem(robotsys.num_virtual_dof_, robotsys.skel_file_name_, 4)  {
 }
 
-RobotSystem::RobotSystem(int numVirtual_, std::string file) {
-    pnc_utils::pretty_constructor(1, "Robot Model");
+RobotSystem::RobotSystem(int numVirtual_, std::string file, int const_order) {
+    pnc_utils::pretty_constructor(const_order, "Robot Model");
     skel_file_name_ = file;
 
     dart::utils::DartLoader urdfLoader;

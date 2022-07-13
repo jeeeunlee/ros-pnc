@@ -100,10 +100,10 @@ void MagnetoMCWBC::ctrlInitialization(const YAML::Node& node) {
   acc_max_ = Eigen::VectorXd::Constant(Magneto::n_adof, +acc_limit_);
 
   // Set Joint Integrator Parameters  
-  pnc_utils::pretty_print(robot_->GetVelocityLowerLimits(), std::cout, "vel limit");
-  pnc_utils::pretty_print(robot_->GetVelocityUpperLimits(), std::cout, "vel limit");
-  pnc_utils::pretty_print(robot_->GetPositionLowerLimits(), std::cout, "pos limit");
-  pnc_utils::pretty_print(robot_->GetPositionUpperLimits(), std::cout, "pos limit");
+  // pnc_utils::pretty_print(robot_->GetVelocityLowerLimits(), std::cout, "vel limit");
+  // pnc_utils::pretty_print(robot_->GetVelocityUpperLimits(), std::cout, "vel limit");
+  // pnc_utils::pretty_print(robot_->GetPositionLowerLimits(), std::cout, "pos limit");
+  // pnc_utils::pretty_print(robot_->GetPositionUpperLimits(), std::cout, "pos limit");
 
   joint_integrator_->setVelocityFrequencyCutOff(vel_freq_cutoff);
   joint_integrator_->setPositionFrequencyCutOff(pos_freq_cutoff);

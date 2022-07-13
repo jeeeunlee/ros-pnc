@@ -7,7 +7,7 @@
 
 CoMTrajectoryManager::CoMTrajectoryManager(RobotSystem* _robot)
                         : TrajectoryManagerBase(_robot) {
-  pnc_utils::pretty_constructor(2, "TrajectoryManager: CoM");
+  pnc_utils::pretty_constructor(3, "TrajectoryManager: CoM");
 
   sp_ = MagnetoStateProvider::getStateProvider(robot_);
 

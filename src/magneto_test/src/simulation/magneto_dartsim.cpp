@@ -104,7 +104,16 @@ void MagnetoWorldNode::customPreStep() {
     // for hw test
     Eigen::Vector3d gravity_imu; gravity_imu<< 0,0,-9.8;
     Eigen::Isometry3d base_tf = robot_->getBodyNode("base_link")->getTransform();
-    sensor_data_->imu_data.linear_acceleration = base_tf.linear() * gravity_imu;
+    Eigen::MatrixXd R_wb = base_tf.linear();
+    Eigen::MatrixXd R_bi = Eigen::MatrixXd::Zero(3,3);
+    R_bi << 0, -1, 0, 1, 0, 0, 0, 0, -1;  // base to imu    
+    // g_i = Rib*Rbw*g_w
+    gravity_imu = (R_bi.transpose())*(R_wb.transpose())*gravity_imu;  
+    // std::cout <<"gravity_imu = "<< gravity_imu.transpose()<<std::endl;
+    // pnc_utils::pretty_print(R_bi, std::cout, "Rbi");
+    // pnc_utils::pretty_print(R_wb, std::cout, "Rwb");
+    sensor_data_->imu_data.linear_acceleration = gravity_imu;
+    
     
     // update contact_distance_
     UpdateContactDistance_();

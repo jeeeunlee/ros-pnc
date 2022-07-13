@@ -7,22 +7,22 @@
 #include <pnc_utils/math_utilities.hpp>
 
 MagnetoHWStateEstimator::MagnetoHWStateEstimator(RobotSystem* robot)
-    :MagnetoStateEstimator(robot) {
-    // pnc_utils::pretty_constructor(1, "Magneto State Estimator");
+ {
+    pnc_utils::pretty_constructor(1, "Magneto HW State Estimator");
 
-    // robot_ = robot;
-    // sp_ = MagnetoStateProvider::getStateProvider(robot_);
-    // curr_config_ = Eigen::VectorXd::Zero(Magneto::n_dof);
-    // prev_config_ = Eigen::VectorXd::Zero(Magneto::n_dof);
-    // curr_qdot_ = Eigen::VectorXd::Zero(Magneto::n_dof);    
-    // prev_tau_cmd_ = Eigen::VectorXd::Zero(Magneto::n_dof);
+    robot_ = robot;
+    sp_ = MagnetoStateProvider::getStateProvider(robot_);
+    curr_config_ = Eigen::VectorXd::Zero(Magneto::n_dof);
+    prev_config_ = Eigen::VectorXd::Zero(Magneto::n_dof);
+    curr_qdot_ = Eigen::VectorXd::Zero(Magneto::n_dof);    
+    prev_tau_cmd_ = Eigen::VectorXd::Zero(Magneto::n_dof);
 }
 
 MagnetoHWStateEstimator::~MagnetoHWStateEstimator() {}
 
 void MagnetoHWStateEstimator::Initialization(MagnetoSensorData* data) {
     std::cout<< "MagnetoHWStateEstimator - Initialization"<<std::endl;
-    sp_->jpos_ini = data->q; //sp_->getActiveJointValue(curr_config_);
+    sp_->jpos_ini = data->q; // n_dof
     _JointUpdate(data);
     _InitializeVirtualJointState(data);
     _ConfigurationAndModelUpdate();    
@@ -43,10 +43,7 @@ void MagnetoHWStateEstimator::_JointUpdate(MagnetoSensorData* data) {
     curr_config_.setZero();
     curr_qdot_.setZero();
     prev_tau_cmd_.setZero();
-    // for (int i = 0; i < Magneto::n_vdof; ++i) {
-    //     curr_config_[Magneto::idx_vdof[i]] = data->virtual_q[i];
-    //     curr_qdot_[Magneto::idx_vdof[i]] = data->virtual_qdot[i];
-    // }
+
     for (int i = 0; i < Magneto::n_adof; ++i) {
         curr_config_[Magneto::idx_adof[i]] = data->q[i];
         curr_qdot_[Magneto::idx_adof[i]] = data->qdot[i];
@@ -191,7 +188,8 @@ void MagnetoHWStateEstimator::_InitializeVirtualJointState(MagnetoSensorData* da
 
     Eigen::Vector3d g_imu = data->imu_data.linear_acceleration;
     Eigen::MatrixXd R_bg = Eigen::MatrixXd::Zero(3,3); 
-    R_bg << 0, 1, 0, 0, -1, 0, 0, 0, -1;   
+    // R_bg << 0, 1, 0, -1, 0, 0, 0, 0, -1; // base to imu
+    R_bg << 0, -1, 0, 1, 0, 0, 0, 0, -1; // base to imu
     Eigen::Vector3d g_base = R_bg * g_imu;
     g_base.normalize();
     
@@ -207,10 +205,12 @@ void MagnetoHWStateEstimator::_InitializeVirtualJointState(MagnetoSensorData* da
 
     curr_config_[MagnetoDoF::baseRotZ]  = rz;
     curr_config_[MagnetoDoF::baseRotY] = ry;
-    curr_config_[MagnetoDoF::_base_joint]  = rx;    
+    curr_config_[MagnetoDoF::_base_joint]  = rx;
 
     std::cout << " Initial Base Configuration is set to = 0,0,0, " 
                 << rz << ", " << ry << ", " << rx << std::endl;
     pnc_utils::pretty_print(curr_config_,std::cout,"curr_config_=");
-
+    
+    pnc_utils::saveVector(data->imu_data.linear_acceleration, "imu_initialize_linacc");
+    pnc_utils::saveVector(curr_config_.segment(0,6), "imu_initialize_linacc");
 }

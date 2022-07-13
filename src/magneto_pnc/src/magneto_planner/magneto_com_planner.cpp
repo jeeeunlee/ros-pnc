@@ -14,7 +14,7 @@
 #include <time.h>
 
 MagnetoCoMPlanner::MagnetoCoMPlanner(RobotSystem* robot) {
-    pnc_utils::pretty_constructor(2, "Magneto CoM Hermite Spline Parameter Planner");
+    pnc_utils::pretty_constructor(3, "Magneto CoM Hermite Spline Parameter Planner");
 
     // robot system
     robot_ = robot;

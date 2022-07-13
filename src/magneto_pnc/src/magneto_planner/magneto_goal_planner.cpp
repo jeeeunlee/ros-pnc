@@ -13,7 +13,7 @@
 
 
 MagnetoGoalPlanner::MagnetoGoalPlanner(RobotSystem* robot) {
-    pnc_utils::pretty_constructor(2, "Magneto CoM Goal Planner");
+    pnc_utils::pretty_constructor(3, "Magneto CoM Goal Planner");
     // robot system
     robot_ = robot;    
     // copy constructor

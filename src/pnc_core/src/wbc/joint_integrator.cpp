@@ -1,7 +1,7 @@
 #include <pnc_core/wbc/joint_integrator.hpp>
 
 JointIntegrator::JointIntegrator(const int num_joints_in, const double dt_in) {
-  pnc_utils::pretty_constructor(3, "WBC Joint Integrator");
+  pnc_utils::pretty_constructor(3, "Joint Integrator");
   n_joints_ = num_joints_in;
   vel_ = Eigen::VectorXd::Zero(n_joints_);
   pos_ = Eigen::VectorXd::Zero(n_joints_);

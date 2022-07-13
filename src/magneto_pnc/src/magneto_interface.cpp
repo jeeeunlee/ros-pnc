@@ -185,7 +185,7 @@ void MagnetoInterface::addScriptMotion(const std::string& _motion_file_name){
         for(int i(0); i<num_motion; ++i){   
             std::ostringstream stringStream;
             stringStream << "motion" << i;
-            std::cout<< "stringStream=" <<stringStream.str()<< std::endl;
+            // std::cout<< "stringStream=" <<stringStream.str()<< std::endl;
             interrupt_->setInterruptRoutine(motion_cfg[stringStream.str()]);            
         }
     } catch (std::runtime_error& e) {

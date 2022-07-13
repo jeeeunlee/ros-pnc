@@ -4,6 +4,7 @@
 
 MagnetoReferenceGeneratorContainer::MagnetoReferenceGeneratorContainer(
   MagnetoControlSpecContainer* _ws_container, RobotSystem* _robot){
+  pnc_utils::pretty_constructor(2, "Magneto Reference Manager Container");
   robot_ = _robot;
   ws_container_ = _ws_container;
 

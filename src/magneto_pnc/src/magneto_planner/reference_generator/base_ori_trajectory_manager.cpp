@@ -2,7 +2,7 @@
 
 BaseOriTrajectoryManager::BaseOriTrajectoryManager(RobotSystem* _robot, int base_idx)
                         : TrajectoryManagerBase(_robot)  {
-  pnc_utils::pretty_constructor(2, "TrajectoryManager: Base Ori");
+  pnc_utils::pretty_constructor(3, "TrajectoryManager: Base Ori");
   base_link_idx_ = base_idx;
   
   base_pos_ini_ = Eigen::VectorXd::Zero(4);

@@ -166,7 +166,8 @@ bool FullSupport::endOfState() {
   // std::cout<<"state_machine_time_ = "<<state_machine_time_<<", ctrl_duration_ = " << ctrl_duration_;
   // std::cout<<", sp_->num_state = "<< sp_->num_state<< std::endl;
   if ( state_machine_time_ > ctrl_duration_ ) { // && sp_->num_state > 0
-    std::cout << "[Full Support Balance] End" << std:: endl;
+    if(sp_->num_state > 0)
+      std::cout << "[Full Support Balance] End" << std:: endl;
     return true;
   }
   return false;
