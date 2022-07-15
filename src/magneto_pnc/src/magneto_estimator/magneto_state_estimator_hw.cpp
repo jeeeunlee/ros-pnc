@@ -72,6 +72,15 @@ void MagnetoHWStateEstimator::_FootContactUpdate(MagnetoSensorData* data) {
     sp_->surface_normal = data->surface_normal;
 }
 
+
+// void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data) {
+
+//     for (int i = 0; i < Magneto::n_vdof; ++i) {
+//         curr_config_[Magneto::idx_vdof[i]] = data->virtual_q[i];
+//         curr_qdot_[Magneto::idx_vdof[i]] = data->virtual_qdot[i];
+//     }
+// }
+
 void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data) {
     // IMU integration will be added later
 
@@ -93,7 +102,11 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
         idx_contact_passive.insert(idx_contact_passive.end(),
                                     std::begin(Magneto::idx_al_pdof), 
                                     std::end(Magneto::idx_al_pdof));        
-    }    
+    } else {
+        for(int i=0; i<Magneto::n_leg_pdof;++i)
+            curr_config_[Magneto::idx_al_pdof[i]] *= 0.9;
+    }
+
     if(data->arfoot_contact){
         nc++;
         Jtemp = robot_->getBodyNodeCoMJacobian(MagnetoFoot::LinkIdx[MagnetoFoot::AR]);
@@ -101,7 +114,11 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
         idx_contact_passive.insert(idx_contact_passive.end(),
                                     std::begin(Magneto::idx_ar_pdof), 
                                     std::end(Magneto::idx_ar_pdof));        
+    } else {
+        for(int i=0; i<Magneto::n_leg_pdof;++i)
+            curr_config_[Magneto::idx_ar_pdof[i]] *= 0.9;
     }
+    
     if(data->blfoot_contact){
         nc++;
         Jtemp = robot_->getBodyNodeCoMJacobian(MagnetoFoot::LinkIdx[MagnetoFoot::BL]);
@@ -109,7 +126,10 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
         idx_contact_passive.insert(idx_contact_passive.end(),
                                     std::begin(Magneto::idx_bl_pdof), 
                                     std::end(Magneto::idx_bl_pdof));        
-    }    
+    } else {
+        for(int i=0; i<Magneto::n_leg_pdof;++i)
+            curr_config_[Magneto::idx_bl_pdof[i]] *= 0.9;
+    }
     if(data->brfoot_contact){
         nc++;
         Jtemp = robot_->getBodyNodeCoMJacobian(MagnetoFoot::LinkIdx[MagnetoFoot::BR]);
@@ -117,6 +137,9 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
         idx_contact_passive.insert(idx_contact_passive.end(),
                                     std::begin(Magneto::idx_br_pdof), 
                                     std::end(Magneto::idx_br_pdof));        
+    } else {
+        for(int i=0; i<Magneto::n_leg_pdof;++i)
+            curr_config_[Magneto::idx_br_pdof[i]] *= 0.9;
     }
 
     // Assume num of contact >= 3 

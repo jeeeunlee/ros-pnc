@@ -27,14 +27,14 @@ void Swing::firstVisit() {
   //      TASK - SET TRAJECTORY
   // ---------------------------------------
   // -- set current motion param
-  MotionCommand mc_curr_ = sp_->curr_motion_command;
+  MotionCommand mc_curr = sp_->curr_motion_command;
 
   // --moving foot setting
   // _set_moving_foot_frame();
 
   // -- set foot traj
   rg_container_->foot_trajectory_manager_
-            ->setFootPosTrajectory(ctrl_start_time_, &mc_curr_);
+            ->setFootPosTrajectory(ctrl_start_time_, &mc_curr);
   ctrl_duration_ = rg_container_->foot_trajectory_manager_->getTrajDuration();
   ctrl_end_time_ = rg_container_->foot_trajectory_manager_->getTrajEndTime();
   moving_foot_idx_ = rg_container_->foot_trajectory_manager_->getMovingFootIdx();

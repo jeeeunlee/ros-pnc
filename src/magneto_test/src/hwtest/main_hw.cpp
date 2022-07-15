@@ -58,8 +58,9 @@ int main(int argc, char* argv[])
             hw_interface.setStop();        
 
         if((hw_interface.getSystemState()==IDLE && !hw_interface.startButtonPressed()) ||
-            (hw_interface.getSystemState()==READY && !hw_interface.startButtonPressed()) )
-            ROS_WARN_THROTTLE(THROTTLE_PERIOD, "\nPress START buttons to run the robot\n");        
+            (hw_interface.getSystemState()==READY && !hw_interface.startButtonPressed()) ){
+            ROS_WARN_THROTTLE(THROTTLE_PERIOD, "\nPress START buttons to run the robot\n");  
+        }      
         else{
             switch(hw_interface.getSystemState()){
             case IDLE:             

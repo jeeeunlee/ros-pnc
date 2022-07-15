@@ -45,10 +45,10 @@ class MagnetoInterfaceNode {
 
     // get, set, initializes
     bool startButtonPressed(){ 
-      if(startbutton_pressed) { debounce_startbutton_=true; return true; }
+      if(startbutton_pressed) { debounce_startbutton_=true; startbutton_pressed = false; return true; }
       else return false;  }
     bool stopButtonPressed(){ 
-      if(stopbutton_pressed) { debounce_stopbutton_=true; return true; }
+      if(stopbutton_pressed) { debounce_stopbutton_=true; stopbutton_pressed = false; return true; }
       else return false;  }
 
     void setSensorData();

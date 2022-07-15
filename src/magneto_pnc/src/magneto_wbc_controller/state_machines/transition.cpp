@@ -67,13 +67,27 @@ void Transition::firstVisit() {
             ->setJointTrajectory(ctrl_start_time_,
                                 ctrl_duration_);
 
-  // -- set foot traj
-
+  // -- set foot traj to be stationary
+  MotionCommand mc_trans = MotionCommand();
+  mc_trans.foot_motion_given = true;
+  POSE_DATA foot_dev = POSE_DATA();
+  if(b_contact_start_) foot_dev.pos[2] -= 0.05;
+  mc_trans.foot_motion_data = SWING_DATA( moving_foot_idx_, 0.0, foot_dev);
+  mc_trans.motion_periods = Eigen::VectorXd::Constant(1, ctrl_duration_);
+  
+  rg_container_->foot_trajectory_manager_
+            ->setFootPosTrajectory(ctrl_start_time_, &mc_trans);
 
   // -- set task_list in taf with hierachy
   ws_container_->clear_task_list();
   ws_container_->add_task_list(ws_container_->com_task_);
   ws_container_->add_task_list(ws_container_->base_ori_task_);
+  ws_container_->add_task_list(
+                ws_container_->
+                get_foot_pos_task(moving_foot_link_idx_));
+  ws_container_->add_task_list(
+                ws_container_->
+                get_foot_ori_task(moving_foot_link_idx_));
   ws_container_->add_task_list(ws_container_->joint_task_);
 
   // ---------------------------------------
@@ -128,6 +142,11 @@ void Transition::firstVisit() {
 }
 
 void Transition::_taskUpdate() {
+
+  rg_container_->foot_trajectory_manager_->updateTask(sp_->curr_time,
+              ws_container_->get_foot_pos_task(moving_foot_link_idx_),
+              ws_container_->get_foot_ori_task(moving_foot_link_idx_));
+
   // rg_container_->com_trajectory_manager_->updateCoMTrajectory(sp_->curr_time);
   rg_container_->com_trajectory_manager_->updateTask(sp_->curr_time,
                                   ws_container_->com_task_);
@@ -184,8 +203,32 @@ bool Transition::endOfState() {
     }
   } else{
     if ( state_machine_time_ > ctrl_duration_) {
-      std::cout << "[contact transition] End : " << b_contact_start_ << std::endl;
+      std::cout << "[contact transition] End : " << b_contact_start_ 
+                << ", state_machine_time_ > ctrl_duration" <<std::endl;
       return true;
+    } else if(state_machine_time_ > 0.9*ctrl_duration_){
+      switch(moving_foot_idx_){
+      case MagnetoFoot::AL:
+      if(!sp_->b_alfoot_contact){
+        std::cout << "[contact transition] End : " << b_contact_start_ 
+                  << ", " << state_machine_time_ <<" < " << ctrl_duration_ << std::endl;
+        return true; } break;        
+      case MagnetoFoot::BL:
+        if(!sp_->b_blfoot_contact){
+        std::cout << "[contact transition] End : " << b_contact_start_ 
+                  << ", " << state_machine_time_ <<" < " << ctrl_duration_ << std::endl;
+        return true; } break;
+      case MagnetoFoot::AR:
+        if(!sp_->b_arfoot_contact){
+        std::cout << "[contact transition] End : " << b_contact_start_ 
+                  << ", " << state_machine_time_ <<" < " << ctrl_duration_ << std::endl;
+        return true; } break;
+      case MagnetoFoot::BR:
+        if(!sp_->b_brfoot_contact){
+        std::cout << "[contact transition] End : " << b_contact_start_ 
+                  << ", " << state_machine_time_ <<" < " << ctrl_duration_ << std::endl;
+        return true; } break;
+      }
     }    
   } 
   return false;

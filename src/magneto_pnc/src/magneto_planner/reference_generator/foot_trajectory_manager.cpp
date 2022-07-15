@@ -47,13 +47,11 @@ void FootPosTrajectoryManager::updateTask(const double& current_time,
   // pnc_utils::pretty_print(foot_pos_des_, std::cout, "foot_pos_traj_");
 }
 
-// Initialize the swing foot trajectory
 void FootPosTrajectoryManager::setFootPosTrajectory(const double& _start_time,
-                                            MotionCommand* _motion_cmd) {
+                                                MotionCommand* _motion_cmd) {
+  // initialize the swing foot trajectory
   SWING_DATA motion_cmd_data;
   Eigen::VectorXd pos_dev_b;
-  foot_idx_ = -1;
-  link_idx_ = -1;
   if(_motion_cmd->get_foot_motion(motion_cmd_data)) {
       // if com motion command is given
       foot_idx_ = motion_cmd_data.foot_idx;
@@ -68,6 +66,8 @@ void FootPosTrajectoryManager::setFootPosTrajectory(const double& _start_time,
   } else {
     // heuristic computation
     std::cout<< "NOOOOO!! no foot motion cmd?" << std::endl;
+    foot_idx_ = -1;
+    link_idx_ = -1;
     traj_duration_ = 1.0;
     pos_dev_b = Eigen::VectorXd::Zero(3);
     swing_height_ = 0.5;
@@ -83,7 +83,6 @@ void FootPosTrajectoryManager::setFootPosTrajectory(const double& _start_time,
   // initialize pos_ini_ with current position
   foot_pos_ini_ = robot_->getBodyNodeIsometry(link_idx_).translation();
   foot_rot_ini_ = robot_->getBodyNodeIsometry(link_idx_).linear();
-  pos_dev_b[2] = pos_dev_b[2] - 0.01;
   if(is_base_frame_) {
     // TODOJE : ? getBodyNodeIsometry(MagnetoBodyNode::base_link)
     Eigen::MatrixXd R_wb = robot_->getBodyNodeIsometry(MagnetoBodyNode::base_link).linear(); 
@@ -159,9 +158,14 @@ void FootPosTrajectoryManager::setSwingPosCurve(const Eigen::VectorXd& foot_pos_
   // Set Middle Swing Position/Velocity for Swing
   Eigen::Vector3d foot_pos_mid, foot_vel_mid;  
   Eigen::Vector3d p_b(0, 0, swing_height);
-  Eigen::Matrix3d R_wb = robot_->getBodyNodeIsometry(link_idx_).linear();
-  foot_pos_mid = 0.5*(foot_pos_des+foot_pos_ini) + R_wb*p_b;   
+  // Eigen::Matrix3d R_wb = robot_->getBodyNodeIsometry(link_idx_).linear();
+  Eigen::Matrix3d R_wb = robot_->getBodyNodeIsometry(MagnetoBodyNode::base_link).linear();
+  foot_pos_mid = 0.5*(foot_pos_des + foot_pos_ini) + R_wb*p_b;   
   foot_vel_mid = 1.0*(foot_pos_des - foot_pos_ini) / traj_duration_;
+  
+  Eigen::VectorXd foot_pos_des_in;
+  if(swing_height>0) foot_pos_des_in = foot_pos_des - 0.2*R_wb*p_b;
+  else foot_pos_des_in = foot_pos_des;
 
   // Construct Position trajectories
   pos_traj_init_to_mid_.initialize(foot_pos_ini, zero_vel_, 
@@ -169,9 +173,9 @@ void FootPosTrajectoryManager::setSwingPosCurve(const Eigen::VectorXd& foot_pos_
   pos_traj_mid_to_end_.initialize(foot_pos_mid, foot_vel_mid,
                                   foot_pos_des, zero_vel_, 0.5*traj_duration_);
 
-  pnc_utils::pretty_print(foot_pos_ini_, std::cout, "foot_pos_ini_");
+  pnc_utils::pretty_print(foot_pos_ini, std::cout, "foot_pos_ini");
   pnc_utils::pretty_print(foot_pos_mid, std::cout, "foot_pos_mid");
-  pnc_utils::pretty_print(foot_pos_des_, std::cout, "foot_pos_des_");
+  pnc_utils::pretty_print(foot_pos_des_in, std::cout, "foot_pos_des_in");
   std::cout<<"swing_height_ = "<< swing_height_ << std::endl;
 }
 

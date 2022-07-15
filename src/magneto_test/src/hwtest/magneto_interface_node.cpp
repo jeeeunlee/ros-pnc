@@ -300,11 +300,11 @@ void MagnetoInterfaceNode::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
         if(stopbutton_pressed) debounce_stopbutton_ = false;        
     }
 
-    std::cout<< "debounce_startbutton_" << debounce_startbutton_
-        << ", startbutton_pressed = "<< startbutton_pressed <<std::endl;
+    // std::cout<< "debounce_startbutton_" << debounce_startbutton_
+    //     << ", startbutton_pressed = "<< startbutton_pressed <<std::endl;
 
-    std::cout<< "debounce_stopbutton_" << debounce_stopbutton_
-        << ", stopbutton_pressed = "<< stopbutton_pressed <<std::endl;
+    // std::cout<< "debounce_stopbutton_" << debounce_stopbutton_
+    //     << ", stopbutton_pressed = "<< stopbutton_pressed <<std::endl;
         
     
 }
