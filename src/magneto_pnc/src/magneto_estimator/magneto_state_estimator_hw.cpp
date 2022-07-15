@@ -86,7 +86,7 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
     Eigen::MatrixXd Jtemp;
     int nc = 0;
     std::vector<int> idx_contact_passive={};
-    if(data->arfoot_contact){
+    if(data->alfoot_contact){
         nc++;
         Jtemp = robot_->getBodyNodeCoMJacobian(MagnetoFoot::LinkIdx[MagnetoFoot::AL]);
         Jc = pnc_utils::vStack(Jc, Jtemp);        
@@ -94,7 +94,7 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
                                     std::begin(Magneto::idx_al_pdof), 
                                     std::end(Magneto::idx_al_pdof));        
     }    
-    if(data->brfoot_contact){
+    if(data->arfoot_contact){
         nc++;
         Jtemp = robot_->getBodyNodeCoMJacobian(MagnetoFoot::LinkIdx[MagnetoFoot::AR]);
         Jc = pnc_utils::vStack(Jc, Jtemp);        
@@ -102,7 +102,7 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
                                     std::begin(Magneto::idx_ar_pdof), 
                                     std::end(Magneto::idx_ar_pdof));        
     }
-    if(data->alfoot_contact){
+    if(data->blfoot_contact){
         nc++;
         Jtemp = robot_->getBodyNodeCoMJacobian(MagnetoFoot::LinkIdx[MagnetoFoot::BL]);
         Jc = pnc_utils::vStack(Jc, Jtemp);        
@@ -110,7 +110,7 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
                                     std::begin(Magneto::idx_bl_pdof), 
                                     std::end(Magneto::idx_bl_pdof));        
     }    
-    if(data->blfoot_contact){
+    if(data->brfoot_contact){
         nc++;
         Jtemp = robot_->getBodyNodeCoMJacobian(MagnetoFoot::LinkIdx[MagnetoFoot::BR]);
         Jc = pnc_utils::vStack(Jc, Jtemp);        
@@ -149,10 +149,11 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
         }
 
         // update q = q+delq: // curr_config_ = prev_config_ + delq
-        // - Jc(a)*delq(a) = [Jc(v) Jc(p)] * [delq(v); delq(p)]
+        // [Jc(a) Jc(v) Jc(p)] * [delq(a); delq(v); delq(p)] = 0
+        // [delq(a); delq(v)] = - inv([Jc(a) Jc(v)]) * Jc(a) * delq(a)
 
-        Eigen::VectorXd delq_vnp = Jc_vnp_inv*(
-                        -Jc_active*(robot_->getActiveJointValue(
+        Eigen::VectorXd delq_vnp = -Jc_vnp_inv*(
+                        Jc_active*(robot_->getActiveJointValue(
                                     curr_config_-prev_config_)));        
         
         for (int i = 0; i < 6; ++i){
@@ -170,8 +171,12 @@ void MagnetoHWStateEstimator::_EstimateVirtualJointState(MagnetoSensorData* data
     } else{
         // std::cout<<"no contact for state estimation"<< std::endl;
     }
-    // pnc_utils::pretty_print(curr_config_, std::cout, "curr_config_");
-    // pnc_utils::pretty_print(curr_qdot_, std::cout, "curr_qdot_");
+
+    // Eigen::VectorXd virtual_joint_state = curr_config_.segment(0,6);
+    // Eigen::VectorXd gimbal_joint_state = curr_config_.segment(9,3);
+    // virtual_joint_state = pnc_utils::vStack(virtual_joint_state, gimbal_joint_state);
+    // pnc_utils::pretty_print(virtual_joint_state, std::cout, "base_link_est");
+
     pnc_utils::saveVector(curr_config_,"curr_config_est"); 
 }
 

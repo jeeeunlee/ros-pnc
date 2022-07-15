@@ -30,7 +30,7 @@ MagnetoWorldNode::MagnetoWorldNode(const dart::simulation::WorldPtr& _world)
     // setPositionLimitEnforced
 
     // contact dinstance
-    contact_threshold_ = 0.005;
+    contact_threshold_ = 0.01;
     for(int i(0); i<Magneto::n_leg; ++i){
         contact_distance_[i] = 0.05; 
         surface_normal_[i] = Eigen::Vector3d::Zero();
@@ -88,6 +88,9 @@ void MagnetoWorldNode::customPreStep() {
 
     Eigen::VectorXd q = robot_->getPositions();
     Eigen::VectorXd qdot = robot_->getVelocities();
+    
+    // Eigen::VectorXd virtual_joint_state = q.segment(0,6);
+    // pnc_utils::pretty_print(virtual_joint_state, std::cout, "base_link_real");
     // pnc_utils::pretty_print(q, std::cout, "real_config_");
 
     for(int i=0; i< Magneto::n_adof; ++i) {

@@ -83,7 +83,7 @@ void FootPosTrajectoryManager::setFootPosTrajectory(const double& _start_time,
   // initialize pos_ini_ with current position
   foot_pos_ini_ = robot_->getBodyNodeIsometry(link_idx_).translation();
   foot_rot_ini_ = robot_->getBodyNodeIsometry(link_idx_).linear();
-
+  pos_dev_b[2] = pos_dev_b[2] - 0.01;
   if(is_base_frame_) {
     // TODOJE : ? getBodyNodeIsometry(MagnetoBodyNode::base_link)
     Eigen::MatrixXd R_wb = robot_->getBodyNodeIsometry(MagnetoBodyNode::base_link).linear(); 

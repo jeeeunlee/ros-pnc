@@ -66,6 +66,10 @@ void Transition::firstVisit() {
   rg_container_->joint_trajectory_manager_
             ->setJointTrajectory(ctrl_start_time_,
                                 ctrl_duration_);
+
+  // -- set foot traj
+
+
   // -- set task_list in taf with hierachy
   ws_container_->clear_task_list();
   ws_container_->add_task_list(ws_container_->com_task_);
@@ -157,10 +161,33 @@ void Transition::lastVisit() {}
 
 bool Transition::endOfState() {
   // Also check if footstep list is non-zero
-  if ( state_machine_time_ > ctrl_duration_) {
-    std::cout << "[contact transition] End : " << b_contact_start_ << std::endl;
-    return true;
-  }
+  if(b_contact_start_){
+    if ( state_machine_time_ > ctrl_duration_) {
+      switch(moving_foot_idx_){
+        case MagnetoFoot::AL:
+        if(sp_->b_alfoot_contact){
+          std::cout << "[contact transition] End : " << b_contact_start_ << std::endl;
+          return true; } break;        
+        case MagnetoFoot::BL:
+          if(sp_->b_blfoot_contact){
+          std::cout << "[contact transition] End : " << b_contact_start_ << std::endl;
+          return true; } break;
+        case MagnetoFoot::AR:
+          if(sp_->b_arfoot_contact){
+          std::cout << "[contact transition] End : " << b_contact_start_ << std::endl;
+          return true; } break;
+        case MagnetoFoot::BR:
+          if(sp_->b_brfoot_contact){
+          std::cout << "[contact transition] End : " << b_contact_start_ << std::endl;
+          return true; } break;
+      }
+    }
+  } else{
+    if ( state_machine_time_ > ctrl_duration_) {
+      std::cout << "[contact transition] End : " << b_contact_start_ << std::endl;
+      return true;
+    }    
+  } 
   return false;
 }
 
