@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<robot name="ground_skeleton">
+<!-- Setup material colours for simulation -->
+<material name="white">
+  <color rgba="1 1 1 1"/>
+</material>
+<material name="green">
+  <color rgba="0 1 0 1"/>
+</material>
+<material name="blue">
+  <color rgba="0.6 0.6 0.9 1"/>
+</material>
+<material name="red">
+  <color rgba="1 0 0 1"/>
+</material>
+<material name="black">
+  <color rgba="0 0 0 0.9"/>
+</material>
+<material name="darkgrey">
+  <color rgba="0.1 0.1 0.1 1"/>
+</material>
+<material name="midgrey">
+  <color rgba="0.5 0.5 0.5 1"/>
+</material>
+<!-- =================================================================================== -->
+<!-- |    LINKS                                                                        | -->
+<!-- =================================================================================== -->
+    <link name="world" />
+    <link name="world_frame">
+        <inertial>
+            <mass value="0.000000001" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.000000001" ixy="0.000000001" ixz="0.000000001" iyy="1.0" iyz="0" izz="1.0" />
+        </inertial>
+    </link>
+    <link name="ground_link">
+         <collision>
+            <origin xyz="0 0 -0.025" rpy="0 -0 0" />
+            <geometry>
+                <box size="50.0 50.0 0.05" />
+            </geometry>
+        </collision>
+         <visual name="visual">
+            <origin xyz = "1.2 1.0 -0.1" rpy="0. 0 0" />
+            <material name="blue"/>
+            <geometry>
+                <box size="5.0 5.0 0.05" />
+            </geometry>
+        </visual>
+        <inertial>
+            <mass value="1.0" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="1.0" ixy="0" ixz="0" iyy="1.0" iyz="0" izz="1.0" />
+        </inertial>
+    </link>
+    <link name="ground_link2">
+         <collision>
+            <origin xyz="0 0 -0.025" rpy="0 -0 0" />
+            <geometry>
+                <box size="5000.0 500.0 0.05" />
+            </geometry>
+        </collision>
+         <visual name="visual">
+            <origin xyz = "0.0 0.0 -0.1" rpy="0. 0 0" />
+            <material name="blue"/>
+            <geometry>
+                <box size="5.0 5.0 0.05" />
+            </geometry>
+        </visual>
+        <inertial>
+            <mass value="1.0" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="1.0" ixy="0" ixz="0" iyy="1.0" iyz="0" izz="1.0" />
+        </inertial>
+    </link>
+    <link name="ground_link3">
+         <collision>
+            <origin xyz="0 0 -0.025" rpy="0 -0 0" />
+            <geometry>
+                <box size="5000.0 500.0 0.05" />
+            </geometry>
+        </collision>
+         <visual name="visual">
+            <origin xyz = "-1.2 1.0 -0.1" rpy="0. 0 0" />
+            <material name="blue"/>
+            <geometry>
+                <box size="5.0 5.0 0.05" />
+            </geometry>
+        </visual>
+        <inertial>
+            <mass value="1.0" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="1.0" ixy="0" ixz="0" iyy="1.0" iyz="0" izz="1.0" />
+        </inertial>
+    </link>
+    <link name="flat_link">
+         <visual>
+            <origin xyz = "-1.0 1.0 0" rpy="0. 0 0" />
+            <material name="white"/>
+            <geometry>
+                <box size="5.0 5.0 0.05" />
+            </geometry>
+        </visual>
+        <inertial>
+            <mass value="1.0" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="1.0" ixy="0" ixz="0" iyy="1.0" iyz="0" izz="1.0" />
+        </inertial>
+    </link>
+    <joint name="ground_joint1" type="fixed">
+        <origin xyz="2.7 -2 0.0" rpy="0 1 1.5708" />
+        <parent link="world_frame" />
+        <child link="ground_link" />
+    </joint>
+    <joint name="ground_joint2" type="fixed">
+        <origin xyz="1.0 -1 -1" rpy="0 -1 0" />
+        <parent link="world_frame" />
+        <child link="ground_link2" />
+    </joint>
+    <joint name="ground_joint3" type="fixed">
+        <origin xyz="2.7 0 0.0" rpy="0 -1 1.5708" />
+        <parent link="world_frame" />
+        <child link="ground_link3" />
+    </joint>
+    <joint name="frame_joint" type="fixed">
+        <origin xyz="0 -0.1 0" rpy="0 0 0" />
+        <parent link="world" />
+        <child link="world_frame" />
+    </joint>
+    <joint name="flat_joint" type="fixed">
+        <origin xyz="2.7 -2 -1" rpy="0 0 0" />
+        <parent link="world_frame" />
+        <child link="flat_link" />
+    </joint>
+</robot>

@@ -14,7 +14,7 @@
 // Object to manage common trajectory primitives
 class BaseOriTrajectoryManager : public TrajectoryManagerBase {
  public:
-  BaseOriTrajectoryManager(RobotSystem* _robot);
+  BaseOriTrajectoryManager(RobotSystem* _robot, Task* _task);
   ~BaseOriTrajectoryManager();
   void paramInitialization(const YAML::Node& node){};
 
@@ -27,8 +27,7 @@ class BaseOriTrajectoryManager : public TrajectoryManagerBase {
   Eigen::Vector3d base_ori_acc_des_; // 3d
 
   // Updates the task desired values
-  void updateTask(const double& current_time,
-                  Task* _base_ori_task);
+  void updateTask(const double& current_time);
 
   // Initialize the swing foot trajectory
   void setBaseOriTrajectory(const double& _start_time, 
@@ -49,5 +48,6 @@ class BaseOriTrajectoryManager : public TrajectoryManagerBase {
  protected:
   void convertQuatDesToOriDes(const Eigen::Quaterniond& quat_in, 
                               Eigen::VectorXd& ori_out);
+  Task* base_ori_task_;
 
 };

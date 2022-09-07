@@ -26,15 +26,13 @@ MagnetoStateProvider::MagnetoStateProvider(RobotSystem* _robot) {
     q = Eigen::VectorXd::Zero(Magneto::n_dof);
     qdot = Eigen::VectorXd::Zero(Magneto::n_dof);
 
-    b_arfoot_contact = 0;
-    b_brfoot_contact = 0;
-    b_alfoot_contact = 0;
-    b_blfoot_contact = 0;
+    
 
-    b_contact_plan_map[MagnetoBodyNode::AL_foot_link] = false;
-    b_contact_plan_map[MagnetoBodyNode::BL_foot_link] = false;
-    b_contact_plan_map[MagnetoBodyNode::AR_foot_link] = false;
-    b_contact_plan_map[MagnetoBodyNode::BR_foot_link] = false;
+    for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+        b_foot_contact_list[foot_idx] = 0;
+        b_contact_plan_list[foot_idx]=false;
+    }
+    
 
     foot_pos_target = Eigen::VectorXd::Zero(3);
 
@@ -54,80 +52,32 @@ MagnetoStateProvider::MagnetoStateProvider(RobotSystem* _robot) {
 
     com_pos_des = Eigen::VectorXd::Zero(3);
     com_vel_des = Eigen::VectorXd::Zero(3);
-    mom_des = Eigen::VectorXd::Zero(6);
+    mom_des = Eigen::VectorXd::Zero(6);    
 
-    arf_pos = Eigen::VectorXd::Zero(3);
-    arf_vel = Eigen::VectorXd::Zero(3);
-    brf_pos = Eigen::VectorXd::Zero(3);
-    brf_vel = Eigen::VectorXd::Zero(3);
+    for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+        foot_pos[foot_idx] = Eigen::VectorXd::Zero(3);
+        foot_vel[foot_idx] = Eigen::VectorXd::Zero(3);
+        foot_pos_des[foot_idx] = Eigen::VectorXd::Zero(3);
+        foot_vel_des[foot_idx] = Eigen::VectorXd::Zero(3);
+        foot_ang_vel[foot_idx] = Eigen::VectorXd::Zero(3);
+        foot_ang_vel_des[foot_idx] = Eigen::VectorXd::Zero(3);
+        foot_ori_quat[foot_idx] = Eigen::Quaternion<double>::Identity();
+        foot_ori_quat_des[foot_idx] = Eigen::Quaternion<double>::Identity();
 
-    alf_pos = Eigen::VectorXd::Zero(3);
-    alf_vel = Eigen::VectorXd::Zero(3);
-    blf_pos = Eigen::VectorXd::Zero(3);
-    blf_vel = Eigen::VectorXd::Zero(3);
+        foot_grf[foot_idx] = Eigen::VectorXd::Zero(6);
+        foot_grf_des[foot_idx] = Eigen::VectorXd::Zero(6);
+    }
 
-    arf_pos_des = Eigen::VectorXd::Zero(3);
-    arf_vel_des = Eigen::VectorXd::Zero(3);
-    brf_pos_des = Eigen::VectorXd::Zero(3);
-    brf_vel_des = Eigen::VectorXd::Zero(3);
-
-    alf_pos_des = Eigen::VectorXd::Zero(3);
-    alf_vel_des = Eigen::VectorXd::Zero(3);
-    blf_pos_des = Eigen::VectorXd::Zero(3);
-    blf_vel_des = Eigen::VectorXd::Zero(3);
-
-    alf_ori_quat = Eigen::Quaternion<double>::Identity();
-    alf_ang_vel = Eigen::VectorXd::Zero(3);
-    blf_ori_quat = Eigen::Quaternion<double>::Identity();
-    blf_ang_vel = Eigen::VectorXd::Zero(3);
-    arf_ori_quat = Eigen::Quaternion<double>::Identity();
-    arf_ang_vel = Eigen::VectorXd::Zero(3);
-    brf_ori_quat = Eigen::Quaternion<double>::Identity();
-    brf_ang_vel = Eigen::VectorXd::Zero(3);
-
-    arf_ori_quat_des = Eigen::Quaternion<double>::Identity();
-    arf_ang_vel_des = Eigen::VectorXd::Zero(3);
-    brf_ori_quat_des = Eigen::Quaternion<double>::Identity();
-    brf_ang_vel_des = Eigen::VectorXd::Zero(3);
-    alf_ori_quat_des = Eigen::Quaternion<double>::Identity();
-    alf_ang_vel_des = Eigen::VectorXd::Zero(3);
-    blf_ori_quat_des = Eigen::Quaternion<double>::Identity();
-    blf_ang_vel_des = Eigen::VectorXd::Zero(3);
-
-    base_ori = Eigen::Quaternion<double>::Identity();
-    base_ang_vel = Eigen::VectorXd::Zero(3);
-
-    base_ori_des = Eigen::Quaternion<double>::Identity();
-    base_ang_vel_des = Eigen::VectorXd::Zero(3);
-
-    ar_rf = Eigen::VectorXd::Zero(6);
-    br_rf = Eigen::VectorXd::Zero(6);
-    al_rf = Eigen::VectorXd::Zero(6);
-    bl_rf = Eigen::VectorXd::Zero(6);
-
-    ar_rf_des = Eigen::VectorXd::Zero(6);
-    br_rf_des = Eigen::VectorXd::Zero(6);
-    al_rf_des = Eigen::VectorXd::Zero(6);
-    bl_rf_des = Eigen::VectorXd::Zero(6);
 
     des_jacc_cmd = Eigen::VectorXd::Zero(Magneto::n_adof);
 
 }
 
-void MagnetoStateProvider::setContactPlan(const int& moving_cop){
+void MagnetoStateProvider::setContactPlan(const int& moving_foot_idx){
     //b_contact_plan_map
-    b_contact_plan_map[MagnetoBodyNode::AL_foot_link]
-                        = (moving_cop != MagnetoBodyNode::AL_tibia_link && 
-                        moving_cop != MagnetoBodyNode::AL_foot_link);
-    b_contact_plan_map[MagnetoBodyNode::BL_foot_link] 
-                        = (moving_cop != MagnetoBodyNode::BL_tibia_link && 
-                        moving_cop != MagnetoBodyNode::BL_foot_link); 
-    b_contact_plan_map[MagnetoBodyNode::AR_foot_link] 
-                        = (moving_cop != MagnetoBodyNode::AR_tibia_link && 
-                        moving_cop != MagnetoBodyNode::AR_foot_link);
-    b_contact_plan_map[MagnetoBodyNode::BR_foot_link] 
-                        = (moving_cop != MagnetoBodyNode::BR_tibia_link && 
-                        moving_cop != MagnetoBodyNode::BR_foot_link);
+    for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+        b_contact_plan_list[foot_idx]=(moving_foot_idx!=foot_idx);
+    }
 }
 
 
@@ -139,46 +89,18 @@ void MagnetoStateProvider::saveCurrentData() {
 
     mom = robot_->getCentroidMomentum();
 
-    // depending on how to deal with gimbal joints
-    // AL_foot_link? or AL_foot_link_3
-    arf_pos = robot_->getBodyNodeIsometry(MagnetoBodyNode::AR_foot_link)
-                 .translation(); // todo: rightCOP_Frame 
-    arf_vel = robot_->getBodyNodeSpatialVelocity(MagnetoBodyNode::AR_foot_link ) 
-            .tail(3); // rightCOP_Frame
-    brf_pos = robot_->getBodyNodeIsometry(MagnetoBodyNode::BR_foot_link)
-                 .translation(); // todo: rightCOP_Frame
-    brf_vel = robot_->getBodyNodeSpatialVelocity(MagnetoBodyNode::BR_foot_link ) 
-            .tail(3); // rightCOP_Frame            
-    alf_pos = robot_->getBodyNodeIsometry(MagnetoBodyNode::AL_foot_link ) 
-                 .translation(); // leftCOP_Frame
-    alf_vel = robot_->getBodyNodeSpatialVelocity(MagnetoBodyNode::AL_foot_link ) 
-                 .tail(3);//leftCOP_Frame
-    blf_pos = robot_->getBodyNodeIsometry(MagnetoBodyNode::BL_foot_link ) 
-                 .translation(); // leftCOP_Frame
-    blf_vel = robot_->getBodyNodeSpatialVelocity(MagnetoBodyNode::BL_foot_link ) 
-                 .tail(3);//leftCOP_Frame
+    for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+        foot_pos[foot_idx] = robot_->getBodyNodeIsometry(
+            MagnetoFoot::LinkIdx[foot_idx]).translation(); ;
+        foot_vel[foot_idx] = robot_->getBodyNodeSpatialVelocity(
+            MagnetoFoot::LinkIdx[foot_idx] ).tail(3); 
 
-    arf_ori_quat = Eigen::Quaternion<double>(
-        robot_->getBodyNodeIsometry(MagnetoBodyNode::AR_foot_link ).linear()); //rightCOP_Frame
-    arf_ang_vel =
-        robot_->getBodyNodeSpatialVelocity(MagnetoBodyNode::AR_foot_link ) 
-            .head(3); //rightCOP_Frame
-    brf_ori_quat = Eigen::Quaternion<double>(
-        robot_->getBodyNodeIsometry(MagnetoBodyNode::BR_foot_link ).linear()); //rightCOP_Frame
-    brf_ang_vel =
-        robot_->getBodyNodeSpatialVelocity(MagnetoBodyNode::BR_foot_link ) 
-            .head(3); //rightCOP_Frame
+        foot_ori_quat[foot_idx] = Eigen::Quaternion<double>(
+            robot_->getBodyNodeIsometry(MagnetoFoot::LinkIdx[foot_idx] ).linear());;
 
-    alf_ori_quat = Eigen::Quaternion<double>(
-        robot_->getBodyNodeIsometry(MagnetoBodyNode::AL_foot_link ).linear()); // leftCOP_Frame
-    alf_ang_vel =
-        robot_->getBodyNodeSpatialVelocity(MagnetoBodyNode::AL_foot_link ) 
-            .head(3); //leftCOP_Frame
-    blf_ori_quat = Eigen::Quaternion<double>(
-        robot_->getBodyNodeIsometry(MagnetoBodyNode::BL_foot_link ).linear()); // leftCOP_Frame
-    blf_ang_vel =
-        robot_->getBodyNodeSpatialVelocity(MagnetoBodyNode::BL_foot_link ) 
-            .head(3); //leftCOP_Frame
+        foot_ang_vel[foot_idx] = robot_->getBodyNodeSpatialVelocity(
+            MagnetoFoot::LinkIdx[foot_idx] ).head(3);
+    }
 
     base_ori = Eigen::Quaternion<double>(
         robot_->getBodyNodeIsometry(MagnetoBodyNode::base_link ).linear()); //base

@@ -347,47 +347,28 @@ MagnetoReachabilityPlanner::MagnetoReachabilityPlanner(RobotSystem* robot, Magne
 
   // set contact
   mu_ = 0.7; // will be updated later
-  // alfoot_contact_ = new BodyFramePointContactSpec(robot_planner_,
-  //                             MagnetoBodyNode::AL_foot_link, mu_);
-  // blfoot_contact_ = new BodyFramePointContactSpec(robot_planner_,
-  //                             MagnetoBodyNode::BL_foot_link, mu_);                          
-  // arfoot_contact_ = new BodyFramePointContactSpec(robot_planner_,
-  //                             MagnetoBodyNode::AR_foot_link, mu_);
-  // brfoot_contact_ = new BodyFramePointContactSpec(robot_planner_,
-  //                             MagnetoBodyNode::BR_foot_link, mu_);
-
   double footx(0.02), footy(0.02);
-  alfoot_contact_ = new  BodyFrameSurfaceContactSpec(robot_planner_,
-                      MagnetoBodyNode::AL_foot_link, footx, footy, mu_);
-  blfoot_contact_ = new BodyFrameSurfaceContactSpec(robot_planner_,
-                      MagnetoBodyNode::BL_foot_link, footx, footy, mu_);                          
-  arfoot_contact_ = new BodyFrameSurfaceContactSpec(robot_planner_,
-                      MagnetoBodyNode::AR_foot_link, footx, footy, mu_);
-  brfoot_contact_ = new BodyFrameSurfaceContactSpec(robot_planner_,
-                      MagnetoBodyNode::BR_foot_link, footx, footy, mu_);
+  for(int foot_idx=0; foot_idx<Magneto::n_leg;++foot_idx){
+      foot_contact_list_[foot_idx] = 
+          new BodyFrameSurfaceContactSpec(robot_planner_,
+                    MagnetoFoot::LinkIdx[foot_idx], footx, footy, mu_);
+          // new BodyFramePointContactSpec(robot_planner_,
+          //                     MagnetoFoot::LinkIdx[foot_idx], mu_);
 
-  full_contact_list_.clear();
-  full_contact_list_.push_back(alfoot_contact_);  
-  full_contact_list_.push_back(arfoot_contact_);
-  full_contact_list_.push_back(blfoot_contact_);
-  full_contact_list_.push_back(brfoot_contact_);
+  }   
 
   swing_contact_state_ = new MagnetoReachabilityContact(robot_planner_);
   full_contact_state_ = new MagnetoReachabilityContact(robot_planner_);
   
   full_contact_state_->clearContacts();
-  for(auto &contact : full_contact_list_)
+  for(auto &contact : foot_contact_list_)
     full_contact_state_->addContacts(contact); 
 }
 
 
 MagnetoReachabilityPlanner::~MagnetoReachabilityPlanner() {
-  full_contact_list_.clear();
-  delete alfoot_contact_;
-  delete blfoot_contact_;
-  delete arfoot_contact_;
-  delete brfoot_contact_;
-
+  for(auto &contact : foot_contact_list_)
+      delete contact;
   delete robot_planner_;
   delete full_contact_state_;
   delete swing_contact_state_;
@@ -404,7 +385,7 @@ void MagnetoReachabilityPlanner::initialization(const YAML::Node& node){
     exit(0);
   }
 
-  for(auto &contact : full_contact_list_)
+  for(auto &contact : foot_contact_list_)
     ((BodyFramePointContactSpec*)contact)->setFrictionCoeff(mu_);
 
 
@@ -415,15 +396,16 @@ void MagnetoReachabilityPlanner::initialization(const YAML::Node& node){
   moving_foot_idx_ = -1;
 } 
 
-void MagnetoReachabilityPlanner::setMovingFoot(int moving_foot) {
-  moving_foot_idx_ = moving_foot;
+void MagnetoReachabilityPlanner::setMovingFoot(int _moving_foot_idx) {
+  moving_foot_idx_ = _moving_foot_idx;
   // set contact list
   swing_contact_state_->clearContacts();
-  for(auto &contact : full_contact_list_){
-    if( ((BodyFramePointContactSpec*)contact)->getLinkIdx() != moving_foot_idx_ )
-      swing_contact_state_->addContacts(contact);
+  for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+    if(moving_foot_idx_!=foot_idx)
+      swing_contact_state_->addContacts(foot_contact_list_[foot_idx]);
   }
-  std::cout << " setMovingFoor " <<  std::endl;
+
+  std::cout << " setMovingFoot " <<  std::endl;
   swing_contact_state_->FinishContactSet();
 }
 

@@ -43,10 +43,9 @@ void MagnetoStateEstimator::_JointUpdate(MagnetoSensorData* data) {
         curr_qdot_[Magneto::idx_adof[i]] = data->qdot[i];
     }
 
-    sp_->al_rf = data->alf_wrench;
-    sp_->bl_rf = data->blf_wrench;
-    sp_->ar_rf = data->arf_wrench;
-    sp_->br_rf = data->brf_wrench;
+    for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+            sp_->foot_grf[foot_idx] = data->foot_wrench[foot_idx];
+    }
 }
 
 void MagnetoStateEstimator::_ConfigurationAndModelUpdate() {
@@ -57,10 +56,8 @@ void MagnetoStateEstimator::_ConfigurationAndModelUpdate() {
 }
 
 void MagnetoStateEstimator::_FootContactUpdate(MagnetoSensorData* data) {
-
-    sp_->b_arfoot_contact = data->arfoot_contact ? 1:0;
-    sp_->b_brfoot_contact = data->brfoot_contact ? 1:0;
-    sp_->b_alfoot_contact = data->alfoot_contact ? 1:0;
-    sp_->b_blfoot_contact = data->blfoot_contact ? 1:0;
-
+    for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+        sp_->b_foot_contact_list[foot_idx] 
+            = data->b_foot_contact[foot_idx] ? 1:0;
+    }   
 }

@@ -1,11 +1,14 @@
 #include <../my_utils/Configuration.h>
 #include <my_simulator/Dart/Magneto/MagnetoWorldNode.hpp>
+#include <my_pnc/MagnetoPnC/MagnetoDefinition.hpp>
 #include <my_utils/IO/IOUtilities.hpp>
 #include <dart/dart.hpp>
 #include <dart/gui/osg/osg.hpp>
 #include <dart/utils/urdf/urdf.hpp>
 #include <dart/utils/utils.hpp>
 #include <random>
+
+double DEG2RAD = 0.017453293;
 
 void displayJointFrames(const dart::simulation::WorldPtr& world,
                         const dart::dynamics::SkeletonPtr& robot) {
@@ -33,29 +36,15 @@ void displayJointFrames(const dart::simulation::WorldPtr& world,
 
 void displayLinkFrames(const dart::simulation::WorldPtr& world,
                         const dart::dynamics::SkeletonPtr& robot) {
-    // -- DISPLAY WHOLE LINKS
-    // for (std::size_t i = 0; i < robot->getNumBodyNodes(); ++i) {
-    //     dart::dynamics::BodyNode* bn = robot->getBodyNode(i);
-    //         dart::gui::osg::InteractiveFramePtr frame =
-    //             std::make_shared<dart::gui::osg::InteractiveFrame>(
-    //                 bn, bn->getName() + "/frame");
-
-    //         for (const auto type : {dart::gui::osg::InteractiveTool::ANGULAR,
-    //                                 dart::gui::osg::InteractiveTool::PLANAR})
-    //             for (std::size_t i = 0; i < 3; ++i)
-    //                 frame->getTool(type, i)->setEnabled(false);
-
-    //         world->addSimpleFrame(frame);        
-    // }
 
     // -- DISPLAY CERTAIN LINKS
     std::vector<std::string> LinkNametoDisplay;
     LinkNametoDisplay.clear();
-    // LinkNametoDisplay.push_back("AL_foot_link");
+    LinkNametoDisplay.push_back("AL_foot_link");
     // LinkNametoDisplay.push_back("AR_foot_link");
-    LinkNametoDisplay.push_back("BL_foot_link");
-    LinkNametoDisplay.push_back("BR_foot_link");
-    // LinkNametoDisplay.push_back("base_link");
+    // LinkNametoDisplay.push_back("BL_foot_link");
+    // LinkNametoDisplay.push_back("BR_foot_link");
+    LinkNametoDisplay.push_back("base_link");
 
     for(int i=0; i<LinkNametoDisplay.size(); i++) {
         dart::dynamics::BodyNode* bn = robot->getBodyNode(LinkNametoDisplay[i]);
@@ -63,26 +52,26 @@ void displayLinkFrames(const dart::simulation::WorldPtr& world,
             std::make_shared<dart::gui::osg::InteractiveFrame>(
                 bn, bn->getName() + "/frame");
 
-        for (const auto type : {dart::gui::osg::InteractiveTool::ANGULAR,
-                                dart::gui::osg::InteractiveTool::PLANAR})
-            for (std::size_t i = 0; i < 3; ++i)
-                frame->getTool(type, i)->setEnabled(false);
+        for (size_t i = 0; i < 3; ++i)
+            for (size_t j = 0; j < 3; ++j)
+                frame->getTool((dart::gui::osg::InteractiveTool::Type)(i), j)
+                    ->setEnabled(false);
 
         world->addSimpleFrame(frame);
     }
 
+    // -- DISPLAY GROUND LINK
+    // dart::dynamics::SkeletonPtr ground = world->getSkeleton("ground_skeleton");
+    // dart::dynamics::BodyNode* bn = ground->getBodyNode("world_frame");
+    // dart::gui::osg::InteractiveFramePtr frame =
+    // std::make_shared<dart::gui::osg::InteractiveFrame>(bn, bn->getName() + "/frame");
 
-    dart::dynamics::SkeletonPtr ground = world->getSkeleton("ground_skeleton");
-    dart::dynamics::BodyNode* bn = ground->getBodyNode("world_frame");
-    dart::gui::osg::InteractiveFramePtr frame =
-    std::make_shared<dart::gui::osg::InteractiveFrame>(bn, bn->getName() + "/frame");
+    // for (const auto type : {dart::gui::osg::InteractiveTool::ANGULAR,
+    //                         dart::gui::osg::InteractiveTool::PLANAR})
+    //     for (std::size_t i = 0; i < 3; ++i)
+    //         frame->getTool(type, i)->setEnabled(false);
 
-    for (const auto type : {dart::gui::osg::InteractiveTool::ANGULAR,
-                            dart::gui::osg::InteractiveTool::PLANAR})
-        for (std::size_t i = 0; i < 3; ++i)
-            frame->getTool(type, i)->setEnabled(false);
-
-    world->addSimpleFrame(frame);
+    // world->addSimpleFrame(frame);
 }        
 
 class OneStepProgress : public osgGA::GUIEventHandler {
@@ -132,55 +121,6 @@ void _setTransparency(dart::dynamics::SkeletonPtr robot) {
     }
 }
 
-void _printRobotModel(dart::dynamics::SkeletonPtr robot) {
-    // for (int i = 0; i < robot->getNumBodyNodes(); ++i) {
-    // dart::dynamics::BodyNodePtr bn = robot->getBodyNode(i);
-    // std::cout << i << "th" << std::endl;
-    // std::cout << bn->getName() << std::endl;
-    // std::cout << bn->getMass() << std::endl;
-    //}
-
-    // for (int i = 0; i < robot->getNumJoints(); ++i) {
-    // dart::dynamics::Joint* joint = robot->getJoint(i);
-    // std::cout << i << "th" << std::endl;
-    // std::cout << joint->getNumDofs() << std::endl;
-    //}
-
-    for (int i = 0; i < robot->getNumDofs(); ++i) {
-        dart::dynamics::DegreeOfFreedom* dof = robot->getDof(i);
-        std::cout << i << "th" << std::endl;
-        std::cout << "dof name : " << dof->getName() << std::endl;
-        // std::cout << "child body node name and mass : "
-        //<< dof->getChildBodyNode()->getName() << " , "
-        //<< dof->getChildBodyNode()->getMass() << std::endl;
-    }
-
-    // std::cout << "num dof" << std::endl;
-    // std::cout << robot->getNumDofs() << std::endl;
-    // std::cout << robot->getNumJoints() << std::endl;
-    // std::cout << "mass mat row" << std::endl;
-    // std::cout << robot->getMassMatrix().rows() << std::endl;
-    // std::cout << robot->getMassMatrix().cols() << std::endl;
-    // std::cout << "q" << std::endl;
-    // std::cout << robot->getPositions() << std::endl;
-    // std::cout << "robot total mass" << std::endl;
-    // std::cout << robot->getMass() << std::endl;
-    // std::cout << "robot position" << std::endl;
-    // std::cout << robot->getPositions() << std::endl;
-
-    // std::cout << "right" << std::endl;
-    // std::cout << robot->getBodyNode("rightCOP_Frame")
-    //->getWorldTransform()
-    //.translation()
-    //<< std::endl;
-    // std::cout << "left" << std::endl;
-    // std::cout << robot->getBodyNode("leftCOP_Frame")
-    //->getWorldTransform()
-    //.translation()
-    //<< std::endl;
-
-    exit(0);
-}
 
 Eigen::Vector3d _getOrientation(const double& qz, const double& qy, const double& qx, const double& rot_z){
     Eigen::Matrix3d m;
@@ -193,100 +133,59 @@ Eigen::Vector3d _getOrientation(const double& qz, const double& qy, const double
     return m.eulerAngles(2, 1, 0); 
 }
 
-void _setInitialConfiguration(dart::dynamics::SkeletonPtr robot, const Eigen::VectorXd& q_v = Eigen::VectorXd::Zero(6), const double& q_rz=0.0) {
+void _setInitialConfiguration(dart::dynamics::SkeletonPtr robot, 
+                            const Eigen::VectorXd& q_v = Eigen::VectorXd::Zero(6), 
+                            const double& q_rz = 0.0) {
 
     Eigen::VectorXd q = robot->getPositions();
     Eigen::VectorXd base_link_init = q_v;
-
-    int _base_joint = robot->getDof("_base_joint")->getIndexInSkeleton();
-    int AL_coxa_joint = robot->getDof("AL_coxa_joint")->getIndexInSkeleton();
-    int AL_femur_joint = robot->getDof("AL_femur_joint")->getIndexInSkeleton();
-    int AL_tibia_joint = robot->getDof("AL_tibia_joint")->getIndexInSkeleton();
-    int AL_foot_joint_1 = robot->getDof("AL_foot_joint_1")->getIndexInSkeleton();
-    int AL_foot_joint_2 = robot->getDof("AL_foot_joint_2")->getIndexInSkeleton();
-    int AL_foot_joint_3 = robot->getDof("AL_foot_joint_3")->getIndexInSkeleton();
-
-    int AR_coxa_joint = robot->getDof("AR_coxa_joint")->getIndexInSkeleton();
-    int AR_femur_joint = robot->getDof("AR_femur_joint")->getIndexInSkeleton();
-    int AR_tibia_joint = robot->getDof("AR_tibia_joint")->getIndexInSkeleton();
-    int AR_foot_joint_1 = robot->getDof("AR_foot_joint_1")->getIndexInSkeleton();
-    int AR_foot_joint_2 = robot->getDof("AR_foot_joint_2")->getIndexInSkeleton();
-    int AR_foot_joint_3 = robot->getDof("AR_foot_joint_3")->getIndexInSkeleton();
-
-    int BL_coxa_joint = robot->getDof("BL_coxa_joint")->getIndexInSkeleton();
-    int BL_femur_joint = robot->getDof("BL_femur_joint")->getIndexInSkeleton();
-    int BL_tibia_joint = robot->getDof("BL_tibia_joint")->getIndexInSkeleton();
-    int BL_foot_joint_1 = robot->getDof("BL_foot_joint_1")->getIndexInSkeleton();
-    int BL_foot_joint_2 = robot->getDof("BL_foot_joint_2")->getIndexInSkeleton();
-    int BL_foot_joint_3 = robot->getDof("BL_foot_joint_3")->getIndexInSkeleton();
-
-    int BR_coxa_joint = robot->getDof("BR_coxa_joint")->getIndexInSkeleton();
-    int BR_femur_joint = robot->getDof("BR_femur_joint")->getIndexInSkeleton();
-    int BR_tibia_joint = robot->getDof("BR_tibia_joint")->getIndexInSkeleton();
-    int BR_foot_joint_1 = robot->getDof("BR_foot_joint_1")->getIndexInSkeleton();
-    int BR_foot_joint_2 = robot->getDof("BR_foot_joint_2")->getIndexInSkeleton();
-    int BR_foot_joint_3 = robot->getDof("BR_foot_joint_3")->getIndexInSkeleton();
-
-    
-    
-    // std::random_device rd;
-    // std::mt19937 gen(rd());
-
-    // std::uniform_real_distribution<> initRotzRand(-0.5*M_PI, 0.5*M_PI);
-    // std::uniform_real_distribution<> initCoxaRand(-0.05*M_PI, 0.05*M_PI);
-    // std::uniform_real_distribution<> initFemurRand(-0.15*M_PI, 0.15*M_PI);
-
-    // set base link initial position
-    // base_link_init[6] : [x,y,z,rz,ry,rx]
-    // random rz initial position
-    // double rz = initRotzRand(gen);
-
-    double deg2rad = 0.017453293;
     Eigen::Vector3d eulerzyx = _getOrientation(base_link_init[3], 
                                 base_link_init[4], 
                                 base_link_init[5], 
-                                q_rz*deg2rad );
+                                q_rz*DEG2RAD );
    
     base_link_init.tail(3) = eulerzyx;
 
     // set initial configuration
     double coxa_joint_init = 0.0; //2./10.*M_PI_2; // 0.0 
-    double femur_joint_init =  1./10.*M_PI_2; //initFemurRand(gen); // -1./10.*M_PI_2;
+    double femur_joint_init =  -1./10.*M_PI_2; //initFemurRand(gen); // -1./10.*M_PI_2;
     double tibia_joint_init = - M_PI_2 - femur_joint_init;
 
     base_link_init[2] = base_link_init[2] - 0.25*femur_joint_init; // 0.085 // : 1./10.*M_PI_2;
-    std::cout<< "femur_joint_init = "  << femur_joint_init/M_PI_2 << std::endl;
-    my_utils::pretty_print(base_link_init, std::cout, "base_link_init");    
 
+    q.setZero();
     q.segment(0,6) = base_link_init.head(6);   
 
-    q[AL_coxa_joint] = coxa_joint_init; //initCoxaRand(gen);
-    q[AL_femur_joint] = femur_joint_init;
-    q[AL_tibia_joint] = tibia_joint_init;
-    q[AL_foot_joint_1] = 0.0;
-    q[AL_foot_joint_2] = 0.0;
-    q[AL_foot_joint_3] = 0.0;
+    q[MagnetoDoF::AL_coxa_joint] = coxa_joint_init; 
+    q[MagnetoDoF::AL_femur_joint] = femur_joint_init;
+    q[MagnetoDoF::AL_tibia_joint] = tibia_joint_init;
 
-    q[AR_coxa_joint] = coxa_joint_init;  //initCoxaRand(gen);
-    q[AR_femur_joint] = femur_joint_init;
-    q[AR_tibia_joint] = tibia_joint_init;
-    q[AR_foot_joint_1] = 0.0;
-    q[AR_foot_joint_2] = 0.0;
-    q[AR_foot_joint_3] = 0.0;
+    q[MagnetoDoF::AR_coxa_joint] = coxa_joint_init;  
+    q[MagnetoDoF::AR_femur_joint] = femur_joint_init;
+    q[MagnetoDoF::AR_tibia_joint] = tibia_joint_init;
 
-    q[BL_coxa_joint] = coxa_joint_init;  //initCoxaRand(gen);
-    q[BL_femur_joint] = femur_joint_init;
-    q[BL_tibia_joint] = tibia_joint_init;
-    q[BL_foot_joint_1] = 0.0;
-    q[BL_foot_joint_2] = 0.0;
-    q[BL_foot_joint_3] = 0.0;
+    q[MagnetoDoF::BL_coxa_joint] = coxa_joint_init;  
+    q[MagnetoDoF::BL_femur_joint] = femur_joint_init;
+    q[MagnetoDoF::BL_tibia_joint] = tibia_joint_init;
 
-    q[BR_coxa_joint] = coxa_joint_init;  //initCoxaRand(gen);
-    q[BR_femur_joint] = femur_joint_init;
-    q[BR_tibia_joint] = tibia_joint_init;
-    q[BR_foot_joint_1] = 0.0;
-    q[BR_foot_joint_2] = 0.0;
-    q[BR_foot_joint_3] = 0.0;
+    q[MagnetoDoF::BR_coxa_joint] = coxa_joint_init;  
+    q[MagnetoDoF::BR_femur_joint] = femur_joint_init;
+    q[MagnetoDoF::BR_tibia_joint] = tibia_joint_init;
+
+    q[MagnetoDoF::CL_coxa_joint] = coxa_joint_init;  
+    q[MagnetoDoF::CL_femur_joint] = femur_joint_init;
+    q[MagnetoDoF::CL_tibia_joint] = tibia_joint_init;
+
+    q[MagnetoDoF::CR_coxa_joint] = coxa_joint_init;  
+    q[MagnetoDoF::CR_femur_joint] = femur_joint_init;
+    q[MagnetoDoF::CR_tibia_joint] = tibia_joint_init;
+
+    q[MagnetoDoF::AL_coxa_joint] = 1./10.*M_PI_2;
+    q[MagnetoDoF::AR_coxa_joint] = 2./10.*M_PI_2;
+    q[MagnetoDoF::BL_coxa_joint] = -2./10.*M_PI_2;
+    q[MagnetoDoF::BR_coxa_joint] = -3./10.*M_PI_2;
+    q[MagnetoDoF::CL_coxa_joint] = -2./10.*M_PI_2;
+    q[MagnetoDoF::CR_coxa_joint] = 2./10.*M_PI_2;
 
     robot->setPositions(q);
 }
@@ -342,8 +241,8 @@ int main(int argc, char** argv) {
     dart::dynamics::SkeletonPtr ground = urdfLoader.parseSkeleton(
         ground_file);
     dart::dynamics::SkeletonPtr robot = urdfLoader.parseSkeleton(
-        THIS_COM "robot_description/Robot/Magneto/MagnetoSim_Dart.urdf");
-
+        // THIS_COM "robot_description/Robot/Magneto/MagnetoSim_Dart.urdf");
+        THIS_COM "robot_description/Robot/Magneto/magneto_hexa.urdf");        
     world->addSkeleton(ground);
     world->addSkeleton(robot);
 
@@ -390,11 +289,6 @@ int main(int argc, char** argv) {
     // _setTransparencye(robot);
 
     // =========================================================================
-    // Print Model Info
-    // =========================================================================
-    // _printRobotModel(robot);
-
-    // =========================================================================
     // Wrap a worldnode
     // =========================================================================
     osg::ref_ptr<MagnetoWorldNode> node;
@@ -427,10 +321,11 @@ int main(int argc, char** argv) {
     // viewer.getCameraManipulator()->setHomePosition(
     //     ::osg::Vec3(5.14, 2.28, 3.0), ::osg::Vec3(0.0, 0.2, 0.5),
     //     ::osg::Vec3(0.0, 0.0, 1.0)); // eye, center, up
-    std::cout<< "view" << std::endl;
-    std::cout<< view_eye << std::endl;
-    std::cout<< view_center << std::endl;
-    std::cout<< view_up << std::endl;
+
+    // std::cout<< "view" << std::endl;
+    // std::cout<< view_eye.transpose() << std::endl;
+    // std::cout<< view_center.transpose() << std::endl;
+    // std::cout<< view_up.transpose() << std::endl;
 
     viewer.getCameraManipulator()->setHomePosition(
             ::osg::Vec3(view_eye[0], view_eye[1], view_eye[2]),

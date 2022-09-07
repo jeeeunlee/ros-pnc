@@ -12,6 +12,7 @@ class InterruptLogic {
     b_button_pressed = false;   
   }
   virtual void setFlags(uint16_t key) {b_button_pressed = true; pressed_button = key;};
+  virtual void setInterruptRoutine(const YAML::Node& motion_cfg) {};
 // bool b_interrupt_button_p;
  protected:
   bool b_button_pressed;

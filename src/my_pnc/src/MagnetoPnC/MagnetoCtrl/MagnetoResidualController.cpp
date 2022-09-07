@@ -57,36 +57,27 @@ void MagnetoResidualController::_PreProcessing_Command() {
   wbrmc_param_->F_magnetic_ = - taf_container_->F_magnetic_;
   wbrmc_param_->F_residual_ = - taf_container_->w_res_ * taf_container_->F_residual_;
   wbrmc_param_->J_residual_ = taf_container_->J_residual_;
-  
-  //0112 my_utils::saveVector(wbrmc_param_->F_residual_,"wbc_F_residual");
+;
   Eigen::VectorXd wrf = wbrmc_param_->W_rf_.head(6);
-  //0112 my_utils::saveVector(wrf,"W_rf_");
   // my_utils::pretty_print(wbrmc_param_->W_qddot_, std::cout, "W_qddot_");
   // my_utils::pretty_print(wbrmc_param_->W_xddot_, std::cout, "W_xddot_");
   // my_utils::pretty_print(wbrmc_param_->W_rf_, std::cout, "W_rf_");
   // my_utils::pretty_print(wbrmc_param_->F_magnetic_, std::cout, "F_magnetic_");
 
-  // Update task and contact list pointers from container object
-  for (int i = 0; i < taf_container_->task_list_.size(); i++) {
-    task_list_.push_back(taf_container_->task_list_[i]);
+  // Update task pointers from container object
+  for (int i = 0; i < MAGNETO_TASK::n_task; i++) {
+    if(taf_container_->b_task_list_[i])
+      task_list_.push_back(taf_container_->task_container_[i]);
   }
-  for (int i = 0; i < taf_container_->contact_list_.size(); i++) {
-    contact_list_.push_back(taf_container_->contact_list_[i]);
+  // Update and contact list and update Contact Spec
+  for (int i = 0; i < Magneto::n_leg; i++) {
+    if(taf_container_->b_feet_contact_list_[i]){
+      contact_list_.push_back(taf_container_->contact_container_[i]);
+      taf_container_->contact_container_[i]->updateContactSpec();
+    }      
   }
-
   // std::cout<<" task size = " << task_list_.size() << std::endl;
   // std::cout<<" contact size = " << contact_list_.size() << std::endl;
-
-  // Update Task Jacobians and commands
-  // for (int i = 0; i < task_list_.size(); i++) {
-  //   task_list_[i]->updateJacobians();
-  //   task_list_[i]->computeCommands();
-  // }
-
-  // Update Contact Spec
-  for (int i = 0; i < contact_list_.size(); i++) {
-    contact_list_[i]->updateContactSpec();
-  }
 }
 
 void MagnetoResidualController::getCommand(void* _cmd) {
@@ -133,7 +124,12 @@ void MagnetoResidualController::getCommand(void* _cmd) {
   ((MagnetoCommand*)_cmd)->jtrq = jtrq_des_;
   ((MagnetoCommand*)_cmd)->q = sp_->getActiveJointValue(jpos_des_);
   ((MagnetoCommand*)_cmd)->qdot = sp_->getActiveJointValue(jvel_des_); 
-  ((MagnetoCommand*)_cmd)->b_magnetism_map = taf_container_->b_magnetism_map_;
+
+  for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+    ((MagnetoCommand*)_cmd)->b_foot_magnetism_on[foot_idx]
+      = taf_container_->b_magnetism_list_[foot_idx];
+  }
+
 
 
   // _PostProcessing_Command(); // unset task and contact

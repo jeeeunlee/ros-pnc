@@ -59,17 +59,24 @@ void MagnetoGoalPlanner::_setDesiredFootPosition(MotionCommand _motion_command) 
   _UpdateConfiguration(q_);
   _InitCostFunction();
 
+
   // assume one foot is moving
   int moving_foot_idx;
   MOTION_DATA motion_data;
-  _motion_command.get_foot_motion_command(motion_data, moving_foot_idx);
+  bool bmotion = _motion_command.get_foot_motion_command(motion_data, moving_foot_idx);
 
   POSE_DATA zero_pose = POSE_DATA();
-  for(auto &constraint : constraint_list){
-    if(constraint->getLinkIdx() == moving_foot_idx) 
-      constraint->setDesired(motion_data.pose);
-    else
-      constraint->setDesired(zero_pose);    
+  if(moving_foot_idx<0 || !bmotion){
+    for(auto &constraint : constraint_list)
+      constraint->setDesired(zero_pose);
+  }
+  else{
+    for(auto &constraint : constraint_list){
+      if(constraint->getLinkIdx() == MagnetoFoot::LinkIdx[moving_foot_idx])
+        constraint->setDesired(motion_data.pose);
+      else
+        constraint->setDesired(zero_pose);    
+    }  
   }
 }
 
@@ -95,23 +102,13 @@ void MagnetoGoalPlanner::computeGoal(MotionCommand &_motion_command) {
     // compute optimal delq
     _UpdateDelQ();
     // update q
-    // if(iter%20 == 1)
-    // {
-    //   std::cout<<"iter(" << iter << "), err=" << err << std::endl;
-    //   my_utils::pretty_print(q_, std::cout, "q");
-    //   my_utils::pretty_print(delq_, std::cout, "delq");
-    //   my_utils::pretty_print(ceq_, std::cout, "ceq_");
-    // }
-
     q_ += delq_;
     err = delq_.norm();
   }
 
-  q_goal_ = q_;
-
-  // std::cout<<"iter(" << iter << "), err=" << err << std::endl;
-  // my_utils::pretty_print(q_, std::cout, "q");
-  // my_utils::pretty_print(ceq_, std::cout, "ceq_");
+  std::cout<<"iter(" << iter << "), err=" << err << std::endl;
+  my_utils::pretty_print(q_, std::cout, "q");
+  my_utils::pretty_print(ceq_, std::cout, "ceq_");
 
   // add com goal
   MOTION_DATA motion_data;
@@ -121,6 +118,17 @@ void MagnetoGoalPlanner::computeGoal(MotionCommand &_motion_command) {
   motion_data.pose.is_bodyframe = false;
   motion_data.swing_height = 0.0;
   _motion_command.add_motion(-1, motion_data);
+
+  // add com goal
+  // MOTION_DATA motion_data;
+  // _motion_command.get_foot_motion_command(motion_data);
+  // motion_data.pose.pos = motion_data.pose.pos/Magneto::n_leg;
+  // motion_data.pose.is_bodyframe = true;
+  // motion_data.swing_height = 0.0;
+  // _motion_command.add_motion(-1, motion_data);
+
+  // set q goal
+  q_goal_ = q_;
 }
 
 void MagnetoGoalPlanner::_UpdateDelQ() {
@@ -226,14 +234,14 @@ void MagnetoGoalPlanner::_UpdateConfiguration(
 void MagnetoGoalPlanner::_InitCostFunction() {
   // J(q) = (q2+q3+pi/2)^2 + a*(q3+pi/2)^2 + b*(base_ori_del)^2 + w*(coxa_del)^2 + r*(gimbal)^2
   // J(q) = (q2+q3+pi/2)^2 + a*(q3+pi/2)^2 + b*(base_ori_del)^2 + w*(coxa)^2 + r*(gimbal)^2 
-  double alpha = 1.;
+  
   // COXA:1, FEMUR:2, TIBIA:3
   num_joint_dof_ = robot_->getNumDofs();
   A_ = Eigen::MatrixXd::Zero(num_joint_dof_,num_joint_dof_);
   b_ = Eigen::VectorXd::Zero(num_joint_dof_);
 
   // base ori
-  double beta = 0.3;
+  double beta = 2.0;
   q_ = robot_->getQ();
   A_(MagnetoDoF::baseRotZ, MagnetoDoF::baseRotZ) = beta;
   A_(MagnetoDoF::baseRotY, MagnetoDoF::baseRotY) = beta;
@@ -243,7 +251,8 @@ void MagnetoGoalPlanner::_InitCostFunction() {
   b_(MagnetoDoF::_base_joint) = -2.0*beta*q_(MagnetoDoF::_base_joint);
 
   // leg 
-  double omega = 0.5;
+  double alpha = 2.0;
+  double omega = 2.0;
   for(int ii(0); ii<num_joint_dof_; ++ii) {
     // active
     if(_checkJoint(ii,MagnetoJointType::COXA)) {
@@ -254,22 +263,10 @@ void MagnetoGoalPlanner::_InitCostFunction() {
       b_(ii) = M_PI;
       A_(ii,ii) = 1.;
       A_(ii,ii+1) = 1.;
-      // for(int jj(0); jj<num_joint_dof_; ++jj) {
-      //   if(_checkJoint(jj, MagnetoJointType::FEMUR))
-      //     A_(ii,jj) = 1.;
-      //   if(_checkJoint(jj, MagnetoJointType::TIBIA))
-      //     A_(ii,jj) = 1.;
-      // }
     } else if(_checkJoint(ii, MagnetoJointType::TIBIA)) {
       b_(ii) = (1.+alpha)*M_PI;
       A_(ii,ii) = 1.+ alpha;
       A_(ii,ii-1) = 1.;
-      // for(int jj(0); jj<num_joint_dof_; ++jj) {
-      //   if(_checkJoint(jj, MagnetoJointType::TIBIA))
-      //     A_(ii,jj) = 1. + alpha;
-      //   if(_checkJoint(jj, MagnetoJointType::FEMUR))
-      //     A_(ii,jj) = 1.;
-      // }
     }
 
     // passive
@@ -291,42 +288,54 @@ bool MagnetoGoalPlanner::_checkJoint(int joint_idx, MagnetoJointType joint_type)
     if( joint_idx==MagnetoDoF::AL_coxa_joint ||
         joint_idx==MagnetoDoF::AR_coxa_joint ||
         joint_idx==MagnetoDoF::BL_coxa_joint ||
-        joint_idx==MagnetoDoF::BR_coxa_joint)
+        joint_idx==MagnetoDoF::BR_coxa_joint ||
+        joint_idx==MagnetoDoF::CL_coxa_joint ||
+        joint_idx==MagnetoDoF::CR_coxa_joint)
       return true;
     break;
     case MagnetoJointType::FEMUR:
     if( joint_idx==MagnetoDoF::AL_femur_joint ||
         joint_idx==MagnetoDoF::AR_femur_joint ||
         joint_idx==MagnetoDoF::BL_femur_joint ||
-        joint_idx==MagnetoDoF::BR_femur_joint)
+        joint_idx==MagnetoDoF::BR_femur_joint ||
+        joint_idx==MagnetoDoF::CL_femur_joint ||
+        joint_idx==MagnetoDoF::CR_femur_joint)
       return true;
     break;
     case MagnetoJointType::TIBIA:
     if( joint_idx==MagnetoDoF::AL_tibia_joint ||
         joint_idx==MagnetoDoF::AR_tibia_joint ||
         joint_idx==MagnetoDoF::BL_tibia_joint ||
-        joint_idx==MagnetoDoF::BR_tibia_joint)
+        joint_idx==MagnetoDoF::BR_tibia_joint ||
+        joint_idx==MagnetoDoF::CL_tibia_joint ||
+        joint_idx==MagnetoDoF::CR_tibia_joint)
       return true;
     break;
     case MagnetoJointType::FOOT1:
     if( joint_idx==MagnetoDoF::AL_foot_joint_1 ||
         joint_idx==MagnetoDoF::AR_foot_joint_1 ||
         joint_idx==MagnetoDoF::BL_foot_joint_1 ||
-        joint_idx==MagnetoDoF::BR_foot_joint_1)
+        joint_idx==MagnetoDoF::BR_foot_joint_1 ||
+        joint_idx==MagnetoDoF::CL_foot_joint_1 ||
+        joint_idx==MagnetoDoF::CR_foot_joint_1)
       return true;
     break;
     case MagnetoJointType::FOOT2:
     if( joint_idx==MagnetoDoF::AL_foot_joint_2 ||
         joint_idx==MagnetoDoF::AR_foot_joint_2 ||
         joint_idx==MagnetoDoF::BL_foot_joint_2 ||
-        joint_idx==MagnetoDoF::BR_foot_joint_2)
+        joint_idx==MagnetoDoF::BR_foot_joint_2 ||
+        joint_idx==MagnetoDoF::CL_foot_joint_2 ||
+        joint_idx==MagnetoDoF::CR_foot_joint_2)
       return true;
     break;
     case MagnetoJointType::FOOT3:
     if( joint_idx==MagnetoDoF::AL_foot_joint_3 ||
         joint_idx==MagnetoDoF::AR_foot_joint_3 ||
         joint_idx==MagnetoDoF::BL_foot_joint_3 ||
-        joint_idx==MagnetoDoF::BR_foot_joint_3)
+        joint_idx==MagnetoDoF::BR_foot_joint_3 ||
+        joint_idx==MagnetoDoF::CL_foot_joint_3 ||
+        joint_idx==MagnetoDoF::CR_foot_joint_3)
       return true;
     break;
   }

@@ -19,44 +19,33 @@ MagnetoTrajectoryManager::MagnetoTrajectoryManager(MagnetoControlArchitecture* _
 
     // contact
     double mu_ = 0.7; // will be updated later
-    alfoot_contact_ = new BodyFramePointContactSpec(robot_manager_,
-                                MagnetoBodyNode::AL_foot_link, mu_);
-    blfoot_contact_ = new BodyFramePointContactSpec(robot_manager_,
-                                MagnetoBodyNode::BL_foot_link, mu_);                          
-    arfoot_contact_ = new BodyFramePointContactSpec(robot_manager_,
-                                MagnetoBodyNode::AR_foot_link, mu_);
-    brfoot_contact_ = new BodyFramePointContactSpec(robot_manager_,
-                                MagnetoBodyNode::BR_foot_link, mu_);
-
-    foot_contact_map_ = {
-        {MagnetoBodyNode::AL_foot_link,  alfoot_contact_},
-        {MagnetoBodyNode::AR_foot_link,  arfoot_contact_},
-        {MagnetoBodyNode::BL_foot_link,  blfoot_contact_},
-        {MagnetoBodyNode::BR_foot_link,  brfoot_contact_}
-    };
+    for(int foot_idx=0; foot_idx<Magneto::n_leg;++foot_idx){
+        foot_contact_list_[foot_idx] = 
+            new BodyFramePointContactSpec(robot_manager_,
+                                MagnetoFoot::LinkIdx[foot_idx], mu_);
+    }   
 
     joint_task_ = 
       new BasicTask(robot_manager_, BasicTaskType::FULLJOINT, Magneto::n_dof);
 
     // Set Foot Motion Tasks
-    alfoot_pos_task_ =
-        new BasicTask(robot_manager_, BasicTaskType::LINKXYZ, 3, MagnetoBodyNode::AL_foot_link);
-    arfoot_pos_task_ =
-        new BasicTask(robot_manager_, BasicTaskType::LINKXYZ, 3, MagnetoBodyNode::AR_foot_link);
-    blfoot_pos_task_ =
-        new BasicTask(robot_manager_, BasicTaskType::LINKXYZ, 3, MagnetoBodyNode::BL_foot_link);
-    brfoot_pos_task_ =
-        new BasicTask(robot_manager_, BasicTaskType::LINKXYZ, 3, MagnetoBodyNode::BR_foot_link);
-
-    foot_task_map_ = { 
-        {MagnetoBodyNode::AL_foot_link,  alfoot_pos_task_},
-        {MagnetoBodyNode::AR_foot_link,  arfoot_pos_task_},
-        {MagnetoBodyNode::BL_foot_link,  blfoot_pos_task_},
-        {MagnetoBodyNode::BR_foot_link,  brfoot_pos_task_}
-    };
+    for(int foot_idx=0; foot_idx<Magneto::n_leg;++foot_idx){
+        foot_task_list_[foot_idx] = 
+            new BasicTask(robot_manager_, BasicTaskType::LINKXYZ, 3,
+                            MagnetoFoot::LinkIdx[foot_idx]);
+    }
 }
 
-MagnetoTrajectoryManager::~MagnetoTrajectoryManager() {}
+MagnetoTrajectoryManager::~MagnetoTrajectoryManager() {
+    delete joint_task_;
+    delete robot_manager_;
+    for(auto &task : foot_task_list_)
+        delete task;
+    for(auto &contact : foot_contact_list_)
+        delete contact;
+
+
+}
 
 bool MagnetoTrajectoryManager::ParameterizeTrajectory(MotionCommand& motion_cmd,
                                                     const double& x_ratio_height, 
@@ -87,10 +76,6 @@ bool MagnetoTrajectoryManager::ParameterizeTrajectory(MotionCommand& motion_cmd,
     // 1. swing foot trajectory
     foot_motion_data_.motion_period = t_swing;    
     motion_cmd.clear_and_add_motion(moving_foot_idx_,foot_motion_data_);
-    foot_pos_task_ = foot_task_map_[moving_foot_idx_];
-
-    std::cout<<" Traj Manager for kin, moving foot idx =  " << moving_foot_idx_ << ", footTask idx = " << ((BasicTask*)(foot_pos_task_))->getLinkIdx() << std::endl;
-
 
     ctrl_arch_->foot_trajectory_manager_
                 ->setFootPosTrajectory(t1_ , &motion_cmd, x_ratio_height);
@@ -122,9 +107,9 @@ void MagnetoTrajectoryManager::update(const double& curr_time,
         updateContact(-1); //full contact
         is_swing = false;
     }else if(curr_time < t2_){ // swing
-        ctrl_arch_->foot_trajectory_manager_->updateTask(curr_time, foot_pos_task_); 
+        ctrl_arch_->foot_trajectory_manager_->updateTask(curr_time, foot_task_list_[moving_foot_idx_]); 
         ctrl_arch_->joint_trajectory_manager_->updateTask(curr_time, joint_task_);
-        task_list_.push_back(foot_pos_task_);
+        task_list_.push_back(foot_task_list_[moving_foot_idx_]);
         task_list_.push_back(joint_task_);
         updateContact(moving_foot_idx_); // swing contact
         is_swing = true;
@@ -147,12 +132,8 @@ void MagnetoTrajectoryManager::update(const double& curr_time,
           kin_wbc_->FindFullConfiguration(q_curr, task_list_, contact_list_, 
                                         q, dotq, ddotq); 
     }
-    Eigen::VectorXd f_err = foot_pos_task_->pos_err;
-    // my_utils::pretty_print(f_err, std::cout, "f_err");
-    // std::cout<<"here 2 : foot_pos_task_.getIdx =  " << ((BasicTask*)foot_pos_task_)->getLinkIdx() << ", moving_foot_idx_=" << moving_foot_idx_ << std::endl;
-
-    robot_manager_->updateSystem(q, dotq, false);
-    
+    Eigen::VectorXd f_err = foot_task_list_[moving_foot_idx_]->pos_err;
+    robot_manager_->updateSystem(q, dotq, false);    
 }
 
 // void MagnetoTrajectoryManager::updateDdotQ(const Eigen::VectorXd& dotq_des_next,
@@ -170,10 +151,8 @@ void MagnetoTrajectoryManager::update(const double& curr_time,
 void MagnetoTrajectoryManager::updateContact(int moving_foot_idx){
     // contact
     contact_list_.clear();
-    for(auto it : foot_contact_map_){
-        it.second->updateContactSpec();
-        if(moving_foot_idx!=it.first)
-            contact_list_.push_back(it.second);
+    for(int foot_idx=0; foot_idx<Magneto::n_leg;++foot_idx){
+        if(moving_foot_idx!=foot_idx)
+        contact_list_.push_back(foot_contact_list_[foot_idx]);
     }
-
 }

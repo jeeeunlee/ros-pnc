@@ -1,8 +1,9 @@
 #include <my_pnc/TrajectoryManager/CoMTrajectoryManager.hpp>
 
-CoMTrajectoryManager::CoMTrajectoryManager(RobotSystem* _robot)
+CoMTrajectoryManager::CoMTrajectoryManager(RobotSystem* _robot, Task* _com_task)
                         : TrajectoryManagerBase(_robot) {
   my_utils::pretty_constructor(2, "TrajectoryManager: CoM");
+  com_task_=_com_task;
 
   // Initialize member variables
   com_pos_des_.setZero();
@@ -14,9 +15,9 @@ CoMTrajectoryManager::CoMTrajectoryManager(RobotSystem* _robot)
 
 CoMTrajectoryManager::~CoMTrajectoryManager() {}
 
-void CoMTrajectoryManager::updateTask(const double&  current_time, Task* _com_pos_task) {
+void CoMTrajectoryManager::updateTask(const double&  current_time) {
   updateCoMTrajectory(current_time);
-  _com_pos_task->updateTask(com_pos_des_, 
+  com_task_->updateTask(com_pos_des_, 
                             com_vel_des_, 
                             com_acc_des_);
 }
@@ -24,7 +25,7 @@ void CoMTrajectoryManager::updateTask(const double&  current_time, Task* _com_po
 // Initialize the swing com trajectory
 void CoMTrajectoryManager::setCoMTrajectory(double _start_time,
                               MotionCommand* _motion_cmd) {
-  
+  std::cout<<"setCoMTrajectory" <<std::endl;
   MOTION_DATA motion_cmd_data = MOTION_DATA();
   Eigen::VectorXd pos_dev_b;
   if(_motion_cmd->get_com_motion_command(motion_cmd_data)){

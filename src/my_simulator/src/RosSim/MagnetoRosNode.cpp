@@ -1,4 +1,5 @@
 #include <my_simulator/RosSim/MagnetoRosNode.hpp>
+#include <my_pnc/MagnetoPnC/MagnetoDefinition.hpp>
 
 
 MagnetoRosNode::MagnetoRosNode(ros::NodeHandle& nh, const dart::simulation::WorldPtr& _world)
@@ -22,10 +23,9 @@ MagnetoRosNode::MagnetoRosNode(ros::NodeHandle& nh, const dart::simulation::Worl
 
     // contact dinstance
     contact_threshold_ = 0.005;
-    contact_distance_[MagnetoBodyNode::AL_foot_link] = 0.05;
-    contact_distance_[MagnetoBodyNode::BL_foot_link] = 0.05;
-    contact_distance_[MagnetoBodyNode::AR_foot_link] = 0.05;
-    contact_distance_[MagnetoBodyNode::BR_foot_link] = 0.05;
+    for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+        contact_distance_[foot_idx] = 0.05;
+    }
 
     trq_cmd_ = Eigen::VectorXd::Zero(n_dof_);
 
@@ -38,10 +38,7 @@ MagnetoRosNode::MagnetoRosNode(ros::NodeHandle& nh, const dart::simulation::Worl
                                     ->getWorldTransform().linear();
 
     // ---- SET control parameters %% motion script
-    run_mode_ = ((MagnetoInterface*)interface_)->getRunMode();
     SetParams_();
-    ReadMotions_();
-
 
     // ---- SET TORQUE LIMIT
     trq_lb_ = Eigen::VectorXd::Constant(n_dof_, -torque_limit_);
@@ -171,20 +168,10 @@ void MagnetoRosNode::customPreStep() {
     robot_->setForces(trq_cmd_);   
 
     // SAVE DATA
-    //0112 my_utils::saveVector(sensor_data_->alf_wrench, "alf_wrench");
-    //0112 my_utils::saveVector(sensor_data_->blf_wrench, "blf_wrench");
-    //0112 my_utils::saveVector(sensor_data_->arf_wrench, "arf_wrench");
-    //0112 my_utils::saveVector(sensor_data_->brf_wrench, "brf_wrench");
-
     Eigen::VectorXd trq_act_cmd = Eigen::VectorXd::Zero(Magneto::n_adof);
     for(int i=0; i< Magneto::n_adof; ++i)
         trq_act_cmd[i] = trq_cmd_[Magneto::idx_adof[i]];
     
-    //0112 my_utils::saveVector(trq_act_cmd, "trq_fb");
-    //0112 my_utils::saveVector(command_->jtrq, "trq_ff");
-
-    //0112 my_utils::saveVector(command_->q, "q_cmd");
-    //0112 my_utils::saveVector(sensor_data_->q, "q_sen");
 
 
     count_++;
@@ -214,24 +201,20 @@ void MagnetoRosNode::ApplyMagneticForce()  {
                             = Eigen::Quaternion<double>( 
                                 ground_->getBodyNode("ground_link")
                                         ->getWorldTransform().linear() );
-    for(auto it : command_->b_magnetism_map) {
-        if( it.second ) {
+    for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+        if(command_->b_foot_magnetism_on[foot_idx]){
             force[2] = - magnetic_force_;
-        } else {
-            // distance 0->1 , infinite->0
-            distance_ratio = distance_constant / (contact_distance_[it.first] + distance_constant);
+        }
+        else{
+            distance_ratio = distance_constant / (contact_distance_[foot_idx] + distance_constant);
             distance_ratio = distance_ratio*distance_ratio;
             force[2] = - distance_ratio*(residual_magnetism_/100.)*magnetic_force_;
-            // std::cout<<"res: dist = "<<contact_distance_[it.first]<<", distance_ratio=" << distance_ratio << std::endl;
-        }       
+        }
         force_w = quat_ground.toRotationMatrix() * force;
-        robot_->getBodyNode(it.first)->addExtForce(force, location, is_force_local);
-        // robot_->getBodyNode(it.first)->addExtForce(force_w, location, is_force_global);
-
-        //0112 my_utils::saveVector(force, "force_" + robot_->getBodyNode(it.first)->getName() );
-        // std::cout<< robot_->getBodyNode(it.first)->getName().c_str()
-        //          << " : " << force_w.transpose() << std::endl;
-        // std::cout << "--------------------------" << std::endl;
+        robot_->getBodyNode(MagnetoFoot::LinkIdx[foot_idx])
+                ->addExtForce(force, location, is_force_local);
+        // robot_->getBodyNode(MagnetoFoot::LinkIdx[foot_idx])-
+        //          >addExtForce(force_w, location, is_force_global); 
     }
 }
 
@@ -328,67 +311,17 @@ void MagnetoRosNode::PlotFootStepResult_() {
 void MagnetoRosNode::SetParams_() {
     try {
         YAML::Node simulation_cfg;
-        if(run_mode_==RUN_MODE::STATICWALK)
-            simulation_cfg = YAML::LoadFile(THIS_COM "config/Magneto/SIMULATIONWALK.yaml");
-        else
-        {
-            std::cout<<"unavailable run mode"<<std::endl;
-            exit(0);
-        }
-            
+        simulation_cfg = YAML::LoadFile(THIS_COM "config/Magneto/SIMULATIONWALK.yaml");            
 
         my_utils::readParameter(simulation_cfg, "servo_rate", servo_rate_);
         my_utils::readParameter(simulation_cfg["control_configuration"], "kp", kp_);
         my_utils::readParameter(simulation_cfg["control_configuration"], "kd", kd_);
         my_utils::readParameter(simulation_cfg["control_configuration"], "torque_limit", torque_limit_);
-        my_utils::readParameter(simulation_cfg, "plot_result", b_plot_result_);
-        my_utils::readParameter(simulation_cfg, "motion_script", motion_file_name_);  
+        my_utils::readParameter(simulation_cfg, "plot_result", b_plot_result_);        
 
         // setting magnetic force
         my_utils::readParameter(simulation_cfg, "magnetic_force", magnetic_force_);  
         my_utils::readParameter(simulation_cfg, "residual_magnetism", residual_magnetism_);  
-    } catch (std::runtime_error& e) {
-        std::cout << "Error reading parameter [" << e.what() << "] at file: ["
-                  << __FILE__ << "]" << std::endl
-                  << std::endl;
-    }
-}
-
-void MagnetoRosNode::ReadMotions_() {
-
-    std::ostringstream motion_file_name;    
-    motion_file_name << THIS_COM << motion_file_name_;
-
-    int num_motion;  
-
-    try { 
-        YAML::Node motion_cfg = YAML::LoadFile(motion_file_name.str());
-        my_utils::readParameter(motion_cfg, "num_motion", num_motion);
-        for(int i(0); i<num_motion; ++i){
-            int link_idx;
-            MOTION_DATA md_temp;
-
-            Eigen::VectorXd pos_temp;
-            Eigen::VectorXd ori_temp;
-            bool is_bodyframe;
-
-            std::ostringstream stringStream;
-            stringStream << "motion" << i;
-            std::string conf = stringStream.str();    
-
-            my_utils::readParameter(motion_cfg[conf], "foot", link_idx);
-            my_utils::readParameter(motion_cfg[conf], "duration", md_temp.motion_period);
-            my_utils::readParameter(motion_cfg[conf], "swing_height", md_temp.swing_height);
-            my_utils::readParameter(motion_cfg[conf], "pos",pos_temp);
-            my_utils::readParameter(motion_cfg[conf], "ori", ori_temp);
-            my_utils::readParameter(motion_cfg[conf], "b_relative", is_bodyframe);
-            md_temp.pose = POSE_DATA(pos_temp, ori_temp, is_bodyframe);
-            // interface_->(WalkingInterruptLogic*)interrupt_
-            //             ->motion_command_script_list_
-            //             .push_back(MotionCommand(link_idx,md_temp));
-            ((MagnetoInterface*)interface_)->AddScriptWalkMotion(link_idx,md_temp);
-        }
-
     } catch (std::runtime_error& e) {
         std::cout << "Error reading parameter [" << e.what() << "] at file: ["
                   << __FILE__ << "]" << std::endl
@@ -416,41 +349,27 @@ void MagnetoRosNode::UpdateContactDistance_() {
     Eigen::VectorXd brf = p_gw + R_gw*robot_->getBodyNode("BR_foot_link")
                              ->getWorldTransform().translation();
 
-    contact_distance_[MagnetoBodyNode::AL_foot_link] = fabs(alf[2]);
-    contact_distance_[MagnetoBodyNode::BL_foot_link] = fabs(blf[2]);
-    contact_distance_[MagnetoBodyNode::AR_foot_link] = fabs(arf[2]);
-    contact_distance_[MagnetoBodyNode::BR_foot_link] = fabs(brf[2]);
+    Eigen::VectorXd dist;
+    for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+        dist = p_gw + R_gw*robot_->getBodyNode(MagnetoFoot::LinkIdx[foot_idx])
+                                ->getWorldTransform().translation();
+        contact_distance_[foot_idx]= fabs(dist[2]);
+    } 
 }
 
 
 void MagnetoRosNode::UpdateContactSwitchData_() {
     
     // TODO : distance base -> force base ?  
-    sensor_data_->alfoot_contact 
-        = contact_distance_[MagnetoBodyNode::AL_foot_link] < contact_threshold_;
-    sensor_data_->blfoot_contact
-        = contact_distance_[MagnetoBodyNode::BL_foot_link] < contact_threshold_;    
-    sensor_data_->arfoot_contact
-        = contact_distance_[MagnetoBodyNode::AR_foot_link] < contact_threshold_;
-    sensor_data_->brfoot_contact
-        = contact_distance_[MagnetoBodyNode::BR_foot_link] < contact_threshold_;
+    // TODO : distance base -> force base ? 
+    for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+        sensor_data_->b_foot_contact[foot_idx] = 
+            contact_distance_[MagnetoFoot::LinkIdx[foot_idx]] < contact_threshold_;
+    }
 
-    // static bool first_contact = false;
-    // if(!first_contact) {
-    //     if(alfoot_contact || blfoot_contact || arfoot_contact || brfoot_contact) {
-    //         Eigen::Vector3d p_com = robot_->getCOM();    
-    //         std::cout<< count_<< " / first_contact! com position :" << p_com(0) << "," << p_com(1) << "," << p_com(2) << std::endl;
+    // footname_contact_onoff
+    // my_utils::saveValue((double)(sensor_data_->b_foot_contact[foot_idx]), "");  
 
-    //         Eigen::Vector3d p_base_link = robot_->getBodyNode("base_link")->getTransform().translation();    
-    //         std::cout<< "first_contact! p_base_link position :" << p_base_link(0) << "," << p_base_link(1) << "," << p_base_link(2) << std::endl;
-
-    //         // std::cout<< "wrench" << sensor_data_->alf_wrench(2) << ","  << sensor_data_->arf_wrench(2) << ","  
-    //         //                         << sensor_data_->blf_wrench(2) << "," << sensor_data_->brf_wrench(2) << std::endl;
-    //         std::cout<< "-------------------    first_contact   ---------------------" << std::endl;
-    //         first_contact = true;
-    //         // exit(0);
-    //     }
-    // }
 
 }
 
@@ -517,23 +436,8 @@ void MagnetoRosNode::UpdateContactWrenchData_() {
         }      
     }
 
-    // std::cout<<"-------------------------------" << std::endl;
-   
-    // for(int i=0; i<wrench_local_list.size(); ++i)
-    // {
-    //     std::string printname = bn_list[i].first;
-    //     // std::ostream printname;
-    //     // printname << bn_list[i].first;
-    //     Eigen::VectorXd wrench = wrench_local_list[i];
-    //     my_utils::pretty_print(wrench, std::cout, "wrench");
-    //     wrench = wrench_global_list[i];
-    //     my_utils::pretty_print(wrench, std::cout, "wrench_w");
-    // }
-    // std::cout<<"-------------------------------" << std::endl;
-
-    sensor_data_->alf_wrench = wrench_local_list[0];
-    sensor_data_->blf_wrench = wrench_local_list[1];
-    sensor_data_->arf_wrench = wrench_local_list[2];
-    sensor_data_->brf_wrench = wrench_local_list[3];
-    
+    for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+        sensor_data_->foot_wrench[foot_idx] = wrench_local_list[foot_idx];
+        // sensor_data_->foot_wrench[foot_idx] = wrench_global_list[i];
+    }    
 }

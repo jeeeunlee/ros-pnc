@@ -190,7 +190,7 @@ void WBQPD::setTorqueLimit(const Eigen::VectorXd& tau_l,
     tau_l_ = tau_l;
     tau_u_ = tau_u;    
     dim_trqact_ieq_cstr_ = tau_l_.size();
-    my_utils::pretty_print(tau_l_, std::cout, "SBQPD setTorqueLiit : tau_l_");
+    // my_utils::pretty_print(tau_l_, std::cout, "SBQPD setTorqueLiit : tau_l_");
 }
 
 void WBQPD::setFrictionCone(const Eigen::MatrixXd& U,

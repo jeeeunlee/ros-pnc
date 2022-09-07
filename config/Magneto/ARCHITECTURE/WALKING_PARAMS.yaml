@@ -3,12 +3,13 @@ contact_params:
 
 magnetism_params:
     magnetic_force: 147 #[N]
-    residual_ratio: 5 #5 #[%]
+    residual_ratio: 0 #5 #[%]
 
 state_walking_params:
     swing_time_percent_early_contact_check: 0.5 # Percent of end_time to check if there are early contacts 
     early_contact_force_threshold: 10 # Exit swing when 10 Newtons have been detected on the foot contact sensor
-    motion_periods: [0.1, 0.3, 0.1] #[0.2, 0.6, 0.2]
+    # motion_periods: [0.1, 0.3, 0.1] #[0.2, 0.6, 0.2]
+    motion_periods: [0.15, 0.5, 0.15] #[0.2, 0.6, 0.2]
 
 
 # state_swing_params:
@@ -40,7 +41,7 @@ controller_params:
     wbc_type: 1 #0:WBMC, #1:WBRMC
     # Enable torque limits
     enable_torque_limits: true
-    torque_limit: 50 #4.5
+    torque_limit: 20 #4.5
     # Integration_parameters
     velocity_freq_cutoff: 2.0 #Hz
     position_freq_cutoff: 1.0 #Hz

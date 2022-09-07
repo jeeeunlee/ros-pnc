@@ -18,12 +18,11 @@ MagnetoInterface::MagnetoInterface() : EnvInterface() {
     my_utils::color_print(myColor::BoldCyan, border);
     my_utils::pretty_constructor(0, "Magneto Interface");
 
-    robot_ = new RobotSystem(
-        6+3*4, THIS_COM "robot_description/Robot/Magneto/MagnetoSim_Dart.urdf");
-    robot_->setActuatedJoint(Magneto::idx_adof);
+    robot_ = new RobotSystem(Magneto::n_vdof, 
+        // THIS_COM "robot_description/Robot/Magneto/MagnetoSim_Dart.urdf");
+        THIS_COM "robot_description/Robot/Magneto/magneto_hexa.urdf");   
 
-    // robot_->setRobotMass();
-    // robot_->printRobotInfo();
+    robot_->setActuatedJoint(Magneto::idx_adof);
     
 
     state_estimator_ = new MagnetoStateEstimator(robot_);
@@ -78,11 +77,10 @@ void MagnetoInterface::checkContactDynamics(const Eigen::VectorXd& torque,
     int link_idx = -1;
     int contact_dim = 6;
 
-
-    for(auto& contact_map : sp_->b_contact_plan_map){
-        if(contact_map.second) { // contact is true 
+    for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+        if(sp_->b_contact_plan_list[foot_idx]){// contact is true 
             b_contact = true;
-            link_idx = contact_map.first;
+            link_idx = MagnetoFoot::LinkIdx[foot_idx];
             Eigen::MatrixXd Jtmp = robot_->getBodyNodeCoMBodyJacobian(link_idx);        
             Eigen::MatrixXd Jc = Jtmp.block(6-contact_dim, 0, contact_dim, robot_->getNumDofs());
             Jc_row_size = Jc_b.rows();
@@ -91,10 +89,10 @@ void MagnetoInterface::checkContactDynamics(const Eigen::VectorXd& torque,
 
             Eigen::VectorXd JcDotQdot_tmp =robot_->getBodyNodeCoMBodyJacobianDot(link_idx) * dq;
             Jdotqdot.conservativeResize(Jc_row_size + Jc.rows());
-            Jdotqdot.segment(Jc_row_size, Jc.rows()) = JcDotQdot_tmp.tail(contact_dim);            
+            Jdotqdot.segment(Jc_row_size, Jc.rows()) = JcDotQdot_tmp.tail(contact_dim);   
         }
     }   
-
+    
     Eigen::MatrixXd M = robot_->getMassMatrix();
     Eigen::MatrixXd MInv = robot_->getInvMassMatrix();
     Eigen::VectorXd cori_grav = robot_->getCoriolisGravity();
@@ -150,18 +148,24 @@ void MagnetoInterface::_ParameterSetting() {
     try {
         YAML::Node cfg =
             YAML::LoadFile(THIS_COM "config/Magneto/INTERFACE.yaml");
-        std::string test_name =
-            my_utils::readParameter<std::string>(cfg, "test_name");
-        if (test_name == "static_walking_test") {
-            run_mode_ = RUN_MODE::STATICWALK;
-        } else if (test_name == "balance_test") {
-            run_mode_ = RUN_MODE::BALANCE;
-        } else {
-            printf(
-            "[Magneto Interface] There is no matching test with the "
-            "name\n");
-            exit(0);
+        // std::string test_name =
+        //     my_utils::readParameter<std::string>(cfg, "test_name");
+        std::string motion_script;        
+        my_utils::readParameter(cfg, "motion_script", motion_script);
+        std::ostringstream motion_file_name;    
+        motion_file_name << THIS_COM << motion_script;
+        YAML::Node motion_cfg = YAML::LoadFile(motion_file_name.str());
+        int num_motion;
+        my_utils::readParameter(motion_cfg, "num_motion", num_motion);
+
+        for(int i(0); i<num_motion; ++i){
+            std::ostringstream stringStream;
+            stringStream << "motion" << i;
+            std::string conf = stringStream.str();
+            interrupt_->setInterruptRoutine(motion_cfg[conf]);           
         }
+
+        
     } catch (std::runtime_error& e) {
         std::cout << "Error reading parameter [" << e.what() << "] at file: ["
                   << __FILE__ << "]" << std::endl
@@ -254,30 +258,7 @@ void MagnetoInterface::GetNextFootStep(Eigen::VectorXd& foot_pos) {
 ///////////////////////////////////////////////////////////////////////////////////
 
 
-void MagnetoInterface::StaticWalk(const int& _moving_foot,
-                            const Eigen::Vector3d& _pos, 
-                            const Eigen::Quaternion<double>& _ori,
-                            const double& _motion_period,
-                            const double& _swing_height,
-                            bool _is_bodyframe ) {
 
-    // motion_param->set_walking_pattern(_moving_foot, _pos, _ori, _motion_period, _is_bodyframe);
-    // ((StaticWalkingTest*)test_)->addNextStep(motion_param); 
-    MOTION_DATA motion_data = MOTION_DATA(_pos, _ori, _is_bodyframe, 
-                                        _motion_period, _swing_height);
-    ((WalkingInterruptLogic*)interrupt_)->motion_command_instant_
-                                    ->clear_and_add_motion(_moving_foot, motion_data);
-}
-
-void MagnetoInterface::AddScriptWalkMotion(int _link_idx, 
-                                        const MOTION_DATA& _motion_data) {
-
-    // motion_param->set_walking_pattern(_moving_foot, _pos, _ori, _motion_period, _is_bodyframe);
-    // ((StaticWalkingTest*)test_)->addNextStep(motion_param); 
-    MotionCommand motion_command = MotionCommand(_link_idx,_motion_data);
-    ((WalkingInterruptLogic*)interrupt_)
-        ->motion_command_script_list_.push_back(motion_command);
-}
 
 
 

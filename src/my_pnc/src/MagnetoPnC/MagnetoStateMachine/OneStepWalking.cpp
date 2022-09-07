@@ -15,7 +15,9 @@ OneStepWalking::OneStepWalking(const StateIdentifier state_identifier_in,
   sp_ = MagnetoStateProvider::getStateProvider(robot_);
 }
 
-OneStepWalking::~OneStepWalking() {}
+OneStepWalking::~OneStepWalking() {
+  // delete 
+}
 
 void OneStepWalking::firstVisit() {
   std::cout<<"-------------------------------" <<std::endl;
@@ -25,41 +27,24 @@ void OneStepWalking::firstVisit() {
   // -- set current motion param
   MotionCommand mc_curr_ = ctrl_arch_->get_motion_command();
   std::cout << ctrl_arch_->get_num_states() 
-            << "states left!" <<std::endl;
+            << " states left!" <<std::endl;
 
   moving_foot_idx_ = mc_curr_.get_moving_foot();
-
-
+  std::cout<<"moving_foot_idx_ = "<<moving_foot_idx_<<std::endl;
 
   // ---------------------------------------
   //      Planning
   // ---------------------------------------
   Eigen::VectorXd q_goal; 
-  // ctrl_arch_->goal_planner_->computeGoal(mc_curr_);  
-  // ctrl_arch_->goal_planner_->getGoalConfiguration(q_goal);
-
-  // ctrl_arch_->reachability_planner_->setMovingFoot(moving_foot_idx_);
-  // ctrl_arch_->reachability_planner_->compute(q_goal); 
-  // ctrl_arch_->reachability_planner_->addGraph
-
-  // random
-  // std::random_device rd;
-  // std::mt19937 gen(rd());
-  // std::uniform_real_distribution<> t_c(-0.05, 0.1); // 
-  // std::uniform_real_distribution<> t_s(-0.05, 0.3); // 
-
-  Eigen::VectorXd motion_periods_rand = motion_periods_;
-  // motion_periods_rand[0] += t_c(gen);
-  // motion_periods_rand[1] += t_s(gen);
-  // motion_periods_rand[2] += t_c(gen);
 
   std::vector<ReachabilityState> state_list;
-  if(ctrl_arch_->trajectory_planner_->ParameterizeTrajectory(mc_curr_, 0.5, motion_periods_rand(0), motion_periods_rand(1), motion_periods_rand(2))){    
+  if(ctrl_arch_->trajectory_planner_->ParameterizeTrajectory(
+      mc_curr_, 0.5, motion_periods_(0), motion_periods_(1), motion_periods_(2))){    
     double t;
     Eigen::VectorXd q, dotq, ddotq;
     bool is_swing;
     ReachabilityState rchstate;
-    int t_end = (int) ((motion_periods_rand(0)+ motion_periods_rand(1)+ motion_periods_rand(2)) / 0.001) + 1;
+    int t_end = (int) ((motion_periods_(0)+ motion_periods_(1)+ motion_periods_(2)) / 0.001) + 1;
     for(int i=0; i<t_end; ++i){
       t = (double)i * 0.001;
       ctrl_arch_->trajectory_planner_->update(t, q, dotq, ddotq, is_swing);
@@ -77,12 +62,12 @@ void OneStepWalking::firstVisit() {
     }
     ctrl_arch_->reachability_planner_->setMovingFoot(moving_foot_idx_);
     ctrl_arch_->reachability_planner_->addGraph(state_list);
-
     ctrl_arch_->reachability_planner_->getOptimalTraj(walking_traj_ref_);
   }
+  std::cout<<"-------------------------------" <<std::endl;
 }
 
-void OneStepWalking::oneStep() {
+void OneStepWalking::oneStep() {  
   state_machine_time_ = sp_->curr_time - ctrl_start_time_;
   curr_ref_ = walking_traj_ref_.front();
   walking_traj_ref_.pop_front();
@@ -145,5 +130,8 @@ void OneStepWalking::getCommand(void* _cmd){
   ((MagnetoCommand*)_cmd)->qdot = sp_->getActiveJointValue(curr_ref_.dq); 
 
 
-  ((MagnetoCommand*)_cmd)->b_magnetism_map = taf_container_->b_magnetism_map_;
+  for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+    ((MagnetoCommand*)_cmd)->b_foot_magnetism_on[foot_idx]
+      = taf_container_->b_magnetism_list_[foot_idx];
+  }
 }

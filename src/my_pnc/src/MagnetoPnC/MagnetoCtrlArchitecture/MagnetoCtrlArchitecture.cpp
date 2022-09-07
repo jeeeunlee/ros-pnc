@@ -24,9 +24,12 @@ MagnetoControlArchitecture::MagnetoControlArchitecture(RobotSystem* _robot)
 
   // Initialize Trajectory managers
   foot_trajectory_manager_ = new FootPosTrajectoryManager(robot_);                    
-  com_trajectory_manager_ = new CoMTrajectoryManager(robot_);
-  joint_trajectory_manager_ = new JointTrajectoryManager(robot_);
-  base_ori_trajectory_manager_ = new BaseOriTrajectoryManager(robot_);
+  com_trajectory_manager_ = new CoMTrajectoryManager(robot_, 
+                            taf_container_->task_container_[MAGNETO_TASK::COM]);
+  joint_trajectory_manager_ = new JointTrajectoryManager(robot_,
+                            taf_container_->task_container_[MAGNETO_TASK::JOINT_TASK]);
+  base_ori_trajectory_manager_ = new BaseOriTrajectoryManager(robot_, 
+                            taf_container_->task_container_[MAGNETO_TASK::BASE_ORI]);
 
   // -- TaskWeightTrajectoryManager : class for managing hierarchy with weight
   // -- MaxNormalForceTrajectoryManager : class for managing max normal force
@@ -204,12 +207,8 @@ void MagnetoControlArchitecture::getIVDCommand(void* _cmd) {
   Eigen::VectorXd qdot_des = Eigen::VectorXd::Zero(Magneto::n_adof);
   Eigen::VectorXd q_des = sp_->getActiveJointValue();
 
-  // taf_container_->joint_task_->updateJacobians();
-  // taf_container_->joint_task_->computeCommands();
-  // taf_container_->joint_task_->getCommand(xddot_des);
-
-  taf_container_->joint_task_->updateTask(q_des, qdot_des, qddot_des);
-  taf_container_->joint_task_->getCommand(qddot_des);
+  taf_container_->task_container_[MAGNETO_TASK::JOINT_TASK]->updateTask(q_des, qdot_des, qddot_des);
+  taf_container_->task_container_[MAGNETO_TASK::JOINT_TASK]->getCommand(qddot_des);
   qddot_des = sp_->getFullJointValue(qddot_des);
 
   des_jpos = sp_->getActiveJointValue();

@@ -1,8 +1,9 @@
 #include <my_pnc/TrajectoryManager/JointTrajectoryManager.hpp>
 
-JointTrajectoryManager::JointTrajectoryManager(RobotSystem* _robot)
+JointTrajectoryManager::JointTrajectoryManager(RobotSystem* _robot, Task* _task)
     : TrajectoryManagerBase(_robot) {
   my_utils::pretty_constructor(2, "TrajectoryManager: JointPos");
+  joint_task_ = _task;
 
   full_joint_dim_ = _robot->getNumDofs();
   active_joint_dim_ = _robot->getNumActuatedDofs();
@@ -15,9 +16,14 @@ JointTrajectoryManager::JointTrajectoryManager(RobotSystem* _robot)
   joint_acc_des_ = Eigen::VectorXd::Zero(joint_dim_);
 }
 
-void JointTrajectoryManager::updateTask(const double&  current_time, Task* joint_task) {
+void JointTrajectoryManager::updateTask(const double&  current_time) {
   updateJointTrajectory(current_time);
-  joint_task->updateTask(joint_pos_des_, joint_vel_des_, joint_acc_des_);
+  joint_task_->updateTask(joint_pos_des_, joint_vel_des_, joint_acc_des_);
+}
+
+void JointTrajectoryManager::updateTask(const double&  current_time, Task* _joint_task) {
+  updateJointTrajectory(current_time);
+  _joint_task->updateTask(joint_pos_des_, joint_vel_des_, joint_acc_des_);
 }
 
 void JointTrajectoryManager::setJointTrajectory(const double& _start_time, 

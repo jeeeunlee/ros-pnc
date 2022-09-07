@@ -13,16 +13,14 @@ WalkingInterruptLogic::WalkingInterruptLogic(
 
   motion_data_default_.pose = POSE_DATA(-0.1,0,0, 1,0,0,0);
   motion_data_default_.swing_height = 0.04;
-  motion_data_default_.motion_period = 0.9;
-  
-  motion_command_alfoot_ = new MotionCommand(MagnetoBodyNode::AL_tibia_link, motion_data_default_);
-  motion_command_blfoot_ = new MotionCommand(MagnetoBodyNode::BL_tibia_link, motion_data_default_);
-  motion_command_arfoot_ = new MotionCommand(MagnetoBodyNode::AR_tibia_link, motion_data_default_);
-  motion_command_brfoot_ = new MotionCommand(MagnetoBodyNode::BR_tibia_link, motion_data_default_);
+  motion_data_default_.motion_period = 0.9;  
+
   motion_command_instant_ = new MotionCommand();
 }
 
-WalkingInterruptLogic::~WalkingInterruptLogic() {}
+WalkingInterruptLogic::~WalkingInterruptLogic() {
+  delete motion_command_instant_;
+}
 
 // Process Interrupts here
 void WalkingInterruptLogic::processInterrupts() {   
@@ -74,3 +72,22 @@ void WalkingInterruptLogic::processInterrupts() {
   resetFlags();
 }
 
+void WalkingInterruptLogic::setInterruptRoutine(const YAML::Node& motion_cfg){
+
+  MOTION_DATA md_temp;
+  bool is_bodyframe;
+  int foot_idx;
+  Eigen::VectorXd pos_temp;
+  Eigen::VectorXd ori_temp;
+
+  my_utils::readParameter(motion_cfg, "foot", foot_idx);
+  my_utils::readParameter(motion_cfg, "duration", md_temp.motion_period);
+  my_utils::readParameter(motion_cfg, "swing_height", md_temp.swing_height);
+  my_utils::readParameter(motion_cfg, "pos", pos_temp);
+  my_utils::readParameter(motion_cfg, "ori", ori_temp);
+  my_utils::readParameter(motion_cfg, "b_relative", is_bodyframe);
+  md_temp.pose = POSE_DATA(pos_temp, ori_temp, is_bodyframe);
+
+  MotionCommand motion_command = MotionCommand(foot_idx,md_temp);
+  motion_command_script_list_.push_back(motion_command);
+}

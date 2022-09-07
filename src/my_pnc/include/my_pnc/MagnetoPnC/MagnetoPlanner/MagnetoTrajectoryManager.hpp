@@ -43,20 +43,12 @@ class MagnetoTrajectoryManager {
         std::vector<Task*> task_list_;
         std::vector<ContactSpec*> contact_list_;
 
-        std::map<int, Task*> foot_task_map_;
-        std::map<int, ContactSpec*> foot_contact_map_;
+        // std::map<int, Task*> foot_task_map_;
+        // std::map<int, ContactSpec*> foot_contact_map_;
 
-        ContactSpec* alfoot_contact_;
-        ContactSpec* arfoot_contact_;
-        ContactSpec* blfoot_contact_;
-        ContactSpec* brfoot_contact_;
+        std::array<Task*, Magneto::n_leg > foot_task_list_;
+        std::array<ContactSpec*, Magneto::n_leg > foot_contact_list_;
 
-        Task* alfoot_pos_task_;
-        Task* arfoot_pos_task_;
-        Task* blfoot_pos_task_;
-        Task* brfoot_pos_task_;
-
-        Task* foot_pos_task_;
         Task* joint_task_;
 
 
@@ -68,7 +60,7 @@ class MagnetoTrajectoryManager {
         Eigen::VectorXd dotq_init_; 
         Eigen::VectorXd dotq_goal_;
 
-         int moving_foot_idx_;
+        int moving_foot_idx_;
         MOTION_DATA foot_motion_data_;
 
         double t0_;

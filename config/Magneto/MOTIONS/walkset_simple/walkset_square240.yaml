@@ -1,0 +1,199 @@
+num_motion: 24
+# foot : AL0 AR1 BL2 BR3 CL4 CR5
+#        6   12  18  24  30  36
+
+# [-0.1,0,0]
+motion0:
+  foot: 3 #240 #BR
+  pos: [-0.1,0,0]
+  ori: [1,0,0,0]
+  duration: 0.4  
+  swing_height: 0.1
+  b_relative: true
+
+motion1:
+  foot: 5 #240 #CR
+  pos: [-0.1,0,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion2:
+  foot: 1 #240 #AR
+  pos: [-0.1,0,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion3:
+  foot: 4 #240 #CL
+  pos: [-0.1,0,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion4:
+  foot: 0 #240 #AL
+  pos: [-0.1,0,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion5:
+  foot: 2 #240 #BL
+  pos: [-0.1,0,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+# [0,0.1,0]
+motion6:
+  foot: 3 #240 #BR
+  pos: [0,0.1,0]
+  ori: [1,0,0,0]
+  duration: 0.4  
+  swing_height: 0.1
+  b_relative: true
+
+motion7:
+  foot: 5 #240 #CR
+  pos: [0,0.1,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion8:
+  foot: 1 #240 #AR
+  pos: [0,0.1,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion9:
+  foot: 4 #240 #CL
+  pos: [0,0.1,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion10:
+  foot: 0 #240 #AL
+  pos: [0,0.1,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion11:
+  foot: 2 #240 #BL
+  pos: [0,0.1,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+##   pos: [0.1,0,0]
+motion12:
+  foot: 3 #240 #BR
+  pos: [0.1,0,0]
+  ori: [1,0,0,0]
+  duration: 0.4  
+  swing_height: 0.1
+  b_relative: true
+
+motion13:
+  foot: 5 #240 #CR
+  pos: [0.1,0,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion14:
+  foot: 1 #240 #AR
+  pos: [0.1,0,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion15:
+  foot: 4 #240 #CL
+  pos: [0.1,0,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion16:
+  foot: 0 #240 #AL
+  pos: [0.1,0,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion17:
+  foot: 2 #240 #BL
+  pos: [0.1,0,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+##[0,-0.1,0]
+motion18:
+  foot: 3 #240 #BR
+  pos: [0,-0.1,0]
+  ori: [1,0,0,0]
+  duration: 0.4  
+  swing_height: 0.1
+  b_relative: true
+
+motion19:
+  foot: 5 #240 #CR
+  pos: [0,-0.1,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion20:
+  foot: 1 #240 #AR
+  pos: [0,-0.1,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion21:
+  foot: 4 #240 #CL
+  pos: [0,-0.1,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion22:
+  foot: 0 #240 #AL
+  pos: [0,-0.1,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true
+
+motion23:
+  foot: 2 #240 #BL
+  pos: [0,-0.1,0]
+  ori: [1,0,0,0]
+  duration: 0.4
+  swing_height: 0.1
+  b_relative: true

@@ -4,6 +4,7 @@
 #include <../my_utils/Configuration.h>
 #include <my_utils/General/Clock.hpp>
 #include <my_utils/IO/IOUtilities.hpp>
+#include <my_pnc/MagnetoPnC/MagnetoDefinition.hpp>
 //#include <RobotSystem/include/CentroidModel.hpp>
 
 
@@ -48,17 +49,19 @@ class MagnetoStateProvider {
     Eigen::VectorXd jpos_ini;
 
     // real : determined by sensor / simulation
-    int b_arfoot_contact;
-    int b_brfoot_contact;
-    int b_alfoot_contact;
-    int b_blfoot_contact;
+    // int b_arfoot_contact;
+    // int b_brfoot_contact;
+    // int b_alfoot_contact;
+    // int b_blfoot_contact;
+    std::array<int, Magneto::n_leg> b_foot_contact_list;
 
     // planning : determined by planner
     // bool b_arfoot_contact_plan;
     // bool b_brfoot_contact_plan;
     // bool b_alfoot_contact_plan;
     // bool b_blfoot_contact_plan;
-    std::map<int, bool> b_contact_plan_map;
+    // std::map<int, bool> b_contact_plan_map;
+    std::array<bool, Magneto::n_leg> b_contact_plan_list;
 
 
     int num_step_copy;
@@ -82,10 +85,10 @@ class MagnetoStateProvider {
     Eigen::VectorXd foot_pos_target;
     int check_foot_planner_updated;
     // magentic force
-    Eigen::VectorXd arf_magenetic_wrench;
-    Eigen::VectorXd alf_magenetic_wrench;
-    Eigen::VectorXd brf_magenetic_wrench;
-    Eigen::VectorXd blf_magenetic_wrench;
+    // Eigen::VectorXd arf_magenetic_wrench;
+    // Eigen::VectorXd alf_magenetic_wrench;
+    // Eigen::VectorXd brf_magenetic_wrench;
+    // Eigen::VectorXd blf_magenetic_wrench;
 
     /*-------------- Magneto by JE ---------------*/
 
@@ -97,43 +100,16 @@ class MagnetoStateProvider {
 
     Eigen::VectorXd com_pos_des;
     Eigen::VectorXd com_vel_des;
-    Eigen::VectorXd mom_des;
+    Eigen::VectorXd mom_des;    
 
-    Eigen::VectorXd arf_pos;
-    Eigen::VectorXd arf_vel;
-    Eigen::VectorXd brf_pos;
-    Eigen::VectorXd brf_vel;
-    Eigen::VectorXd alf_pos;
-    Eigen::VectorXd alf_vel;
-    Eigen::VectorXd blf_pos;
-    Eigen::VectorXd blf_vel;
-
-    Eigen::VectorXd arf_pos_des;
-    Eigen::VectorXd arf_vel_des;
-    Eigen::VectorXd brf_pos_des;
-    Eigen::VectorXd brf_vel_des;
-    Eigen::VectorXd alf_pos_des;
-    Eigen::VectorXd alf_vel_des;
-    Eigen::VectorXd blf_pos_des;
-    Eigen::VectorXd blf_vel_des;
-
-    Eigen::Quaternion<double> arf_ori_quat;
-    Eigen::VectorXd arf_ang_vel;
-    Eigen::Quaternion<double> brf_ori_quat;
-    Eigen::VectorXd brf_ang_vel;
-    Eigen::Quaternion<double> alf_ori_quat;
-    Eigen::VectorXd alf_ang_vel;
-    Eigen::Quaternion<double> blf_ori_quat;
-    Eigen::VectorXd blf_ang_vel;
-
-    Eigen::Quaternion<double> arf_ori_quat_des;
-    Eigen::VectorXd arf_ang_vel_des;
-    Eigen::Quaternion<double> brf_ori_quat_des;
-    Eigen::VectorXd brf_ang_vel_des;
-    Eigen::Quaternion<double> alf_ori_quat_des;
-    Eigen::VectorXd alf_ang_vel_des;
-    Eigen::Quaternion<double> blf_ori_quat_des;
-    Eigen::VectorXd blf_ang_vel_des;
+    std::array<Eigen::VectorXd, Magneto::n_leg> foot_pos;
+    std::array<Eigen::VectorXd, Magneto::n_leg> foot_vel;
+    std::array<Eigen::VectorXd, Magneto::n_leg> foot_pos_des;
+    std::array<Eigen::VectorXd, Magneto::n_leg> foot_vel_des;
+    std::array<Eigen::VectorXd, Magneto::n_leg> foot_ang_vel;
+    std::array<Eigen::VectorXd, Magneto::n_leg> foot_ang_vel_des;
+    std::array<Eigen::Quaternion<double>, Magneto::n_leg> foot_ori_quat;
+    std::array<Eigen::Quaternion<double>, Magneto::n_leg> foot_ori_quat_des;
 
     Eigen::Quaternion<double> base_ori;
     Eigen::VectorXd base_ang_vel;
@@ -141,15 +117,18 @@ class MagnetoStateProvider {
     Eigen::Quaternion<double> base_ori_des;
     Eigen::VectorXd base_ang_vel_des;
 
-    Eigen::VectorXd al_rf_des;
-    Eigen::VectorXd bl_rf_des;
-    Eigen::VectorXd ar_rf_des;
-    Eigen::VectorXd br_rf_des;
+    std::array<Eigen::VectorXd, Magneto::n_leg> foot_grf_des;
+    std::array<Eigen::VectorXd, Magneto::n_leg> foot_grf;
 
-    Eigen::VectorXd al_rf;        
-    Eigen::VectorXd bl_rf;
-    Eigen::VectorXd ar_rf;
-    Eigen::VectorXd br_rf;
+    // Eigen::VectorXd al_rf_des;
+    // Eigen::VectorXd bl_rf_des;
+    // Eigen::VectorXd ar_rf_des;
+    // Eigen::VectorXd br_rf_des;
+
+    // Eigen::VectorXd al_rf;        
+    // Eigen::VectorXd bl_rf;
+    // Eigen::VectorXd ar_rf;
+    // Eigen::VectorXd br_rf;
 
     Eigen::VectorXd des_jacc_cmd;
 

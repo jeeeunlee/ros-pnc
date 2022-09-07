@@ -48,9 +48,9 @@ void Transition::firstVisit() {
 
   // -- set task_list in taf with hierachy
   ctrl_arch_->taf_container_->clear_task_list();
-  ctrl_arch_->taf_container_->add_task_list(ctrl_arch_->taf_container_->com_task_);
-  ctrl_arch_->taf_container_->add_task_list(ctrl_arch_->taf_container_->base_ori_task_);
-  ctrl_arch_->taf_container_->add_task_list(ctrl_arch_->taf_container_->joint_task_);
+  ctrl_arch_->taf_container_->add_task_list(MAGNETO_TASK::COM);
+  ctrl_arch_->taf_container_->add_task_list(MAGNETO_TASK::BASE_ORI);
+  ctrl_arch_->taf_container_->add_task_list(MAGNETO_TASK::JOINT_TASK);
 
 
   // ---------------------------------------
@@ -135,14 +135,11 @@ void Transition::firstVisit() {
 
 void Transition::_taskUpdate() {
   // ctrl_arch_->com_trajectory_manager_->updateCoMTrajectory(sp_->curr_time);
-  ctrl_arch_->com_trajectory_manager_->updateTask(sp_->curr_time,
-                                  ctrl_arch_->taf_container_->com_task_);
+  ctrl_arch_->com_trajectory_manager_->updateTask(sp_->curr_time);
   // ctrl_arch_->base_ori_trajectory_manager_->updateBaseOriTrajectory(sp_->curr_time);
-  ctrl_arch_->base_ori_trajectory_manager_->updateTask(sp_->curr_time,
-                                  ctrl_arch_->taf_container_->base_ori_task_);
+  ctrl_arch_->base_ori_trajectory_manager_->updateTask(sp_->curr_time);
   // ctrl_arch_->joint_trajectory_manager_->updateJointTrajectory(sp_->curr_time);
-  ctrl_arch_->joint_trajectory_manager_->updateTask(sp_->curr_time,
-                                  ctrl_arch_->taf_container_->joint_task_);
+  ctrl_arch_->joint_trajectory_manager_->updateTask(sp_->curr_time);
 }
 
 void Transition::_weightUpdate() {

@@ -8,54 +8,34 @@ MagnetoTaskAndForceContainer::MagnetoTaskAndForceContainer(RobotSystem* _robot)
 }
 
 MagnetoTaskAndForceContainer::~MagnetoTaskAndForceContainer() {
-  _DeleteTasks();
-  _DeleteContacts();
+  for( auto &task : task_container_)
+    delete task;
+  for( auto &contact : contact_container_)
+    delete contact;
 }
 
 void MagnetoTaskAndForceContainer::_InitializeTasks() {
   my_utils::pretty_constructor(2, "Magneto Task And Force Container");
 
   // CoM and Pelvis Tasks
-  com_task_ = 
+  task_container_[MAGNETO_TASK::COM] = 
       new CoMTask(robot_);
-  base_ori_task_ = 
+  task_container_[MAGNETO_TASK::BASE_ORI]  = 
       new BasicTask(robot_, BasicTaskType::LINKORI, 3, MagnetoBodyNode::base_link); 
-  joint_task_ = 
+  task_container_[MAGNETO_TASK::JOINT_TASK]  = 
       new BasicTask(robot_, BasicTaskType::JOINT, Magneto::n_adof);
 
   // Set Foot Motion Tasks
-  alfoot_pos_task_ =
-      new BasicTask(robot_, BasicTaskType::LINKXYZ, 3, MagnetoBodyNode::AL_foot_link);
-  arfoot_pos_task_ =
-      new BasicTask(robot_, BasicTaskType::LINKXYZ, 3, MagnetoBodyNode::AR_foot_link);
-  blfoot_pos_task_ =
-      new BasicTask(robot_, BasicTaskType::LINKXYZ, 3, MagnetoBodyNode::BL_foot_link);
-  brfoot_pos_task_ =
-      new BasicTask(robot_, BasicTaskType::LINKXYZ, 3, MagnetoBodyNode::BR_foot_link);
-  alfoot_ori_task_ =
-      new BasicTask(robot_, BasicTaskType::LINKORI, 3, MagnetoBodyNode::AL_foot_link);
-  arfoot_ori_task_ =
-      new BasicTask(robot_, BasicTaskType::LINKORI, 3, MagnetoBodyNode::AR_foot_link);
-  blfoot_ori_task_ =
-      new BasicTask(robot_, BasicTaskType::LINKORI, 3, MagnetoBodyNode::BL_foot_link);
-  brfoot_ori_task_ =
-      new BasicTask(robot_, BasicTaskType::LINKORI, 3, MagnetoBodyNode::BR_foot_link);
+  for(int i(0); i<Magneto::n_leg; ++i){
+    task_container_[MAGNETO_TASK::AL_POS+i] = 
+      new BasicTask(robot_,BasicTaskType::LINKXYZ, 3, MagnetoFoot::LinkIdx[i]);
+    task_container_[MAGNETO_TASK::AL_ORI+i]  = 
+      new BasicTask(robot_,BasicTaskType::LINKORI, 3, MagnetoFoot::LinkIdx[i]);
+  } 
 
-  // Add all tasks initially. Remove later as needed.
-  task_list_.clear();
-  task_list_.push_back(com_task_);
-  task_list_.push_back(base_ori_task_);
-  task_list_.push_back(joint_task_);  
-
-  task_list_.push_back(alfoot_pos_task_);
-  task_list_.push_back(arfoot_pos_task_);
-  task_list_.push_back(blfoot_pos_task_);
-  task_list_.push_back(brfoot_pos_task_);
-
-  task_list_.push_back(alfoot_ori_task_);
-  task_list_.push_back(arfoot_ori_task_);
-  task_list_.push_back(blfoot_ori_task_);
-  task_list_.push_back(brfoot_ori_task_);
+  // initialize bool task
+  for(int i(0);i<MAGNETO_TASK::n_task;++i)
+    b_task_list_[i] = false;
 }
 
 void MagnetoTaskAndForceContainer::_InitializeContacts() {
@@ -65,73 +45,28 @@ void MagnetoTaskAndForceContainer::_InitializeContacts() {
   double foot_x = 0.02; // 0.05; 
   double foot_y = 0.02; 
 
-  alfoot_contact_ = new BodyFrameSurfaceContactSpec(
-      robot_, MagnetoBodyNode::AL_foot_link, foot_x, foot_y, friction_coeff_); 
-  blfoot_contact_ = new BodyFrameSurfaceContactSpec(
-      robot_, MagnetoBodyNode::BL_foot_link, foot_x, foot_y, friction_coeff_);     
-  arfoot_contact_ = new BodyFrameSurfaceContactSpec(
-      robot_, MagnetoBodyNode::AR_foot_link, foot_x, foot_y, friction_coeff_); 
-  brfoot_contact_ = new BodyFrameSurfaceContactSpec(
-      robot_, MagnetoBodyNode::BR_foot_link, foot_x, foot_y, friction_coeff_);
-      
-  dim_contact_ = alfoot_contact_->getDim() + blfoot_contact_->getDim() +
-                arfoot_contact_->getDim() + brfoot_contact_->getDim();
+full_dim_contact_ = 0;
+for(int i(0); i<Magneto::n_leg; ++i) {
+    contact_container_[i] = new BodyFrameSurfaceContactSpec(
+                              robot_, 
+                              MagnetoFoot::LinkIdx[i], 
+                              foot_x, foot_y, 
+                              friction_coeff_);
 
-  // max_z_ = 500.;
+    full_dim_contact_ += contact_container_[i]->getDim();
+    b_feet_contact_list_[i] = true;
+  }
+  dim_contact_ = full_dim_contact_;    
 
-  // // Set desired reaction forces
-  // Fd_des_ = Eigen::VectorXd::Zero(dim_contact_);
-
-  // Add all contacts initially. Remove later as needed.
-  contact_list_.clear();
-  contact_list_.push_back(alfoot_contact_);
-  contact_list_.push_back(blfoot_contact_);
-  contact_list_.push_back(arfoot_contact_);
-  contact_list_.push_back(brfoot_contact_); 
-
-  full_contact_list_.clear();
-  full_contact_list_.push_back(alfoot_contact_);
-  full_contact_list_.push_back(blfoot_contact_);
-  full_contact_list_.push_back(arfoot_contact_);
-  full_contact_list_.push_back(brfoot_contact_); 
-  full_dim_contact_ = dim_contact_;
 }
 
 
 void MagnetoTaskAndForceContainer::_InitializeMagnetisms(){
   magnetic_force_ = 0.;
   residual_ratio_ = 0.;
-  b_magnetism_map_[MagnetoBodyNode::AL_foot_link] = false;
-  b_magnetism_map_[MagnetoBodyNode::BL_foot_link] = false;
-  b_magnetism_map_[MagnetoBodyNode::AR_foot_link] = false;
-  b_magnetism_map_[MagnetoBodyNode::BR_foot_link] = false;
-}
-
-void MagnetoTaskAndForceContainer::_DeleteTasks() {
-  task_list_.clear();
-
-  delete joint_task_;
-  delete com_task_;
-  delete base_ori_task_;
-
-  delete alfoot_pos_task_;
-  delete arfoot_pos_task_;
-  delete blfoot_pos_task_;
-  delete brfoot_pos_task_;
-
-  delete alfoot_ori_task_;
-  delete arfoot_ori_task_;
-  delete blfoot_ori_task_;
-  delete brfoot_ori_task_;  
-}
-
-void MagnetoTaskAndForceContainer::_DeleteContacts() {
-  contact_list_.clear();
-
-  delete alfoot_contact_;
-  delete arfoot_contact_;
-  delete blfoot_contact_;
-  delete brfoot_contact_;
+  for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+    b_magnetism_list_[foot_idx]=false;
+  }
 }
 
 void MagnetoTaskAndForceContainer::setContactFriction(){
@@ -140,7 +75,7 @@ void MagnetoTaskAndForceContainer::setContactFriction(){
 
 void MagnetoTaskAndForceContainer::setContactFriction(double _mu){
   // initialize contact
-  for(auto &contact : full_contact_list_)
+  for(auto &contact : contact_container_)
     ((BodyFrameSurfaceContactSpec*)contact)->setFrictionCoeff(_mu);
 } 
 
@@ -165,8 +100,8 @@ void MagnetoTaskAndForceContainer::paramInitialization(const YAML::Node& node) {
   }
 
   // initialize parameters
-  int dim_contact = alfoot_contact_->getDim();
-  int idx_rf_z = alfoot_contact_->getFzIndex();
+  int dim_contact = contact_container_[0]->getDim();
+  int idx_rf_z = contact_container_[0]->getFzIndex();
 
   W_qddot_ = Eigen::VectorXd::Constant(Magneto::n_dof, w_qddot_);
   W_xddot_contact_  = Eigen::VectorXd::Constant(dim_contact, w_xddot_contact_);
@@ -178,34 +113,26 @@ void MagnetoTaskAndForceContainer::paramInitialization(const YAML::Node& node) {
   W_rf_nocontact_[idx_rf_z] = w_rf_z_nocontact_;
 
   // Set Maximum Forces
-  ((BodyFrameSurfaceContactSpec*)alfoot_contact_)->setMaxFz(max_rf_z_contact_);
-  ((BodyFrameSurfaceContactSpec*)blfoot_contact_)->setMaxFz(max_rf_z_contact_);
-  ((BodyFrameSurfaceContactSpec*)arfoot_contact_)->setMaxFz(max_rf_z_contact_);
-  ((BodyFrameSurfaceContactSpec*)brfoot_contact_)->setMaxFz(max_rf_z_contact_);
+  for(auto &contact : contact_container_)
+    ((BodyFrameSurfaceContactSpec*)contact)->setMaxFz(max_rf_z_contact_);
+
 }
 
 // -------------------------------------------------------
 //    set functions
 // -------------------------------------------------------
-void MagnetoTaskAndForceContainer::set_magnetism(int moving_cop) {
-  b_magnetism_map_[MagnetoBodyNode::AL_foot_link]
-                        = (moving_cop != MagnetoBodyNode::AL_tibia_link && 
-                        moving_cop != MagnetoBodyNode::AL_foot_link);
-  b_magnetism_map_[MagnetoBodyNode::BL_foot_link] 
-                        = (moving_cop != MagnetoBodyNode::BL_tibia_link && 
-                        moving_cop != MagnetoBodyNode::BL_foot_link); 
-  b_magnetism_map_[MagnetoBodyNode::AR_foot_link] 
-                        = (moving_cop != MagnetoBodyNode::AR_tibia_link && 
-                        moving_cop != MagnetoBodyNode::AR_foot_link);
-  b_magnetism_map_[MagnetoBodyNode::BR_foot_link] 
-                        = (moving_cop != MagnetoBodyNode::BR_tibia_link && 
-                        moving_cop != MagnetoBodyNode::BR_foot_link);
+void MagnetoTaskAndForceContainer::set_magnetism(int moving_foot_idx) {
+  for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+    b_magnetism_list_[foot_idx] = (moving_foot_idx!=foot_idx);
+  } 
 }
 
-void MagnetoTaskAndForceContainer::set_residual_magnetic_force(int moving_cop, double contact_distance) {
-
-  if( moving_cop >= 0 && moving_cop < robot_->getNumBodyNodes() ){
-    // set J_residual_
+void MagnetoTaskAndForceContainer::set_residual_magnetic_force(int moving_foot_idx, double contact_distance) {
+  if(moving_foot_idx<0){
+    J_residual_ = Eigen::MatrixXd::Zero(6, robot_->getNumDofs()); // 6 x ndof
+    F_residual_ = Eigen::VectorXd::Zero(J_residual_.rows());
+  }else{
+    int moving_cop = MagnetoFoot::LinkIdx[moving_foot_idx];
     J_residual_ = robot_->getBodyNodeCoMBodyJacobian(moving_cop); // 6 x ndof
     // set F_residual_
     double distance_ratio;
@@ -215,65 +142,71 @@ void MagnetoTaskAndForceContainer::set_residual_magnetic_force(int moving_cop, d
     residual_force_ = distance_ratio * magnetic_force_ * (residual_ratio_/100.);
     F_residual_ = Eigen::VectorXd::Zero(J_residual_.rows());
     F_residual_[F_residual_.size()-1] = residual_force_;
-  } else{
-    J_residual_ = Eigen::MatrixXd::Zero(6, robot_->getNumDofs()); // 6 x ndof
-    F_residual_ = Eigen::VectorXd::Zero(J_residual_.rows());
   }
 }
 
-void MagnetoTaskAndForceContainer::set_contact_magnetic_force(int moving_cop) {
+void MagnetoTaskAndForceContainer::set_contact_magnetic_force(int moving_foot_idx) {
   // set F_magnetic_ based on b_magnetism_mabp_  
   F_magnetic_ = Eigen::VectorXd::Zero(full_dim_contact_);
 
   int contact_link_idx(0), dim_contact(0), fz_idx;
-  for(auto &it : full_contact_list_) {
-    contact_link_idx = ((BodyFrameSurfaceContactSpec*)(it))->getLinkIdx();
-    if( contact_link_idx != moving_cop) {  
-      fz_idx = dim_contact + ((BodyFrameSurfaceContactSpec*)(it))->getFzIndex();    
-      if(b_magnetism_map_[contact_link_idx]){
+
+  for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+    if(foot_idx != moving_foot_idx){
+      fz_idx = dim_contact + 
+      ((BodyFrameSurfaceContactSpec*)(contact_container_[foot_idx]))->getFzIndex(); 
+      if(b_magnetism_list_[foot_idx]){
         F_magnetic_[fz_idx] = magnetic_force_;
       }
-      else {
+      else{
         F_magnetic_[fz_idx] = residual_force_;
-        // F_magnetic_[fz_idx] = -residual_force_;
       }
-      dim_contact += ((BodyFrameSurfaceContactSpec*)(it))->getDim();
+      dim_contact += ((BodyFrameSurfaceContactSpec*)(contact_container_[foot_idx]))->getDim();
     }
   }
   F_magnetic_ = F_magnetic_.head(dim_contact);  
 }
 
 
-void MagnetoTaskAndForceContainer::set_contact_list(int moving_cop) {
+void MagnetoTaskAndForceContainer::set_contact_list(int moving_foot_idx) {
   // build contact_list_
   dim_contact_=0;
   contact_list_.clear();
-  for(auto &it : full_contact_list_) {
-    if(((BodyFrameSurfaceContactSpec*)(it))->getLinkIdx()!=moving_cop) {
-      contact_list_.push_back((BodyFrameSurfaceContactSpec*)(it));
-      dim_contact_ += (it)->getDim();
+
+  for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+    if(foot_idx == moving_foot_idx){
+      b_feet_contact_list_[foot_idx]=false;
+    }
+    else{
+      b_feet_contact_list_[foot_idx]=true;
+      contact_list_.push_back(
+        (BodyFrameSurfaceContactSpec*)(contact_container_[foot_idx]));
+      dim_contact_ += (contact_container_[foot_idx])->getDim();
     }
   }
 }
 
-void MagnetoTaskAndForceContainer::set_maxfz_contact(int moving_cop) {
-  set_maxfz_contact(moving_cop,
+void MagnetoTaskAndForceContainer::set_maxfz_contact(int moving_foot_idx) {
+  set_maxfz_contact(moving_foot_idx,
                     max_rf_z_contact_, 
                     max_rf_z_nocontact_);
 }
 
-void MagnetoTaskAndForceContainer::set_maxfz_contact(int moving_cop,
+void MagnetoTaskAndForceContainer::set_maxfz_contact(int moving_foot_idx,
                                                   double max_rfz_cntct,
                                                   double max_rfz_nocntct) {
-  for(auto &it : contact_list_) {
-    if(((BodyFrameSurfaceContactSpec*)(it))->getLinkIdx() == moving_cop) {
-      ((BodyFrameSurfaceContactSpec*)(it))->setMaxFz(max_rfz_nocntct);
+  for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+    if(foot_idx == moving_foot_idx) {
+      ((BodyFrameSurfaceContactSpec*)(contact_container_[foot_idx]))
+          ->setMaxFz(max_rfz_nocntct);
     } else {
-      ((BodyFrameSurfaceContactSpec*)(it))->setMaxFz(max_rfz_cntct);
+      ((BodyFrameSurfaceContactSpec*)(contact_container_[foot_idx]))
+          ->setMaxFz(max_rfz_cntct);
     }
   }
 }
-void MagnetoTaskAndForceContainer::compute_weight_param(int moving_cop,
+
+void MagnetoTaskAndForceContainer::compute_weight_param(int moving_foot_idx,
                                     const Eigen::VectorXd &W_contact,
                                     const Eigen::VectorXd &W_nocontact,
                                     Eigen::VectorXd &W_result) {
@@ -283,7 +216,8 @@ void MagnetoTaskAndForceContainer::compute_weight_param(int moving_cop,
   W_result = Eigen::VectorXd::Zero(dim_vec*num_contact);
   for(auto it = contact_list_.begin(); 
         it != contact_list_.end(); it++) {
-    if(((BodyFrameSurfaceContactSpec*)(*it))->getLinkIdx()==moving_cop) {
+    if(((BodyFrameSurfaceContactSpec*)(*it))->getLinkIdx()
+                  ==MagnetoFoot::LinkIdx[moving_foot_idx]) {
       // swing foot - no contact
       W_result.segment(idx_accum,dim_vec) = W_nocontact;
 
@@ -295,44 +229,20 @@ void MagnetoTaskAndForceContainer::compute_weight_param(int moving_cop,
 }
 
 void MagnetoTaskAndForceContainer::clear_task_list() {
-  task_list_.clear();
+  for(int i(0);i<MAGNETO_TASK::n_task;++i)
+    b_task_list_[i] = false;
 }
-void MagnetoTaskAndForceContainer::add_task_list(Task* task) {
-  task_list_.push_back(task);
+
+void MagnetoTaskAndForceContainer::check_task_list(){
+  std::cout<<"check_task_list : ";
+  for(int i(0);i<MAGNETO_TASK::n_task;++i)
+    std::cout<< b_task_list_[i]<< ", ";
+  std::cout<<std::endl;
 }
-Task* MagnetoTaskAndForceContainer::get_foot_pos_task(int moving_cop) {
-  switch(moving_cop){
-        case MagnetoBodyNode::AL_foot_link :
-        case MagnetoBodyNode::AL_tibia_link :
-            return alfoot_pos_task_;
-        case MagnetoBodyNode::BL_foot_link :
-        case MagnetoBodyNode::BL_tibia_link :
-            return blfoot_pos_task_;
-        case MagnetoBodyNode::AR_foot_link :
-        case MagnetoBodyNode::AR_tibia_link :
-            return arfoot_pos_task_;
-        case MagnetoBodyNode::BR_foot_link :
-        case MagnetoBodyNode::BR_tibia_link :
-            return brfoot_pos_task_;
-        default:
-            return NULL;
-  }
+
+Task* MagnetoTaskAndForceContainer::get_foot_pos_task(int foot_idx) {
+  return task_container_[MAGNETO_TASK::AL_POS + foot_idx];
 }
-Task* MagnetoTaskAndForceContainer::get_foot_ori_task(int moving_cop) {
-  switch(moving_cop){
-        case MagnetoBodyNode::AL_foot_link :
-        case MagnetoBodyNode::AL_tibia_link :
-            return alfoot_ori_task_;
-        case MagnetoBodyNode::BL_foot_link :
-        case MagnetoBodyNode::BL_tibia_link :
-            return blfoot_ori_task_;
-        case MagnetoBodyNode::AR_foot_link :
-        case MagnetoBodyNode::AR_tibia_link :
-            return arfoot_ori_task_;
-        case MagnetoBodyNode::BR_foot_link :
-        case MagnetoBodyNode::BR_tibia_link :
-            return brfoot_ori_task_;
-        default:
-            return NULL;
-  }
+Task* MagnetoTaskAndForceContainer::get_foot_ori_task(int foot_idx) {
+  return task_container_[MAGNETO_TASK::AL_ORI + foot_idx];
 }

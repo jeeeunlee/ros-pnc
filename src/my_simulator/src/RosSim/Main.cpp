@@ -60,6 +60,9 @@ void setWorld(dart::simulation::WorldPtr& world, const SimulatorParameter& sim_p
     robot->getBodyNode("AL_foot_link_3")->setFrictionCoeff(friction);
     robot->getBodyNode("AR_foot_link_3")->setFrictionCoeff(friction);
     robot->getBodyNode("BR_foot_link_3")->setFrictionCoeff(friction);
+    robot->getBodyNode("CL_foot_link_3")->setFrictionCoeff(friction);
+    robot->getBodyNode("CR_foot_link_3")->setFrictionCoeff(friction);
+
 
     world->setGravity(sim_param.gravity_);
     world->setTimeStep(sim_param.servo_rate_);
@@ -94,6 +97,7 @@ void setWorld(dart::simulation::WorldPtr& world, const SimulatorParameter& sim_p
         q[robot->getDof(foot_name[i] + foot2)->getIndexInSkeleton()] = 0.0;
         q[robot->getDof(foot_name[i] + foot3)->getIndexInSkeleton()] = 0.0;
     }
+
     robot->setPositions(q);
 
     // Enabel Joit Limits

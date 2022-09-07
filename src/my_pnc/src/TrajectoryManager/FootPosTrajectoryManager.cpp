@@ -49,8 +49,10 @@ void FootPosTrajectoryManager::setFootPosTrajectory(const double& _start_time,
                                               const double& swing_x_ratio) {
   MOTION_DATA motion_cmd_data;
   Eigen::VectorXd pos_dev_b;
-  if(_motion_cmd->get_foot_motion_command(motion_cmd_data, link_idx_)) {
+  
+  if(_motion_cmd->get_foot_motion_command(motion_cmd_data, foot_idx_)) {
       // if com motion command is given
+      link_idx_ = MagnetoFoot::LinkIdx[foot_idx_];
       traj_duration_ = motion_cmd_data.motion_period;
       pos_dev_b = motion_cmd_data.pose.pos;
       swing_height_ = motion_cmd_data.swing_height;
@@ -60,8 +62,9 @@ void FootPosTrajectoryManager::setFootPosTrajectory(const double& _start_time,
     std::cout<< "NOOOOO!! no foot motion cmd?" << std::endl;
     traj_duration_ = 1.0;
     pos_dev_b = Eigen::VectorXd::Zero(3);
-    swing_height_ = 0.5;
+    swing_height_ = 0.0;
     motion_cmd_data.pose.is_bodyframe=true;
+    link_idx_ = 0;
   }
   traj_duration_ = traj_duration_ > 0 ? traj_duration_ : 0.01;
   traj_start_time_ = _start_time;
@@ -130,9 +133,6 @@ void FootPosTrajectoryManager::updateFootPosTrajectory(const double& current_tim
     foot_vel_des_ = pos_traj_mid_to_end_.evaluateFirstDerivative(s);
     foot_acc_des_ = pos_traj_mid_to_end_.evaluateSecondDerivative(s);
   }
-  //0112 my_utils::saveVector(foot_pos_des_, "foot_pos_des_");
-  // //0112 my_utils::saveVector(foot_quat_des_, "foot_quat_des_");
-
 }
 
 void FootPosTrajectoryManager::setSwingPosCurve(const Eigen::VectorXd& foot_pos_ini, 

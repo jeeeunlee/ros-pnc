@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
 )
+find_package(DART 6.9 REQUIRED)
 
 catkin_package(
   LIBRARIES my_pnc

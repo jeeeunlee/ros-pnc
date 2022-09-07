@@ -10,11 +10,6 @@ class MagnetoStateEstimator;
 // class StaticWalkingPatternParam;
 // class BalancingPatternParam;
 
-namespace RUN_MODE {
-constexpr int BALANCE = 0;
-constexpr int STATICWALK = 1;
-
-};  // namespace BLPhase
 
 class MagnetoSensorData {
    public:
@@ -24,14 +19,10 @@ class MagnetoSensorData {
         virtual_q = Eigen::VectorXd::Zero(Magneto::n_vdof);
         virtual_qdot = Eigen::VectorXd::Zero(Magneto::n_vdof);
 
-        alf_wrench = Eigen::VectorXd::Zero(6);
-        blf_wrench = Eigen::VectorXd::Zero(6);
-        arf_wrench = Eigen::VectorXd::Zero(6);
-        brf_wrench = Eigen::VectorXd::Zero(6);
-        alfoot_contact = false;
-        blfoot_contact = false;
-        arfoot_contact = false;
-        brfoot_contact = false;
+        for(int i(0); i<Magneto::n_leg; ++i){
+            foot_wrench[i] = Eigen::VectorXd::Zero(6);
+            b_foot_contact[i] = false;
+        }
 
         R_ground = Eigen::MatrixXd::Identity(3,3);
     }
@@ -41,14 +32,18 @@ class MagnetoSensorData {
     Eigen::VectorXd qdot;
     Eigen::VectorXd virtual_q;
     Eigen::VectorXd virtual_qdot;
-    Eigen::VectorXd alf_wrench;
-    Eigen::VectorXd blf_wrench;
-    Eigen::VectorXd arf_wrench;
-    Eigen::VectorXd brf_wrench;
-    bool alfoot_contact;
-    bool blfoot_contact;
-    bool arfoot_contact;
-    bool brfoot_contact;
+
+    std::array<Eigen::VectorXd, Magneto::n_leg> foot_wrench;
+    std::array<bool, Magneto::n_leg> b_foot_contact;
+
+    // Eigen::VectorXd alf_wrench;
+    // Eigen::VectorXd blf_wrench;
+    // Eigen::VectorXd arf_wrench;
+    // Eigen::VectorXd brf_wrench;
+    // bool alfoot_contact;
+    // bool blfoot_contact;
+    // bool arfoot_contact;
+    // bool brfoot_contact;
 
     Eigen::MatrixXd R_ground;
 };
@@ -60,10 +55,14 @@ class MagnetoCommand {
         qdot = Eigen::VectorXd::Zero(Magneto::n_adof);
         jtrq = Eigen::VectorXd::Zero(Magneto::n_adof);
 
-        b_magnetism_map[MagnetoBodyNode::AL_foot_link] = false;
-        b_magnetism_map[MagnetoBodyNode::BL_foot_link] = false;
-        b_magnetism_map[MagnetoBodyNode::AR_foot_link] = false;
-        b_magnetism_map[MagnetoBodyNode::BR_foot_link] = false;
+        for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+            b_foot_magnetism_on[foot_idx]=false;
+        }
+
+        // b_magnetism_map[MagnetoBodyNode::AL_foot_link] = false;
+        // b_magnetism_map[MagnetoBodyNode::BL_foot_link] = false;
+        // b_magnetism_map[MagnetoBodyNode::AR_foot_link] = false;
+        // b_magnetism_map[MagnetoBodyNode::BR_foot_link] = false;
     }
     virtual ~MagnetoCommand() {}
 
@@ -75,7 +74,9 @@ class MagnetoCommand {
     // bool blfoot_magnetism_on;
     // bool arfoot_magnetism_on;
     // bool brfoot_magnetism_on;
-    std::map<int, bool> b_magnetism_map;
+    // std::map<int, bool> b_magnetism_map;
+    std::array<bool, Magneto::n_leg> b_foot_magnetism_on;
+
 
     // double alfoot_magnetism_on; // 0~1
     // double blfoot_magnetism_on; // 0~1
@@ -106,7 +107,7 @@ class MagnetoInterface : public EnvInterface {
     double prev_planning_moment_;
     int check_com_planner_updated;
     int check_foot_planner_updated;
-    int run_mode_;
+
 
    public:
     MagnetoInterface();
@@ -118,18 +119,6 @@ class MagnetoInterface : public EnvInterface {
                             Eigen::VectorXd& qddot,
                             Eigen::VectorXd& Fc);
 
-
-
-    int getRunMode() {return run_mode_;}
-
-    void StaticWalk(const int& _moving_foot,
-                    const Eigen::Vector3d& _pos, 
-                    const Eigen::Quaternion<double>& _ori, 
-                    const double& _motion_period,
-                    const double& _swing_height,
-                    bool _is_bodyframe );
-    void AddScriptWalkMotion(int _link_idx, 
-                            const MOTION_DATA& _motion_data);
     
     void GetCoMTrajectory(std::vector<Eigen::VectorXd>& com_des_list);
     void GetContactSequence(std::vector<Eigen::Isometry3d>& foot_target_list);

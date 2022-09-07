@@ -84,7 +84,6 @@ class MagnetoRosNode : public dart::gui::osg::WorldNode {
     void UpdateContactWrenchData_();
 
     void SetParams_();
-    void ReadMotions_();
     void PlotResult_();
     void PlotFootStepResult_();
     void CheckInterrupt_();
@@ -114,21 +113,18 @@ class MagnetoRosNode : public dart::gui::osg::WorldNode {
     double kd_;
     double torque_limit_;
 
-    int run_mode_;
-
     double magnetic_force_; // 147. #[N] 
     double residual_magnetism_; //  3.0 #[%]
 
 
     float contact_threshold_;
-    std::map<int, double> contact_distance_;
+    std::array<double, Magneto::n_leg> contact_distance_;
 
     Eigen::VectorXd trq_lb_;
     Eigen::VectorXd trq_ub_;
 
     bool b_plot_result_;
 
-    std::string motion_file_name_;
 
 
 

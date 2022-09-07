@@ -1,3 +1,11 @@
 #test_name: balance_test
-test_name: static_walking_test
+# test_name: static_walking_test
 #test_name: three_foot_balance_test
+
+
+# motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square0.yaml
+motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square60.yaml
+# motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square120.yaml
+# motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square180.yaml
+# motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square240.yaml
+# motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square300.yaml

@@ -60,11 +60,13 @@ void MagnetoMainController::_PreProcessing_Command() {
   // my_utils::pretty_print(wbmc_param_->F_magnetic_, std::cout, "F_magnetic_");
 
   // Update task and contact list pointers from container object
-  for (int i = 0; i < taf_container_->task_list_.size(); i++) {
-    task_list_.push_back(taf_container_->task_list_[i]);
+  for (int i = 0; i < MAGNETO_TASK::n_task; i++) {
+    if(taf_container_->b_task_list_[i])
+      task_list_.push_back(taf_container_->task_container_[i]);
   }
-  for (int i = 0; i < taf_container_->contact_list_.size(); i++) {
-    contact_list_.push_back(taf_container_->contact_list_[i]);
+  for (int i = 0; i < Magneto::n_leg; i++) {
+    if(taf_container_->b_feet_contact_list_[i])
+    contact_list_.push_back(taf_container_->contact_container_[i]);
   }
 
   // std::cout<<" task size = " << task_list_.size() << std::endl;
@@ -124,13 +126,11 @@ void MagnetoMainController::getCommand(void* _cmd) {
       ((MagnetoCommand*)_cmd)->qdot[i] = jvel_des_[i];
   }
 
-  // ((MagnetoCommand*)_cmd)->alfoot_magnetism_on = taf_container_->alfoot_magnetism_on_;
-  // ((MagnetoCommand*)_cmd)->blfoot_magnetism_on = taf_container_->blfoot_magnetism_on_;
-  // ((MagnetoCommand*)_cmd)->arfoot_magnetism_on = taf_container_->arfoot_magnetism_on_;
-  // ((MagnetoCommand*)_cmd)->brfoot_magnetism_on = taf_container_->brfoot_magnetism_on_;
+  for (int foot_idx = 0; foot_idx < Magneto::n_leg; ++foot_idx) {
+    ((MagnetoCommand*)_cmd)->b_foot_magnetism_on[foot_idx]
+      = taf_container_->b_magnetism_list_[foot_idx];
+  }
   
-  ((MagnetoCommand*)_cmd)->b_magnetism_map = taf_container_->b_magnetism_map_;
-
 
   // _PostProcessing_Command(); // unset task and contact
 

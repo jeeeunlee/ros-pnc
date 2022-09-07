@@ -7,8 +7,8 @@
 
 class MotionCommand;
 
-typedef int TARGET_LINK_IDX;
-// typedef std::deque<MotionCommand*> MotionCommandDeque;
+typedef int TARGET_IDX;
+
 
 struct POSE_DATA {
     Eigen::Vector3d pos;
@@ -76,26 +76,26 @@ struct MOTION_DATA {
 class MotionCommand{
 public:
     MotionCommand();
-    MotionCommand(int _moving_link_id,
+    MotionCommand(TARGET_IDX _foot_idx,
                 const MOTION_DATA& _motion_data);
     ~MotionCommand(){};
 
     // function
-    void add_foot_motion(int _moving_foot_link_id,
+    void add_foot_motion(TARGET_IDX _foot_idx,
                         const POSE_DATA& _pose_del,
                         double _motion_period);
     void add_com_motion(const POSE_DATA& _pose_del,
                         double _motion_period);
-    void add_motion(int _moving_link_id,
+    void add_motion(TARGET_IDX _foot_idx,
                     const MOTION_DATA& _pose_del);
 
     void clear_motion();
-    void clear_and_add_motion(int _moving_link_id,
+    void clear_and_add_motion(TARGET_IDX _foot_idx,
                     const MOTION_DATA& _motion_data);
     
 
     int get_moving_foot();
-    bool get_foot_motion_command(MOTION_DATA &_motion_data, TARGET_LINK_IDX &_idx) ;
+    bool get_foot_motion_command(MOTION_DATA &_motion_data, TARGET_IDX &_idx) ;
     bool get_foot_motion_command(MOTION_DATA &_motion_data);
     bool get_com_motion_command(MOTION_DATA &_motion_data);
 
@@ -106,5 +106,5 @@ public:
 private:  
     // link_idx, assume IDX of COM is -1
     // just in case a robot should swing more than two legs at the same time.
-    std::map<TARGET_LINK_IDX, MOTION_DATA> motion_sets_;
+    std::map<TARGET_IDX, MOTION_DATA> motion_sets_;
 };

@@ -18,6 +18,7 @@ class FootPosTrajectoryManager : public TrajectoryManagerBase {
   void paramInitialization(const YAML::Node& node){};
 
   int link_idx_;
+  int foot_idx_;
   
   Eigen::VectorXd foot_pos_ini_;
   Eigen::MatrixXd foot_rot_ini_; // R_wb

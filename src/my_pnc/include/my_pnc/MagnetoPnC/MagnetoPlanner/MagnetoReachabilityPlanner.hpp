@@ -152,11 +152,8 @@ class MagnetoReachabilityPlanner {
       RobotSystem* robot_;
       RobotSystem* robot_planner_;
 
-      ContactSpec* alfoot_contact_;
-      ContactSpec* blfoot_contact_;
-      ContactSpec* arfoot_contact_;
-      ContactSpec* brfoot_contact_;
-      std::vector<ContactSpec*> full_contact_list_;
+
+      std::array<ContactSpec*, Magneto::n_leg > foot_contact_list_;
 
       // contact state -> qp solver under contact condition     
       MagnetoReachabilityContact* full_contact_state_;

@@ -6,6 +6,28 @@
 #include <my_wbc/Contact/BodyFrameContactSpec.hpp>
 #include <my_pnc/MagnetoPnC/MagnetoTask/TaskSet.hpp>
 
+namespace MAGNETO_TASK {
+// in priority
+constexpr int COM = 0;
+constexpr int BASE_ORI = 1;
+
+constexpr int AL_POS = 2;
+constexpr int AR_POS = 3;
+constexpr int BL_POS = 4;
+constexpr int BR_POS = 5;
+constexpr int CL_POS = 6;
+constexpr int CR_POS = 7;
+
+constexpr int AL_ORI = 8;
+constexpr int AR_ORI = 9;
+constexpr int BL_ORI = 10;
+constexpr int BR_ORI = 11;
+constexpr int CL_ORI = 12;
+constexpr int CR_ORI = 13;
+
+constexpr int JOINT_TASK = 14;
+constexpr int n_task = 15;
+}; //namespace MAGNETO_TASK 
 
 // Object which publicly contains all the tasks, contacts and reaction forces
 class MagnetoTaskAndForceContainer : public TaskAndForceContainer {
@@ -21,25 +43,21 @@ class MagnetoTaskAndForceContainer : public TaskAndForceContainer {
   //    set functions
   // -------------------------------------------------------
   // magnetism
-  void set_magnetism(int moving_cop);
-  void set_contact_magnetic_force(int moving_cop);
-  void set_residual_magnetic_force(int moving_cop, double contact_distance=0.0);
+  void set_magnetism(int moving_foot_idx);
+  void set_contact_magnetic_force(int moving_foot_idx);
+  void set_residual_magnetic_force(int moving_foot_idx, double contact_distance=0.0);
   // contact
-  void set_contact_list(int moving_cop);
+  void set_contact_list(int moving_foot_idx);
   // contact spec
-  void set_maxfz_contact(int moving_cop);
-  void set_maxfz_contact(int moving_cop,
+  void set_maxfz_contact(int moving_foot_idx);
+  void set_maxfz_contact(int moving_foot_idx,
                         double max_rfz_cntct,
                         double max_rfz_nocntct);
-  void compute_weight_param(int moving_cop,
+  void compute_weight_param(int moving_foot_idx,
                             const Eigen::VectorXd &W_contact,
                             const Eigen::VectorXd &W_nocontact,
                             Eigen::VectorXd &W_result);
-  // task
-  void clear_task_list();
-  void add_task_list(Task* task);
-  Task* get_foot_pos_task(int moving_cop);
-  Task* get_foot_ori_task(int moving_cop);
+
 
  protected:
   void _InitializeTasks();
@@ -52,28 +70,22 @@ class MagnetoTaskAndForceContainer : public TaskAndForceContainer {
   // -------------------------------------------------------
   // Task Member variables
   // -------------------------------------------------------
-  Task* com_task_;
-  Task* joint_task_;
-  Task* base_ori_task_;
+  std::array<bool, MAGNETO_TASK::n_task> b_task_list_;
+  std::array<Task*, MAGNETO_TASK::n_task> task_container_;
 
-  Task* alfoot_pos_task_;
-  Task* arfoot_pos_task_;
-  Task* blfoot_pos_task_;
-  Task* brfoot_pos_task_;
-
-  Task* alfoot_ori_task_;
-  Task* arfoot_ori_task_;
-  Task* blfoot_ori_task_;
-  Task* brfoot_ori_task_;
+  // task
+  void clear_task_list();
+  void delete_task_list(int task_id){ b_task_list_[task_id] = false; }
+  void add_task_list(int task_id){ b_task_list_[task_id] = true; }
+  void check_task_list();
+  Task* get_foot_pos_task(int foot_idx);
+  Task* get_foot_ori_task(int foot_idx);
 
   // -------------------------------------------------------
   // Contact Member variables
   // -------------------------------------------------------
-  ContactSpec* alfoot_contact_;
-  ContactSpec* arfoot_contact_;
-  ContactSpec* blfoot_contact_;
-  ContactSpec* brfoot_contact_;
-  std::vector<ContactSpec*> full_contact_list_;
+  std::array<bool, Magneto::n_leg> b_feet_contact_list_;
+  std::array<ContactSpec*, Magneto::n_leg> contact_container_;
   int dim_contact_;
   int full_dim_contact_;
 
@@ -82,7 +94,7 @@ class MagnetoTaskAndForceContainer : public TaskAndForceContainer {
   // -------------------------------------------------------
   // Magnetic
   // -------------------------------------------------------
-  std::map<int, bool> b_magnetism_map_;
+  std::array<bool, Magneto::n_leg> b_magnetism_list_;
   Eigen::VectorXd F_magnetic_;
   
   Eigen::VectorXd F_residual_;

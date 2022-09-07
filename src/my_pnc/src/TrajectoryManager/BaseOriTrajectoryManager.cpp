@@ -1,8 +1,9 @@
 #include <my_pnc/TrajectoryManager/BaseOriTrajectoryManager.hpp>
 
-BaseOriTrajectoryManager::BaseOriTrajectoryManager(RobotSystem* _robot)
+BaseOriTrajectoryManager::BaseOriTrajectoryManager(RobotSystem* _robot, Task* _task)
                         : TrajectoryManagerBase(_robot) {
   my_utils::pretty_constructor(2, "TrajectoryManager: Base Ori");
+  base_ori_task_ = _task;
 
   
   base_pos_ini_ = Eigen::VectorXd::Zero(4);
@@ -18,10 +19,9 @@ BaseOriTrajectoryManager::BaseOriTrajectoryManager(RobotSystem* _robot)
 
 BaseOriTrajectoryManager::~BaseOriTrajectoryManager() {}
 
-void BaseOriTrajectoryManager::updateTask(const double& current_time, 
-                                          Task* _base_ori_task) {
+void BaseOriTrajectoryManager::updateTask(const double& current_time) {
   updateBaseOriTrajectory(current_time);
-  _base_ori_task->updateTask(base_ori_pos_des_, 
+  base_ori_task_->updateTask(base_ori_pos_des_, 
                             base_ori_vel_des_, 
                             base_ori_acc_des_);
 }

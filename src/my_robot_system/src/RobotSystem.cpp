@@ -24,6 +24,9 @@ RobotSystem::RobotSystem(int numVirtual_, std::string file) {
     A_cent_ = Eigen::MatrixXd::Zero(6, num_dof_);
     
     setActuatedJoint();
+    // setRobotMass();
+    // printRobotInfo();
+    // std::cout<<"I'm here "<<std::endl;
 }
 
 RobotSystem::~RobotSystem() {}
