@@ -40,11 +40,11 @@ void displayLinkFrames(const dart::simulation::WorldPtr& world,
     // -- DISPLAY CERTAIN LINKS
     std::vector<std::string> LinkNametoDisplay;
     LinkNametoDisplay.clear();
-    LinkNametoDisplay.push_back("AL_foot_link");
-    // LinkNametoDisplay.push_back("AR_foot_link");
-    // LinkNametoDisplay.push_back("BL_foot_link");
-    // LinkNametoDisplay.push_back("BR_foot_link");
     LinkNametoDisplay.push_back("base_link");
+    LinkNametoDisplay.push_back(MagnetoFoot::Names[0] + "_foot_link");
+    // LinkNametoDisplay.push_back(MagnetoFoot::Names[1] + "_foot_link");
+    // LinkNametoDisplay.push_back(MagnetoFoot::Names[2] + "_foot_link");
+    // LinkNametoDisplay.push_back(MagnetoFoot::Names[3] + "_foot_link");
 
     for(int i=0; i<LinkNametoDisplay.size(); i++) {
         dart::dynamics::BodyNode* bn = robot->getBodyNode(LinkNametoDisplay[i]);
@@ -156,36 +156,28 @@ void _setInitialConfiguration(dart::dynamics::SkeletonPtr robot,
     q.setZero();
     q.segment(0,6) = base_link_init.head(6);   
 
-    q[MagnetoDoF::AL_coxa_joint] = coxa_joint_init; 
-    q[MagnetoDoF::AL_femur_joint] = femur_joint_init;
-    q[MagnetoDoF::AL_tibia_joint] = tibia_joint_init;
+    std::string coxa("_coxa_joint");
+    std::string femur("_femur_joint");
+    std::string tibia("_tibia_joint");
+    std::string foot1("_foot_joint_1");
+    std::string foot2("_foot_joint_2");
+    std::string foot3("_foot_joint_3"); 
 
-    q[MagnetoDoF::AR_coxa_joint] = coxa_joint_init;  
-    q[MagnetoDoF::AR_femur_joint] = femur_joint_init;
-    q[MagnetoDoF::AR_tibia_joint] = tibia_joint_init;
+    for(int i=0; i<Magneto::n_leg; i++) {
+        q[robot->getDof(MagnetoFoot::Names[i] + coxa)->getIndexInSkeleton()] = coxa_joint_init;
+        q[robot->getDof(MagnetoFoot::Names[i] + femur)->getIndexInSkeleton()] = femur_joint_init;
+        q[robot->getDof(MagnetoFoot::Names[i] + tibia)->getIndexInSkeleton()] = tibia_joint_init;
+        q[robot->getDof(MagnetoFoot::Names[i] + foot1)->getIndexInSkeleton()] = 0.0;
+        q[robot->getDof(MagnetoFoot::Names[i] + foot2)->getIndexInSkeleton()] = 0.0;
+        q[robot->getDof(MagnetoFoot::Names[i] + foot3)->getIndexInSkeleton()] = 0.0;
+    }
 
-    q[MagnetoDoF::BL_coxa_joint] = coxa_joint_init;  
-    q[MagnetoDoF::BL_femur_joint] = femur_joint_init;
-    q[MagnetoDoF::BL_tibia_joint] = tibia_joint_init;
-
-    q[MagnetoDoF::BR_coxa_joint] = coxa_joint_init;  
-    q[MagnetoDoF::BR_femur_joint] = femur_joint_init;
-    q[MagnetoDoF::BR_tibia_joint] = tibia_joint_init;
-
-    q[MagnetoDoF::CL_coxa_joint] = coxa_joint_init;  
-    q[MagnetoDoF::CL_femur_joint] = femur_joint_init;
-    q[MagnetoDoF::CL_tibia_joint] = tibia_joint_init;
-
-    q[MagnetoDoF::CR_coxa_joint] = coxa_joint_init;  
-    q[MagnetoDoF::CR_femur_joint] = femur_joint_init;
-    q[MagnetoDoF::CR_tibia_joint] = tibia_joint_init;
-
-    q[MagnetoDoF::AL_coxa_joint] = 1./10.*M_PI_2;
-    q[MagnetoDoF::AR_coxa_joint] = 2./10.*M_PI_2;
-    q[MagnetoDoF::BL_coxa_joint] = -2./10.*M_PI_2;
-    q[MagnetoDoF::BR_coxa_joint] = -3./10.*M_PI_2;
-    q[MagnetoDoF::CL_coxa_joint] = -2./10.*M_PI_2;
-    q[MagnetoDoF::CR_coxa_joint] = 2./10.*M_PI_2;
+    // q[MagnetoDoF::AL_coxa_joint] = 1./10.*M_PI_2;
+    // q[MagnetoDoF::AR_coxa_joint] = 2./10.*M_PI_2;
+    // q[MagnetoDoF::BL_coxa_joint] = -2./10.*M_PI_2;
+    // q[MagnetoDoF::BR_coxa_joint] = -3./10.*M_PI_2;
+    // q[MagnetoDoF::CL_coxa_joint] = -2./10.*M_PI_2;
+    // q[MagnetoDoF::CR_coxa_joint] = 2./10.*M_PI_2;
 
     robot->setPositions(q);
 }
@@ -242,7 +234,7 @@ int main(int argc, char** argv) {
         ground_file);
     dart::dynamics::SkeletonPtr robot = urdfLoader.parseSkeleton(
         // THIS_COM "robot_description/Robot/Magneto/MagnetoSim_Dart.urdf");
-        THIS_COM "robot_description/Robot/Magneto/magneto_hexa.urdf");        
+        THIS_COM "robot_description/Robot/Magneto/magneto_nona.urdf");        
     world->addSkeleton(ground);
     world->addSkeleton(robot);
 
@@ -252,15 +244,15 @@ int main(int argc, char** argv) {
     double friction(coef_fric); // maximum tangential force not mu
     double restit(0.0);
     ground->getBodyNode("ground_link")->setFrictionCoeff(friction);
-    robot->getBodyNode("BL_foot_link")->setFrictionCoeff(friction);
-    robot->getBodyNode("AL_foot_link")->setFrictionCoeff(friction);
-    robot->getBodyNode("AR_foot_link")->setFrictionCoeff(friction);
-    robot->getBodyNode("BR_foot_link")->setFrictionCoeff(friction);
+    robot->getBodyNode("A1_foot_link")->setFrictionCoeff(friction);
+    robot->getBodyNode("A2_foot_link")->setFrictionCoeff(friction);
+    robot->getBodyNode("A3_foot_link")->setFrictionCoeff(friction);
+    robot->getBodyNode("A4_foot_link")->setFrictionCoeff(friction);
 
-    robot->getBodyNode("BL_foot_link_3")->setFrictionCoeff(friction);
-    robot->getBodyNode("AL_foot_link_3")->setFrictionCoeff(friction);
-    robot->getBodyNode("AR_foot_link_3")->setFrictionCoeff(friction);
-    robot->getBodyNode("BR_foot_link_3")->setFrictionCoeff(friction);
+    robot->getBodyNode("A1_foot_link_3")->setFrictionCoeff(friction);
+    robot->getBodyNode("A2_foot_link_3")->setFrictionCoeff(friction);
+    robot->getBodyNode("A3_foot_link_3")->setFrictionCoeff(friction);
+    robot->getBodyNode("A4_foot_link_3")->setFrictionCoeff(friction);
 
     Eigen::Vector3d gravity(0.0, 0.0, -9.81);
     world->setGravity(gravity);

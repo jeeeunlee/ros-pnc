@@ -20,7 +20,7 @@ MagnetoInterface::MagnetoInterface() : EnvInterface() {
 
     robot_ = new RobotSystem(Magneto::n_vdof, 
         // THIS_COM "robot_description/Robot/Magneto/MagnetoSim_Dart.urdf");
-        THIS_COM "robot_description/Robot/Magneto/magneto_hexa.urdf");   
+        THIS_COM "robot_description/Robot/Magneto/magneto_nona.urdf");   
 
     robot_->setActuatedJoint(Magneto::idx_adof);
     

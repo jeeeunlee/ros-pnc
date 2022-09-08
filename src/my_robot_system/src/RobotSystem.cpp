@@ -11,6 +11,8 @@ RobotSystem::RobotSystem(int numVirtual_, std::string file) {
 
     dart::utils::DartLoader urdfLoader;
     skel_ptr_ = urdfLoader.parseSkeleton(file);
+    // printRobotInfo();
+
     num_dof_ = skel_ptr_->getNumDofs();
     num_virtual_dof_ = numVirtual_;
     num_actuated_dof_ = num_dof_ - num_virtual_dof_;
@@ -25,7 +27,6 @@ RobotSystem::RobotSystem(int numVirtual_, std::string file) {
     
     setActuatedJoint();
     // setRobotMass();
-    // printRobotInfo();
     // std::cout<<"I'm here "<<std::endl;
 }
 

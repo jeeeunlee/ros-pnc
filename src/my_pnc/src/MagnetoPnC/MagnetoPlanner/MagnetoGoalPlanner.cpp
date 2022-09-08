@@ -24,10 +24,11 @@ MagnetoGoalPlanner::MagnetoGoalPlanner(RobotSystem* robot) {
 
     // set Constraint
     std::vector<int> foot_idx_list;
-    foot_idx_list.push_back(MagnetoBodyNode::AL_foot_link);
-    foot_idx_list.push_back(MagnetoBodyNode::BL_foot_link);
-    foot_idx_list.push_back(MagnetoBodyNode::AR_foot_link);
-    foot_idx_list.push_back(MagnetoBodyNode::BR_foot_link);
+    for(int i(0); i<Magneto::n_leg; ++i)
+    {
+      foot_idx_list.push_back(MagnetoFoot::LinkIdx[i]);
+    }
+
     _InitConstraints(foot_idx_list);
 }
 
@@ -285,57 +286,75 @@ bool MagnetoGoalPlanner::_checkJoint(int joint_idx, MagnetoJointType joint_type)
 {
   switch(joint_type){
     case MagnetoJointType::COXA:
-    if( joint_idx==MagnetoDoF::AL_coxa_joint ||
-        joint_idx==MagnetoDoF::AR_coxa_joint ||
-        joint_idx==MagnetoDoF::BL_coxa_joint ||
-        joint_idx==MagnetoDoF::BR_coxa_joint ||
-        joint_idx==MagnetoDoF::CL_coxa_joint ||
-        joint_idx==MagnetoDoF::CR_coxa_joint)
+    if( joint_idx==MagnetoDoF::A1_coxa_joint ||
+        joint_idx==MagnetoDoF::A2_coxa_joint ||
+        joint_idx==MagnetoDoF::A3_coxa_joint ||
+        joint_idx==MagnetoDoF::A4_coxa_joint ||
+        joint_idx==MagnetoDoF::A5_coxa_joint ||
+        joint_idx==MagnetoDoF::A6_coxa_joint ||
+        joint_idx==MagnetoDoF::A7_coxa_joint ||
+        joint_idx==MagnetoDoF::A8_coxa_joint ||
+        joint_idx==MagnetoDoF::A9_coxa_joint )
       return true;
     break;
     case MagnetoJointType::FEMUR:
-    if( joint_idx==MagnetoDoF::AL_femur_joint ||
-        joint_idx==MagnetoDoF::AR_femur_joint ||
-        joint_idx==MagnetoDoF::BL_femur_joint ||
-        joint_idx==MagnetoDoF::BR_femur_joint ||
-        joint_idx==MagnetoDoF::CL_femur_joint ||
-        joint_idx==MagnetoDoF::CR_femur_joint)
+    if( joint_idx==MagnetoDoF::A1_femur_joint ||
+        joint_idx==MagnetoDoF::A2_femur_joint ||
+        joint_idx==MagnetoDoF::A3_femur_joint ||
+        joint_idx==MagnetoDoF::A4_femur_joint ||
+        joint_idx==MagnetoDoF::A5_femur_joint ||
+        joint_idx==MagnetoDoF::A6_femur_joint ||
+        joint_idx==MagnetoDoF::A7_femur_joint ||
+        joint_idx==MagnetoDoF::A8_femur_joint ||
+        joint_idx==MagnetoDoF::A9_femur_joint )
       return true;
     break;
     case MagnetoJointType::TIBIA:
-    if( joint_idx==MagnetoDoF::AL_tibia_joint ||
-        joint_idx==MagnetoDoF::AR_tibia_joint ||
-        joint_idx==MagnetoDoF::BL_tibia_joint ||
-        joint_idx==MagnetoDoF::BR_tibia_joint ||
-        joint_idx==MagnetoDoF::CL_tibia_joint ||
-        joint_idx==MagnetoDoF::CR_tibia_joint)
+    if( joint_idx==MagnetoDoF::A1_tibia_joint ||
+        joint_idx==MagnetoDoF::A2_tibia_joint ||
+        joint_idx==MagnetoDoF::A3_tibia_joint ||
+        joint_idx==MagnetoDoF::A4_tibia_joint ||
+        joint_idx==MagnetoDoF::A5_tibia_joint ||
+        joint_idx==MagnetoDoF::A6_tibia_joint ||
+        joint_idx==MagnetoDoF::A7_tibia_joint ||
+        joint_idx==MagnetoDoF::A8_tibia_joint ||
+        joint_idx==MagnetoDoF::A9_tibia_joint )
       return true;
     break;
     case MagnetoJointType::FOOT1:
-    if( joint_idx==MagnetoDoF::AL_foot_joint_1 ||
-        joint_idx==MagnetoDoF::AR_foot_joint_1 ||
-        joint_idx==MagnetoDoF::BL_foot_joint_1 ||
-        joint_idx==MagnetoDoF::BR_foot_joint_1 ||
-        joint_idx==MagnetoDoF::CL_foot_joint_1 ||
-        joint_idx==MagnetoDoF::CR_foot_joint_1)
+    if( joint_idx==MagnetoDoF::A1_foot_joint_1 ||
+        joint_idx==MagnetoDoF::A2_foot_joint_1 ||
+        joint_idx==MagnetoDoF::A3_foot_joint_1 ||
+        joint_idx==MagnetoDoF::A4_foot_joint_1 ||
+        joint_idx==MagnetoDoF::A5_foot_joint_1 ||
+        joint_idx==MagnetoDoF::A6_foot_joint_1 ||
+        joint_idx==MagnetoDoF::A7_foot_joint_1 ||
+        joint_idx==MagnetoDoF::A8_foot_joint_1 ||
+        joint_idx==MagnetoDoF::A9_foot_joint_1 )
       return true;
     break;
     case MagnetoJointType::FOOT2:
-    if( joint_idx==MagnetoDoF::AL_foot_joint_2 ||
-        joint_idx==MagnetoDoF::AR_foot_joint_2 ||
-        joint_idx==MagnetoDoF::BL_foot_joint_2 ||
-        joint_idx==MagnetoDoF::BR_foot_joint_2 ||
-        joint_idx==MagnetoDoF::CL_foot_joint_2 ||
-        joint_idx==MagnetoDoF::CR_foot_joint_2)
+    if( joint_idx==MagnetoDoF::A1_foot_joint_2 ||
+        joint_idx==MagnetoDoF::A2_foot_joint_2 ||
+        joint_idx==MagnetoDoF::A3_foot_joint_2 ||
+        joint_idx==MagnetoDoF::A4_foot_joint_2 ||
+        joint_idx==MagnetoDoF::A5_foot_joint_2 ||
+        joint_idx==MagnetoDoF::A6_foot_joint_2 ||
+        joint_idx==MagnetoDoF::A7_foot_joint_2 ||
+        joint_idx==MagnetoDoF::A8_foot_joint_2 ||
+        joint_idx==MagnetoDoF::A9_foot_joint_2 )
       return true;
     break;
     case MagnetoJointType::FOOT3:
-    if( joint_idx==MagnetoDoF::AL_foot_joint_3 ||
-        joint_idx==MagnetoDoF::AR_foot_joint_3 ||
-        joint_idx==MagnetoDoF::BL_foot_joint_3 ||
-        joint_idx==MagnetoDoF::BR_foot_joint_3 ||
-        joint_idx==MagnetoDoF::CL_foot_joint_3 ||
-        joint_idx==MagnetoDoF::CR_foot_joint_3)
+    if( joint_idx==MagnetoDoF::A1_foot_joint_3 ||
+        joint_idx==MagnetoDoF::A2_foot_joint_3 ||
+        joint_idx==MagnetoDoF::A3_foot_joint_3 ||
+        joint_idx==MagnetoDoF::A4_foot_joint_3 ||
+        joint_idx==MagnetoDoF::A5_foot_joint_3 ||
+        joint_idx==MagnetoDoF::A6_foot_joint_3 ||
+        joint_idx==MagnetoDoF::A7_foot_joint_3 ||
+        joint_idx==MagnetoDoF::A8_foot_joint_3 ||
+        joint_idx==MagnetoDoF::A9_foot_joint_3 )
       return true;
     break;
   }

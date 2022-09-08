@@ -1,11 +1,11 @@
 servo_rate: 0.001 # !!this should be match with controller servo rate!!
 is_record: false
 show_joint_frame: false #false
-show_link_frame: false #false
+show_link_frame: true #false
 plot_mpc_result: false # true
 plot_result: true # true
 
-robot: robot_description/Robot/Magneto/magneto_hexa.urdf
+robot: robot_description/Robot/Magneto/magneto_nona.urdf
 
 # ground: robot_description/Ground/magneto/ground_inclined_intersection.urdf
 # mid wall
