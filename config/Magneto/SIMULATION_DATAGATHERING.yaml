@@ -5,6 +5,12 @@ show_link_frame: true #false
 plot_mpc_result: false # true
 plot_result: true # true
 
+view_eye: [-1.5, 1.5, 0.5] #[-3.5, 5.0, 2.5]
+# view_center: [-0.5, 0.5, 0.3] #[0.0, 0.5, 1.0] 
+view_center: [0.0, -0.5, 0.0]
+view_up: [0.0, 0.0, 5.0]
+
+
 robot: robot_description/Robot/Magneto/magneto_nona.urdf
 ground: robot_description/Ground/magneto/ground_inclined_intersection2.urdf
 # left wall
@@ -14,16 +20,8 @@ ground: robot_description/Ground/magneto/ground_inclined_intersection2.urdf
 # right wall
 initial_pose: [0.500000,  -1.7300,  -0.3, -1.570796, -1.0, 0.0] # x,y,z, rz,ry,rx
 
-view_eye: [-1.5, 1.5, 0.5] #[-3.5, 5.0, 2.5]
-# view_center: [-0.5, 0.5, 0.3] #[0.0, 0.5, 1.0] 
-view_center: [0.0, -0.5, 0.0]
-view_up: [0.0, 0.0, 5.0] 
+initial_rz: 0 #-40 #-80 #-120 #-160 #-200 #-240 #-280 #-320 #[deg]
 
-### ground_reversed
-# ground: robot_description/Ground/magneto/ground_reversed.urdf
-# initial_pose: [ 0.0, 0.0, -0.08, 0.0, -3.1415, 0.0 ] # x,y,z, rz,ry,rx
-
-initial_rz: -40 #-80 #-120 #-160 #-200 #-240 #-280 #-320 #[deg]
 
 control_configuration:
   kp: 20 #100 #20 #300
