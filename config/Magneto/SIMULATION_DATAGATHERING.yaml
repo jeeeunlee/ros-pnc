@@ -8,11 +8,11 @@ plot_result: true # true
 robot: robot_description/Robot/Magneto/magneto_nona.urdf
 ground: robot_description/Ground/magneto/ground_inclined_intersection2.urdf
 # left wall
-# initial_pose: [0.500000, -0.41000,  -0.339270, 1.570796, -1.0, 0.0] # x,y,z, rz,ry,rx
+# initial_pose: [0.500000, -0.4700,  -0.3, 1.570796, -1.0, 0.0] # x,y,z, rz,ry,rx
 # mid wall
-# initial_pose: [ 1.35, -1.1, -0.30, 0.0, -1.0, 0.0 ] # x,y,z, rz,ry,rx
+# initial_pose: [ 1.27, -1.1, -0.3, 0.0, -1.0, 0.0 ] # x,y,z, rz,ry,rx
 # right wall
-initial_pose: [0.500000,  -1.700000,  -0.339270, -1.570796, -1.0, 0.0] # x,y,z, rz,ry,rx
+initial_pose: [0.500000,  -1.7300,  -0.3, -1.570796, -1.0, 0.0] # x,y,z, rz,ry,rx
 
 view_eye: [-1.5, 1.5, 0.5] #[-3.5, 5.0, 2.5]
 # view_center: [-0.5, 0.5, 0.3] #[0.0, 0.5, 1.0] 

@@ -105,7 +105,9 @@ void MagnetoWorldNode::customPreStep() {
         sensor_data_->virtual_qdot[i] = qdot[Magneto::idx_vdof[i]];
     }
     // update contact_distance_
-    UpdateContactDistance_();
+    UpdateContactDistance_("ground_link");
+    UpdateContactDistance_("ground_link2");
+    UpdateContactDistance_("ground_link3");
     // update sensor_data_->b_foot_contact 
     UpdateContactSwitchData_();
     // update sensor_data_->foot_wrench
@@ -399,12 +401,13 @@ void MagnetoWorldNode::SetParams_() {
 }
 
 
-void MagnetoWorldNode::UpdateContactDistance_() {
+void MagnetoWorldNode::UpdateContactDistance_(const std::string& ground_link_name) {
     // get normal distance from the ground link frame R_ground
     // p{ground} = R_gw * p{world} 
-    Eigen::MatrixXd R_ground = ground_->getBodyNode("ground_link")
+
+    Eigen::MatrixXd R_ground = ground_->getBodyNode(ground_link_name)
                                         ->getWorldTransform().linear();
-    Eigen::VectorXd p_ground = ground_->getBodyNode("ground_link")
+    Eigen::VectorXd p_ground = ground_->getBodyNode(ground_link_name)
                                         ->getWorldTransform().translation();
 
     Eigen::MatrixXd R_gw = R_ground.transpose();
@@ -415,7 +418,18 @@ void MagnetoWorldNode::UpdateContactDistance_() {
         dist = p_gw + R_gw*robot_->getBodyNode(MagnetoFoot::LinkIdx[foot_idx])
                                 ->getWorldTransform().translation();
         contact_distance_[foot_idx]= fabs(dist[2]);
-    } 
+    }
+
+    static int check_first_distance=0;
+    
+    if(check_first_distance++ < 3){
+        my_utils::pretty_print(R_ground,std::cout,"R_ground");
+        std::cout<<"contact_distance_to "<<ground_link_name.c_str()<<"=";
+        for(auto &d : contact_distance_)
+            std::cout<<d<<", ";
+        std::cout<<std::endl;
+    }
+    
 }
 
 

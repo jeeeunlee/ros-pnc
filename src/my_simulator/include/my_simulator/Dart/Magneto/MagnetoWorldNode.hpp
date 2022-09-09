@@ -15,7 +15,7 @@ class MagnetoCommand;
 class MagnetoWorldNode : public dart::gui::osg::WorldNode {
    private:
 
-    void UpdateContactDistance_();
+    void UpdateContactDistance_(const std::string& ground_link_name);
     void UpdateContactSwitchData_();
     void UpdateContactWrenchData_();
 
