@@ -373,6 +373,7 @@ void MagnetoWorldNode::PlotFootStepResult_() {
     foot_frame->setShape(foot_shape);
     foot_frame->getVisualAspect(true)->setColor(foot_step_color);
     world_->addSimpleFrame(foot_frame);
+    std::cout<<" PlotFootStepResult_ done " << std::endl;
 }
 
 void MagnetoWorldNode::SetParams_() {
@@ -434,13 +435,15 @@ void MagnetoWorldNode::UpdateContactWrenchData_() {
     std::vector<std::pair<std::string,dart::dynamics::BodyNode*>> bn_list;
 
     bn_list.clear();
-    bn_list.push_back(std::make_pair("AL_foot_link",robot_->getBodyNode("AL_foot_link_3")));
-    bn_list.push_back(std::make_pair("BL_foot_link",robot_->getBodyNode("BL_foot_link_3")));
-    bn_list.push_back(std::make_pair("AR_foot_link",robot_->getBodyNode("AR_foot_link_3")));
-    bn_list.push_back(std::make_pair("BR_foot_link",robot_->getBodyNode("BR_foot_link_3")));
-    bn_list.push_back(std::make_pair("CL_foot_link",robot_->getBodyNode("CL_foot_link_3")));
-    bn_list.push_back(std::make_pair("CR_foot_link",robot_->getBodyNode("CR_foot_link_3")));
-
+    bn_list.push_back(std::make_pair("A1_foot_link",robot_->getBodyNode("A1_foot_link_3")));
+    bn_list.push_back(std::make_pair("A2_foot_link",robot_->getBodyNode("A2_foot_link_3")));
+    bn_list.push_back(std::make_pair("A3_foot_link",robot_->getBodyNode("A3_foot_link_3")));
+    bn_list.push_back(std::make_pair("A4_foot_link",robot_->getBodyNode("A4_foot_link_3")));
+    bn_list.push_back(std::make_pair("A5_foot_link",robot_->getBodyNode("A5_foot_link_3")));
+    bn_list.push_back(std::make_pair("A6_foot_link",robot_->getBodyNode("A6_foot_link_3")));
+    bn_list.push_back(std::make_pair("A7_foot_link",robot_->getBodyNode("A7_foot_link_3")));
+    bn_list.push_back(std::make_pair("A8_foot_link",robot_->getBodyNode("A8_foot_link_3")));
+    bn_list.push_back(std::make_pair("A9_foot_link",robot_->getBodyNode("A9_foot_link_3")));
 
     // (contact wrench)
     std::vector<Eigen::Vector6d> wrench_local_list;

@@ -36,15 +36,6 @@ class MagnetoSensorData {
     std::array<Eigen::VectorXd, Magneto::n_leg> foot_wrench;
     std::array<bool, Magneto::n_leg> b_foot_contact;
 
-    // Eigen::VectorXd alf_wrench;
-    // Eigen::VectorXd blf_wrench;
-    // Eigen::VectorXd arf_wrench;
-    // Eigen::VectorXd brf_wrench;
-    // bool alfoot_contact;
-    // bool blfoot_contact;
-    // bool arfoot_contact;
-    // bool brfoot_contact;
-
     Eigen::MatrixXd R_ground;
 };
 
@@ -59,10 +50,7 @@ class MagnetoCommand {
             b_foot_magnetism_on[foot_idx]=false;
         }
 
-        // b_magnetism_map[MagnetoBodyNode::AL_foot_link] = false;
-        // b_magnetism_map[MagnetoBodyNode::BL_foot_link] = false;
-        // b_magnetism_map[MagnetoBodyNode::AR_foot_link] = false;
-        // b_magnetism_map[MagnetoBodyNode::BR_foot_link] = false;
+
     }
     virtual ~MagnetoCommand() {}
 

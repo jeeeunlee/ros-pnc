@@ -4,8 +4,11 @@
 
 
 # motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square0.yaml
-motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square60.yaml
+motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square40.yaml
+# motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square80.yaml
 # motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square120.yaml
-# motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square180.yaml
+# motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square160.yaml
+# motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square200.yaml
 # motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square240.yaml
-# motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square300.yaml
+# motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square280.yaml
+# motion_script: config/Magneto/MOTIONS/walkset_rotate/walkset_square320.yaml

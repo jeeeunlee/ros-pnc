@@ -27,9 +27,9 @@ void MagnetoTaskAndForceContainer::_InitializeTasks() {
 
   // Set Foot Motion Tasks
   for(int i(0); i<Magneto::n_leg; ++i){
-    task_container_[MAGNETO_TASK::AL_POS+i] = 
+    task_container_[MAGNETO_TASK::A1_POS+i] = 
       new BasicTask(robot_,BasicTaskType::LINKXYZ, 3, MagnetoFoot::LinkIdx[i]);
-    task_container_[MAGNETO_TASK::AL_ORI+i]  = 
+    task_container_[MAGNETO_TASK::A1_ORI+i]  = 
       new BasicTask(robot_,BasicTaskType::LINKORI, 3, MagnetoFoot::LinkIdx[i]);
   } 
 
@@ -241,8 +241,8 @@ void MagnetoTaskAndForceContainer::check_task_list(){
 }
 
 Task* MagnetoTaskAndForceContainer::get_foot_pos_task(int foot_idx) {
-  return task_container_[MAGNETO_TASK::AL_POS + foot_idx];
+  return task_container_[MAGNETO_TASK::A1_POS + foot_idx];
 }
 Task* MagnetoTaskAndForceContainer::get_foot_ori_task(int foot_idx) {
-  return task_container_[MAGNETO_TASK::AL_ORI + foot_idx];
+  return task_container_[MAGNETO_TASK::A1_ORI + foot_idx];
 }

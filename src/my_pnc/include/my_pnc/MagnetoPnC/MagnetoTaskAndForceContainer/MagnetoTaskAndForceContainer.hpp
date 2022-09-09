@@ -11,22 +11,28 @@ namespace MAGNETO_TASK {
 constexpr int COM = 0;
 constexpr int BASE_ORI = 1;
 
-constexpr int AL_POS = 2;
-constexpr int AR_POS = 3;
-constexpr int BL_POS = 4;
-constexpr int BR_POS = 5;
-constexpr int CL_POS = 6;
-constexpr int CR_POS = 7;
+constexpr int A1_POS = 2;
+constexpr int A2_POS = 3;
+constexpr int A3_POS = 4;
+constexpr int A4_POS = 5;
+constexpr int A5_POS = 6;
+constexpr int A6_POS = 7;
+constexpr int A7_POS = 8;
+constexpr int A8_POS = 9;
+constexpr int A9_POS = 10;
 
-constexpr int AL_ORI = 8;
-constexpr int AR_ORI = 9;
-constexpr int BL_ORI = 10;
-constexpr int BR_ORI = 11;
-constexpr int CL_ORI = 12;
-constexpr int CR_ORI = 13;
+constexpr int A1_ORI = 11;
+constexpr int A2_ORI = 12;
+constexpr int A3_ORI = 13;
+constexpr int A4_ORI = 14;
+constexpr int A5_ORI = 15;
+constexpr int A6_ORI = 16;
+constexpr int A7_ORI = 17;
+constexpr int A8_ORI = 18;
+constexpr int A9_ORI = 19;
 
-constexpr int JOINT_TASK = 14;
-constexpr int n_task = 15;
+constexpr int JOINT_TASK = 20;
+constexpr int n_task = 21;
 }; //namespace MAGNETO_TASK 
 
 // Object which publicly contains all the tasks, contacts and reaction forces

@@ -55,8 +55,8 @@ void Swing::firstVisit() {
   ctrl_arch_->taf_container_->clear_task_list();
   ctrl_arch_->taf_container_->add_task_list(MAGNETO_TASK::COM);
   ctrl_arch_->taf_container_->add_task_list(MAGNETO_TASK::BASE_ORI);
-  ctrl_arch_->taf_container_->add_task_list(MAGNETO_TASK::AL_POS+moving_foot_idx_);
-  ctrl_arch_->taf_container_->add_task_list(MAGNETO_TASK::AL_ORI+moving_foot_idx_);
+  ctrl_arch_->taf_container_->add_task_list(MAGNETO_TASK::A1_POS+moving_foot_idx_);
+  ctrl_arch_->taf_container_->add_task_list(MAGNETO_TASK::A1_ORI+moving_foot_idx_);
   ctrl_arch_->taf_container_->add_task_list(MAGNETO_TASK::JOINT_TASK);
 
 

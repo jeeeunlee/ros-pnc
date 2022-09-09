@@ -16,7 +16,7 @@ MagnetoGIWCPlanner::MagnetoGIWCPlanner(RobotSystem* robot) {
 
     robot_ = robot;
     // *robot_temp_ = *robot; todo later -> copy constructor
-    robot_temp_ = new RobotSystem( 6+3*4, robot_->getFileName() );   
+    robot_temp_ = new RobotSystem( Magneto::n_vdof, robot_->getFileName() );   
  
     robot_->getActuatedJointIdx(adof_idx_);
     _buildCoMJacobian();

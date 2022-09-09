@@ -1,10 +1,10 @@
-num_motion: 24
-# foot : AL0 AR1 BL2 BR3 CL4 CR5
-#        6   12  18  24  30  36
+num_motion: 18
+# foot : A1 A2 A3  A4  A5  A6  A7  A8  A9
+#         0 40 80 120 160 200 240 280 320
 
 # [-0.1,0,0]
 motion0:
-  foot: 4 #120 #CL
+  foot: 4 #_____A5
   pos: [-0.1,0,0]
   ori: [1,0,0,0]
   duration: 0.4  
@@ -12,7 +12,7 @@ motion0:
   b_relative: true
 
 motion1:
-  foot: 2 #120 # BL
+  foot: 5 #_____A6
   pos: [-0.1,0,0]
   ori: [1,0,0,0]
   duration: 0.4
@@ -20,7 +20,7 @@ motion1:
   b_relative: true
 
 motion2:
-  foot: 5 #120 #CR
+  foot: 6 #_____A7
   pos: [-0.1,0,0]
   ori: [1,0,0,0]
   duration: 0.4
@@ -28,7 +28,7 @@ motion2:
   b_relative: true
 
 motion3:
-  foot: 0 #120 #AL
+  foot: 7 #_____A8
   pos: [-0.1,0,0]
   ori: [1,0,0,0]
   duration: 0.4
@@ -36,7 +36,7 @@ motion3:
   b_relative: true
 
 motion4:
-  foot: 3 #120 #BR
+  foot: 8 #_____A9
   pos: [-0.1,0,0]
   ori: [1,0,0,0]
   duration: 0.4
@@ -44,48 +44,51 @@ motion4:
   b_relative: true
 
 motion5:
-  foot: 1 #120 #AR
+  foot: 0 #_____A1
   pos: [-0.1,0,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.1
   b_relative: true
 
-# [0,0.1,0]
 motion6:
-  foot: 4 #120 #CL
-  pos: [0,0.1,0]
+  foot: 1 #_____A2
+  pos: [-0.1,0,0]
   ori: [1,0,0,0]
-  duration: 0.4  
+  duration: 0.4
   swing_height: 0.1
   b_relative: true
 
 motion7:
-  foot: 2 #120 # BL
-  pos: [0,0.1,0]
+  foot: 2 #_____A3
+  pos: [-0.1,0,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.1
   b_relative: true
 
 motion8:
-  foot: 5 #120 #CR
-  pos: [0,0.1,0]
+  foot: 3 #_____A4
+  pos: [-0.1,0,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.1
   b_relative: true
 
+
+###
+
+# [0,0.1,0]
 motion9:
-  foot: 0 #120 #AL
+  foot: 4 #_____A5
   pos: [0,0.1,0]
   ori: [1,0,0,0]
-  duration: 0.4
+  duration: 0.4  
   swing_height: 0.1
   b_relative: true
 
 motion10:
-  foot: 3 #120 #BR
+  foot: 5 #_____A6
   pos: [0,0.1,0]
   ori: [1,0,0,0]
   duration: 0.4
@@ -93,107 +96,58 @@ motion10:
   b_relative: true
 
 motion11:
-  foot: 1 #120 #AR
+  foot: 6 #_____A7
   pos: [0,0.1,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.1
   b_relative: true
 
-##   pos: [0.1,0,0]
 motion12:
-  foot: 4 #120 #CL
-  pos: [0.1,0,0]
+  foot: 7 #_____A8
+  pos: [0,0.1,0]
   ori: [1,0,0,0]
-  duration: 0.4  
+  duration: 0.4
   swing_height: 0.1
   b_relative: true
 
 motion13:
-  foot: 2 #120 # BL
-  pos: [0.1,0,0]
+  foot: 8 #_____A9
+  pos: [0,0.1,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.1
   b_relative: true
 
 motion14:
-  foot: 5 #120 #CR
-  pos: [0.1,0,0]
+  foot: 0 #_____A1
+  pos: [0,0.1,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.1
   b_relative: true
 
 motion15:
-  foot: 0 #120 #AL
-  pos: [0.1,0,0]
+  foot: 1 #_____A2
+  pos: [0,0.1,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.1
   b_relative: true
 
 motion16:
-  foot: 3 #120 #BR
-  pos: [0.1,0,0]
+  foot: 2 #_____A3
+  pos: [0,0.1,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.1
   b_relative: true
 
 motion17:
-  foot: 1 #120 #AR
-  pos: [0.1,0,0]
+  foot: 3 #_____A4
+  pos: [0,0.1,0]
   ori: [1,0,0,0]
   duration: 0.4
   swing_height: 0.1
   b_relative: true
 
-##[0,-0.1,0]
-motion18:
-  foot: 4 #120 #CL
-  pos: [0,-0.1,0]
-  ori: [1,0,0,0]
-  duration: 0.4  
-  swing_height: 0.1
-  b_relative: true
-
-motion19:
-  foot: 2 #120 # BL
-  pos: [0,-0.1,0]
-  ori: [1,0,0,0]
-  duration: 0.4
-  swing_height: 0.1
-  b_relative: true
-
-motion20:
-  foot: 5 #120 #CR
-  pos: [0,-0.1,0]
-  ori: [1,0,0,0]
-  duration: 0.4
-  swing_height: 0.1
-  b_relative: true
-
-motion21:
-  foot: 0 #120 #AL
-  pos: [0,-0.1,0]
-  ori: [1,0,0,0]
-  duration: 0.4
-  swing_height: 0.1
-  b_relative: true
-
-motion22:
-  foot: 3 #120 #BR
-  pos: [0,-0.1,0]
-  ori: [1,0,0,0]
-  duration: 0.4
-  swing_height: 0.1
-  b_relative: true
-
-motion23:
-  foot: 1 #120 #AR
-  pos: [0,-0.1,0]
-  ori: [1,0,0,0]
-  duration: 0.4
-  swing_height: 0.1
-  b_relative: true
