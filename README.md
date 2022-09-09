@@ -19,5 +19,10 @@ $ catkin_make -DCMAKE_BUILD_TYPE=Release
 ## Run the Code
 ```
 $ source devel/setup.bash
-$ rosrun my_simulator magneto_ros "config/Magneto/SIMULATIONWALK.yaml"
+$ rosrun my_simulator run_magneto
+```
+## generate dataset
+```
+$ mkdir experiment_data
+$ cd experiment_data && mkdir RawData
 ```
