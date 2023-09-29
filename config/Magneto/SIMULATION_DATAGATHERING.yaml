@@ -7,7 +7,7 @@ plot_result: true # true
 
 
 
-robot: robot_description/magneto_files/MagnetoSim_Dart.urdf
+robot: robot_description/Robot/magneto_files/MagnetoSim_Dart.urdf
 
 # ground: robot_description/Ground/magneto/ground_plane.urdf
 # initial_pose: [ 0.0, 0.0, 0.1, 0.0, 0.0, 0.0 ] # x,y,z, rz,ry,rx
