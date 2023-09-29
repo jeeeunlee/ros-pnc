@@ -1,0 +1,4 @@
+[submodule "robot_description/Robot/magneto_files"]
+	path = robot_description/Robot/magneto_files
+	url = git@github.com:jeeeunlee/magneto_files.git
+	branch = master

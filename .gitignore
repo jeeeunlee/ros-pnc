@@ -44,7 +44,6 @@ build
 devel
 etc
 RLData
-robot_description/Robot/Magneto
 experiment_data*
 ExperimentVideo
 

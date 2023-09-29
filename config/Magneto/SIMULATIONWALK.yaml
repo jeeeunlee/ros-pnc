@@ -5,7 +5,7 @@ show_link_frame: true #false
 plot_mpc_result: false # true
 plot_result: true # true
 
-robot: robot_description/Robot/Magneto/MagnetoSim_Dart.urdf
+robot: robot_description/magneto_files/MagnetoSim_Dart.urdf
 
 #ground: robot_description/Ground/ground_terrain.urdf
 #ground: robot_description/Ground/magneto/ground_climbing.urdf
