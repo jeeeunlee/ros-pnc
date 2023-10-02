@@ -30,6 +30,7 @@ catkin_make -DCMAKE_BUILD_TYPE=Release
 ```
 ### Run the Code
 ```
+cd /path/to/project
 source devel/setup.bash
-rosrun my_simulator magneto_ros "config/Magneto/SIMULATIONWALK.yaml"
+rosrun my_simulator run_magneto "config/Magneto/SIMULATIONWALK.yaml"
 ```
